@@ -31,11 +31,11 @@
       "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "Whole Hog Sports",
+      "url": "https://www.wholehogsports.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.wholehogsports.com/rss/headlines/",
+      "notes": "Whole Hog Sports - Powered by Hawgs Illustrated"
     },
     {
       "name": "Roll Tide Wire",
