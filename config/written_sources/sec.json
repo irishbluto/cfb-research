@@ -8,18 +8,18 @@
       "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "TideFans.com",
+      "url": "https://news.tidefans.com/",
+      "type": "fan_aggregator",
+      "rss": "https://news.tidefans.com/feed/",
+      "notes": "TideFans.com - By the Fans, For the Fans."
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Touchdown Alabama",
+      "url": "https://tdalabamamag.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://tdalabamamag.com/feed/",
+      "notes": "Touchdown Alabama is Alabama football's premier news source."
     }
   ],
     "arkansas": [
@@ -31,11 +31,11 @@
       "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "Whole Hog Sports",
+      "url": "https://www.wholehogsports.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.wholehogsports.com/rss/headlines/",
+      "notes": "Whole Hog Sports - Powered by Hawgs Illustrated"
     },
     {
       "name": "Roll Tide Wire",
