@@ -120,7 +120,9 @@ def _fetch_rss(source, days=14, max_items=5):
         summary = extract(item, 'description') or extract(item, 'summary') or extract(item, 'content')
 
         # Clean up summary — strip HTML tags
-        summary = re.sub(r'<[^>]+>', '', summary).strip()[:300]
+        # Podcasts have long descriptive show notes — capture more of them
+        max_summary = 600 if src_type == 'podcast' else 300
+        summary = re.sub(r'<[^>]+>', '', summary).strip()[:max_summary]
 
         # Parse and filter by date
         pub_dt = None
@@ -140,20 +142,17 @@ def _fetch_rss(source, days=14, max_items=5):
             continue
 
         if not title or not link:
-            continue
+            # Podcast feeds often have no <link> — fall back to enclosure url or feed url
+            if not link:
+                enclosure = re.search(r'<enclosure[^>]+url=["\']([^"\']+)["\']', item)
+                link = enclosure.group(1) if enclosure else source['url']
+            if not title:
+                continue
 
         # Clean up link — some feeds wrap it in CDATA or have extra whitespace
         link = link.strip()
         if link.startswith('//'):
             link = 'https:' + link
-
-        # Filter non-Alabama-football content from broad RSS feeds
-        if source.get('type') == 'beat_writer':
-            combined = (title + ' ' + summary).lower()
-            NON_FOOTBALL = {'nba', 'nfl draft', 'ufl', 'nhl', 'mlb', 'basketball',
-                            'baseball', 'soccer', 'golf', 'tennis', 'track'}
-            if any(term in combined for term in NON_FOOTBALL):
-                continue
 
         articles.append({
             'source':      name,
