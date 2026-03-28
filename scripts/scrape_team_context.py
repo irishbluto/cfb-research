@@ -12,8 +12,10 @@ Pages:
   scheduleoutlook.php  full schedule with lines, win%, proj W/L, SOS
 
 Usage:
-    python3 scrape_team_context.py                   # all 16 SEC teams
-    python3 scrape_team_context.py --team Alabama     # single team
+    python3 scrape_team_context.py                        # all SEC teams (default)
+    python3 scrape_team_context.py --team Alabama         # single team
+    python3 scrape_team_context.py --conference big10     # all Big Ten teams
+    python3 scrape_team_context.py --all                  # all configured teams
     python3 scrape_team_context.py --team Alabama --debug
 """
 
@@ -39,6 +41,174 @@ SEC_TEAMS = [
     ("Texas A&M Aggies",           "Texas A&M",        "texas-am"),
     ("Vanderbilt Commodores",      "Vanderbilt",       "vanderbilt"),
 ]
+
+BIG10_TEAMS = [
+    ("Illinois Fighting Illini",   "Illinois",         "illinois"),
+    ("Indiana Hoosiers",           "Indiana",          "indiana"),
+    ("Iowa Hawkeyes",              "Iowa",             "iowa"),
+    ("Maryland Terrapins",         "Maryland",         "maryland"),
+    ("Michigan Wolverines",        "Michigan",         "michigan"),
+    ("Michigan State Spartans",    "Michigan State",   "michigan-state"),
+    ("Minnesota Golden Gophers",   "Minnesota",        "minnesota"),
+    ("Nebraska Cornhuskers",       "Nebraska",         "nebraska"),
+    ("Northwestern Wildcats",      "Northwestern",     "northwestern"),
+    ("Ohio State Buckeyes",        "Ohio State",       "ohio-state"),
+    ("Oregon Ducks",               "Oregon",           "oregon"),
+    ("Penn State Nittany Lions",   "Penn State",       "penn-state"),
+    ("Purdue Boilermakers",        "Purdue",           "purdue"),
+    ("Rutgers Scarlet Knights",    "Rutgers",          "rutgers"),
+    ("UCLA Bruins",                "UCLA",             "ucla"),
+    ("USC Trojans",                "USC",              "usc"),
+    ("Washington Huskies",         "Washington",       "washington"),
+    ("Wisconsin Badgers",          "Wisconsin",        "wisconsin"),
+]
+
+ACC_TEAMS = [
+    ("Boston College Eagles",      "Boston College",   "boston-college"),
+    ("California Golden Bears",    "California",       "california"),
+    ("Clemson Tigers",             "Clemson",          "clemson"),
+    ("Duke Blue Devils",           "Duke",             "duke"),
+    ("Florida State Seminoles",    "Florida State",    "florida-state"),
+    ("Georgia Tech Yellow Jackets","Georgia Tech",     "georgia-tech"),
+    ("Louisville Cardinals",       "Louisville",       "louisville"),
+    ("Miami Hurricanes",           "Miami",            "miami"),
+    ("NC State Wolfpack",          "NC State",         "nc-state"),
+    ("North Carolina Tar Heels",   "North Carolina",   "north-carolina"),
+    ("Pittsburgh Panthers",        "Pittsburgh",       "pittsburgh"),
+    ("SMU Mustangs",               "SMU",              "smu"),
+    ("Stanford Cardinal",          "Stanford",         "stanford"),
+    ("Syracuse Orange",            "Syracuse",         "syracuse"),
+    ("Virginia Cavaliers",         "Virginia",         "virginia"),
+    ("Virginia Tech Hokies",       "Virginia Tech",    "virginia-tech"),
+    ("Wake Forest Demon Deacons",  "Wake Forest",      "wake-forest"),
+]
+
+BIG12_TEAMS = [
+    ("Arizona Wildcats",           "Arizona",          "arizona"),
+    ("Arizona State Sun Devils",   "Arizona State",    "arizona-state"),
+    ("Baylor Bears",               "Baylor",           "baylor"),
+    ("BYU Cougars",                "BYU",              "byu"),
+    ("Cincinnati Bearcats",        "Cincinnati",       "cincinnati"),
+    ("Colorado Buffaloes",         "Colorado",         "colorado"),
+    ("Houston Cougars",            "Houston",          "houston"),
+    ("Iowa State Cyclones",        "Iowa State",       "iowa-state"),
+    ("Kansas Jayhawks",            "Kansas",           "kansas"),
+    ("Kansas State Wildcats",      "Kansas State",     "kansas-state"),
+    ("Oklahoma State Cowboys",     "Oklahoma State",   "oklahoma-state"),
+    ("TCU Horned Frogs",           "TCU",              "tcu"),
+    ("Texas Tech Red Raiders",     "Texas Tech",       "texas-tech"),
+    ("UCF Knights",                "UCF",              "ucf"),
+    ("Utah Utes",                  "Utah",             "utah"),
+    ("West Virginia Mountaineers", "West Virginia",    "west-virginia"),
+]
+
+PAC12_TEAMS = [
+    ("Boise State Broncos",        "Boise State",      "boise-state"),
+    ("Colorado State Rams",        "Colorado State",   "colorado-state"),
+    ("Fresno State Bulldogs",      "Fresno State",     "fresno-state"),
+    ("Oregon State Beavers",       "Oregon State",     "oregon-state"),
+    ("San Diego State Aztecs",     "San Diego State",  "san-diego-state"),
+    ("Texas State Bobcats",        "Texas State",      "texas-state"),
+    ("Utah State Aggies",          "Utah State",       "utah-state"),
+    ("Washington State Cougars",   "Washington State", "washington-state"),
+]
+
+AAC_TEAMS = [
+    ("Army Black Knights",         "Army",             "army"),
+    ("Charlotte 49ers",            "Charlotte",        "charlotte"),
+    ("East Carolina Pirates",      "East Carolina",    "east-carolina"),
+    ("Florida Atlantic Owls",      "Florida Atlantic", "florida-atlantic"),
+    ("Memphis Tigers",             "Memphis",          "memphis"),
+    ("Navy Midshipmen",            "Navy",             "navy"),
+    ("North Texas Mean Green",     "North Texas",      "north-texas"),
+    ("Rice Owls",                  "Rice",             "rice"),
+    ("South Florida Bulls",        "South Florida",    "south-florida"),
+    ("Temple Owls",                "Temple",           "temple"),
+    ("Tulane Green Wave",          "Tulane",           "tulane"),
+    ("Tulsa Golden Hurricane",     "Tulsa",            "tulsa"),
+    ("UAB Blazers",                "UAB",              "uab"),
+    ("UTSA Roadrunners",           "UTSA",             "utsa"),
+]
+
+SBC_TEAMS = [
+    ("App State Mountaineers",     "App State",        "app-state"),
+    ("Arkansas State Red Wolves",  "Arkansas State",   "arkansas-state"),
+    ("Coastal Carolina Chanticleers", "Coastal Carolina", "coastal-carolina"),
+    ("Georgia Southern Eagles",    "Georgia Southern", "georgia-southern"),
+    ("Georgia State Panthers",     "Georgia State",    "georgia-state"),
+    ("James Madison Dukes",        "James Madison",    "james-madison"),
+    ("Louisiana Ragin' Cajuns",    "Louisiana",        "louisiana"),
+    ("Marshall Thundering Herd",   "Marshall",         "marshall"),
+    ("Old Dominion Monarchs",      "Old Dominion",     "old-dominion"),
+    ("South Alabama Jaguars",      "South Alabama",    "south-alabama"),
+    ("Southern Miss Golden Eagles","Southern Miss",    "southern-miss"),
+    ("Troy Trojans",               "Troy",             "troy"),
+    ("UL Monroe Warhawks",         "UL Monroe",        "ul-monroe"),
+]
+
+MWC_TEAMS = [
+    ("Air Force Falcons",          "Air Force",        "air-force"),
+    ("Hawai'i Rainbow Warriors",   "Hawaii",           "hawaii"),
+    ("Nevada Wolf Pack",           "Nevada",           "nevada"),
+    ("New Mexico Lobos",           "New Mexico",       "new-mexico"),
+    ("North Dakota State Bison",   "North Dakota State","north-dakota-state"),
+    ("Northern Illinois Huskies",  "Northern Illinois","northern-illinois"),
+    ("San Jose State Spartans",    "San Jose State",   "san-jose-state"),
+    ("UNLV Rebels",                "UNLV",             "unlv"),
+    ("UTEP Miners",                "UTEP",             "utep"),
+    ("Wyoming Cowboys",            "Wyoming",          "wyoming"),
+]
+
+MAC_TEAMS = [
+    ("Akron Zips",                 "Akron",            "akron"),
+    ("Ball State Cardinals",       "Ball State",       "ball-state"),
+    ("Bowling Green Falcons",      "Bowling Green",    "bowling-green"),
+    ("Buffalo Bulls",              "Buffalo",          "buffalo"),
+    ("Central Michigan Chippewas", "Central Michigan", "central-michigan"),
+    ("Eastern Michigan Eagles",    "Eastern Michigan", "eastern-michigan"),
+    ("Kent State Golden Flashes",  "Kent State",       "kent-state"),
+    ("Massachusetts Minutemen",    "Massachusetts",    "massachusetts"),
+    ("Miami (OH) RedHawks",        "Miami (OH)",       "miami-oh"),
+    ("Ohio Bobcats",               "Ohio",             "ohio"),
+    ("Sacramento State Hornets",   "Sacramento State", "sacramento-state"),
+    ("Toledo Rockets",             "Toledo",           "toledo"),
+    ("Western Michigan Broncos",   "Western Michigan", "western-michigan"),
+]
+
+CUSA_TEAMS = [
+    ("Delaware Blue Hens",             "Delaware",          "delaware"),
+    ("Florida International Golden Panthers", "FIU",        "fiu"),
+    ("Jacksonville State Gamecocks",   "Jacksonville State","jacksonville-state"),
+    ("Kennesaw State Owls",            "Kennesaw State",    "kennesaw-state"),
+    ("Liberty Flames",                 "Liberty",           "liberty"),
+    ("Louisiana Tech Bulldogs",        "Louisiana Tech",    "louisiana-tech"),
+    ("Middle Tennessee Blue Raiders",  "Middle Tennessee",  "middle-tennessee"),
+    ("Missouri State Bears",           "Missouri State",    "missouri-state"),
+    ("New Mexico State Aggies",        "New Mexico State",  "new-mexico-state"),
+    ("Sam Houston Bearkats",           "Sam Houston",       "sam-houston"),
+    ("Western Kentucky Hilltoppers",   "Western Kentucky",  "western-kentucky"),
+]
+
+FBSIND_TEAMS = [
+    ("Notre Dame Fighting Irish",  "Notre Dame",       "notre-dame"),
+    ("UConn Huskies",              "UConn",            "uconn"),
+]
+
+# Add new conferences here as you expand
+# To activate a conference: uncomment its line below AND add context/YouTube files
+CONFERENCE_TEAMS = {
+    "sec":    SEC_TEAMS,
+    "big10":  BIG10_TEAMS,
+    # "acc":    ACC_TEAMS,
+    # "big12":  BIG12_TEAMS,
+    # "pac12":  PAC12_TEAMS,
+    # "aac":    AAC_TEAMS,
+    # "sbc":    SBC_TEAMS,
+    # "mwc":    MWC_TEAMS,
+    # "mac":    MAC_TEAMS,
+    # "cusa":   CUSA_TEAMS,
+    # "fbsind": FBSIND_TEAMS,
+}
 
 BASE_URL   = "https://www.puntandrally.com"
 OUTPUT_DIR = "/cfb-research/team_context"
@@ -883,19 +1053,53 @@ def scrape_team(page, team_name, url_param, slug, debug=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--team',       default=None)
+    parser.add_argument('--team',       default=None,
+                        help='Single team name or slug e.g. "Alabama" or "alabama"')
+    parser.add_argument('--conference', default=None,
+                        help='Conference slug e.g. "sec" or "big10"')
+    parser.add_argument('--all',        action='store_true',
+                        help='Run all configured teams across all conferences')
     parser.add_argument('--debug',      action='store_true')
     parser.add_argument('--output-dir', default=OUTPUT_DIR)
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    teams = SEC_TEAMS
+    # Build flat list of all known teams for --team lookup
+    all_teams = [t for team_list in CONFERENCE_TEAMS.values() for t in team_list]
+
+    # Determine which teams to scrape
     if args.team:
-        teams = [t for t in SEC_TEAMS
+        teams = [t for t in all_teams
                  if args.team.lower() in t[0].lower() or args.team.lower() in t[2].lower()]
         if not teams:
-            print(f"ERROR: '{args.team}' not found"); sys.exit(1)
+            print(f"ERROR: '{args.team}' not found in any configured conference")
+            print(f"Known slugs: {sorted(t[2] for t in all_teams)}")
+            sys.exit(1)
+
+    elif args.conference:
+        conf = args.conference.lower()
+        if conf not in CONFERENCE_TEAMS:
+            print(f"ERROR: Unknown conference '{conf}'")
+            print(f"Known conferences: {sorted(CONFERENCE_TEAMS.keys())}")
+            sys.exit(1)
+        teams = CONFERENCE_TEAMS[conf]
+        print(f"Conference: {conf.upper()} — {len(teams)} teams")
+
+    elif args.all:
+        seen = set()
+        teams = []
+        for team_list in CONFERENCE_TEAMS.values():
+            for t in team_list:
+                if t[2] not in seen:
+                    seen.add(t[2])
+                    teams.append(t)
+        print(f"All conferences — {len(teams)} teams")
+
+    else:
+        # Default: SEC (original behaviour)
+        teams = SEC_TEAMS
+        print(f"Defaulting to SEC — {len(teams)} teams")
 
     print(f"Scraping {len(teams)} team(s) → {args.output_dir}\n")
     results = {'success': [], 'failed': []}
@@ -938,6 +1142,9 @@ def main():
     print(f"\nDone — success: {len(results['success'])}  failed: {len(results['failed'])}")
     if results['failed']:
         print(f"Failed: {', '.join(results['failed'])}")
+        print(f"\nTo retry failed teams:")
+        for slug in results['failed']:
+            print(f"  python3 scripts/scrape_team_context.py --team {slug}")
 
 if __name__ == '__main__':
     main()
