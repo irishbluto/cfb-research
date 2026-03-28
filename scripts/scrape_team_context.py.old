@@ -5,6 +5,7 @@ diagnose_tabs.py
 Dumps the raw inner HTML and inner text from Roster, Schedule, and Recruiting
 tabs on a teamprofile page so we can fix selector issues in the main scraper.
 Testing a Push
+Now Testing Pull Auto
 Usage:
     python3 diagnose_tabs.py
 
