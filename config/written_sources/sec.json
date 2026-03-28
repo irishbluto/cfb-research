@@ -24,7 +24,7 @@
   ],
     "arkansas": [
     {
-      "name": "ABest of Arkansas Sports",
+      "name": "Best of Arkansas Sports",
       "url": "https://www.bestofarkansassports.com/arkansas-football/news/",
       "type": "beat_writer",
       "rss": "https://www.bestofarkansassports.com/arkansas-football/news/feed/",
@@ -36,36 +36,29 @@
       "type": "fan_aggregator",
       "rss": "https://www.wholehogsports.com/rss/headlines/",
       "notes": "Whole Hog Sports - Powered by Hawgs Illustrated"
-    },
-    {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
-      "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
     }
   ],
     "auburn": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Auburn Observer",
+      "url": "https://www.auburnobserver.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
+      "rss": null,
       "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "AL.com — Auburn Football",
+      "url": "https://www.al.com/auburnfootball/",
+      "type": "beat_writer",
+      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/auburnfootball/",
+      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
-      "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "name": "The Auburn Express",
+      "url": "https://feeds.megaphone.fm/theauburnexpress",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/theauburnexpress",
+      "notes": "Auburn football podcast"
     }
   ],
     "florida": [
