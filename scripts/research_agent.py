@@ -10,10 +10,12 @@ Each team gets a fresh Claude session — clean context window, resumable if
 one team fails, easy to debug.
 
 Usage:
-    python3 scripts/research_agent.py                    # all 16 SEC teams
-    python3 scripts/research_agent.py --team alabama     # single team test
-    python3 scripts/research_agent.py --resume           # skip teams with recent output
-    python3 scripts/research_agent.py --dry-run          # print prompts without running
+    python3 scripts/research_agent.py                        # all 16 SEC teams (default)
+    python3 scripts/research_agent.py --team alabama         # single team
+    python3 scripts/research_agent.py --conference sec       # all teams in a conference
+    python3 scripts/research_agent.py --all                  # all configured teams
+    python3 scripts/research_agent.py --resume               # skip teams with fresh output
+    python3 scripts/research_agent.py --dry-run              # print prompts without running
 
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
@@ -38,6 +40,16 @@ SEC_TEAMS = [
     "lsu", "mississippi-state", "missouri", "oklahoma", "ole-miss",
     "south-carolina", "tennessee", "texas", "texas-am", "vanderbilt",
 ]
+
+# Conference → team slug mappings
+# Add new conferences here as you expand beyond SEC
+CONFERENCE_TEAMS = {
+    "sec": SEC_TEAMS,
+    # "big10":  BIG10_TEAMS,
+    # "acc":    ACC_TEAMS,
+    # "big12":  BIG12_TEAMS,
+    # "mwc":    MWC_TEAMS,
+}
 
 # How many days before a research file is considered stale and needs refresh
 STALE_DAYS = 7
@@ -355,26 +367,62 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
 # ---------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--team',    default=None, help='Single team slug e.g. "alabama"')
-    parser.add_argument('--resume',  action='store_true', help='Skip teams with fresh output')
-    parser.add_argument('--dry-run', action='store_true', help='Print prompts without running')
-    parser.add_argument('--debug',   action='store_true')
-    parser.add_argument('--delay',   type=int, default=10,
+    parser.add_argument('--team',       default=None,
+                        help='Single team slug e.g. "alabama"')
+    parser.add_argument('--conference', default=None,
+                        help='Conference slug e.g. "sec"')
+    parser.add_argument('--all',        action='store_true',
+                        help='Run all configured teams across all conferences')
+    parser.add_argument('--resume',     action='store_true',
+                        help='Skip teams with fresh output (< STALE_DAYS old)')
+    parser.add_argument('--dry-run',    action='store_true',
+                        help='Print prompts without running agents')
+    parser.add_argument('--debug',      action='store_true')
+    parser.add_argument('--delay',      type=int, default=10,
                         help='Seconds to wait between teams (default: 10)')
     args = parser.parse_args()
 
     log_file = setup_logging()
     logging.info(f"Research agent starting — log: {log_file}")
 
-    # Create output dir
     OUTPUT_DIR.mkdir(exist_ok=True)
 
+    # Build the flat list of all known slugs for validation
+    all_known_slugs = set(s for team_list in CONFERENCE_TEAMS.values() for s in team_list)
+
     # Determine which teams to run
-    teams = [args.team] if args.team else SEC_TEAMS
-    for t in teams:
-        if t not in SEC_TEAMS:
-            logging.error(f"Unknown team slug: {t}")
+    if args.team:
+        if args.team not in all_known_slugs:
+            logging.error(f"Unknown team slug: '{args.team}'")
+            logging.error(f"Known slugs: {sorted(all_known_slugs)}")
             sys.exit(1)
+        teams = [args.team]
+        logging.info(f"Running single team: {args.team}")
+
+    elif args.conference:
+        conf = args.conference.lower()
+        if conf not in CONFERENCE_TEAMS:
+            logging.error(f"Unknown conference: '{conf}'")
+            logging.error(f"Known conferences: {sorted(CONFERENCE_TEAMS.keys())}")
+            sys.exit(1)
+        teams = CONFERENCE_TEAMS[conf]
+        logging.info(f"Running {len(teams)} teams in {conf.upper()}")
+
+    elif args.all:
+        # Flatten all conferences, preserve order, deduplicate
+        seen = set()
+        teams = []
+        for team_list in CONFERENCE_TEAMS.values():
+            for t in team_list:
+                if t not in seen:
+                    seen.add(t)
+                    teams.append(t)
+        logging.info(f"Running all {len(teams)} configured teams")
+
+    else:
+        # Default: SEC (original behaviour — nothing breaks)
+        teams = SEC_TEAMS
+        logging.info(f"No filter specified — running all {len(teams)} SEC teams")
 
     results = {'success': [], 'skipped': [], 'failed': []}
 
