@@ -41,11 +41,17 @@ SEC_TEAMS = [
     "south-carolina", "tennessee", "texas", "texas-am", "vanderbilt",
 ]
 
+BIG10_TEAMS = [
+    "illinois", "indiana", "iowa", "maryland", "michigan", "michigan-state",
+    "minnesota", "nebraska", "northwestern", "ohio-state", "oregon",
+    "penn-state", "purdue", "rutgers", "ucla", "usc", "washington", "wisconsin",
+]
+
 # Conference → team slug mappings
 # Add new conferences here as you expand beyond SEC
 CONFERENCE_TEAMS = {
     "sec": SEC_TEAMS,
-    # "big10":  BIG10_TEAMS,
+    "big10":  BIG10_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
     # "mwc":    MWC_TEAMS,
@@ -160,6 +166,29 @@ def build_prompt(slug, context, channels):
     except Exception as e:
         youtube_block = f"YouTube: Fetcher unavailable ({e}). Skip YouTube section."
 
+    # Pre-fetch written sources via RSS (fast, structured — reduces Claude fetching)
+    written_block = ""
+    try:
+        sys.path.insert(0, str(BASE_DIR / "scripts"))
+        from written_sources_fetcher import fetch_team_articles
+        ws_result = fetch_team_articles(slug, days=14, max_per_source=5)
+        if ws_result['count'] > 0 or ws_result['direct_count'] > 0:
+            written_block = (
+                f"Written sources pre-fetched ({ws_result['count']} RSS articles"
+                f", {ws_result['direct_count']} direct URLs to fetch):\n"
+            )
+            written_block += ws_result['summary_text']
+            written_block += (
+                "\n\nFor each RSS article above: fetch the URL and read enough to extract "
+                "2-4 specific key points, assess sentiment. Skip any article that is clearly "
+                "not about the 2026 football season (e.g. recruiting classes beyond 2026, "
+                "other sports). For direct URLs: fetch the page and skim for recent football news."
+            )
+        else:
+            written_block = "Written sources: No pre-configured sources available — rely on web search in Task 3."
+    except Exception as e:
+        written_block = f"Written sources: Fetcher unavailable ({e}). Rely on web search in Task 3."
+
     # Determine research mode based on time of year
     month = datetime.now().month
     if month in (1, 2, 3):
@@ -213,15 +242,20 @@ Current focus: {mode_focus}
 
 {youtube_block}
 
-2. **Beat Writer / News Search** — Search for recent articles about {team_name} football.
-   Use searches like:
-   - "{team_name} football 2026"
-   - "{team_name} {coach} spring practice"
-   - "{team_name} football injury news"
-   - "{team_name} football depth chart"
-   Focus on articles from the last 14 days. Fetch and read the most informative ones.
+2. **Written Sources** — Articles have been pre-fetched via RSS below. For each:
+   - Fetch the URL and read enough to extract 2-4 specific key points
+   - Assess sentiment (optimistic / cautious / concerned / mixed / neutral)
+   - Skip articles clearly not about {team_name} 2026 football (other sports, recruiting classes beyond 2026)
+   - For direct URLs (no RSS): fetch the page and skim for the most recent football news items
 
-3. **Synthesis** — Based on everything you found, identify:
+{written_block}
+
+3. **Web Search Fallback** — Only if Tasks 1 and 2 leave obvious gaps, do a targeted search:
+   - Maximum 2 searches total — be specific, not broad
+   - Good examples: "{team_name} injury update March 2026", "{team_name} depth chart spring 2026"
+   - Do NOT search for things already covered by YouTube or written sources above
+
+4. **Synthesis** — Based on everything you found, identify:
    - The 3-5 most important current storylines
    - Any injury flags not already in the context
    - Overall fanbase/media sentiment
@@ -275,12 +309,11 @@ The file must be valid JSON matching this exact structure:
 - If a YouTube channel returns no recent videos, include it in youtube_findings with an empty key_points array and a note in the video_title field
 - If you cannot access a URL, note it but don't leave the field empty — use "unavailable" as the URL
 - key_storylines should be concrete and specific, not generic (not "team has questions at QB" but "Austin Mack vs Keelon Russell QB battle unresolved after spring")
-- You have a strict time budget. Do not retry failed URL fetches — if a URL 
-  doesn't load in one attempt, mark it "unavailable" and move on immediately.
-- Fetch a maximum of 3 beat writer articles total — do not keep searching for more.
-- Do not fetch more than 5 URLs total across all research tasks.
-- Write the output file as soon as you have enough data — do not wait until 
-  everything is perfect.
+- You have a strict time budget. Do not retry failed URL fetches — if a URL does not load in one attempt, mark it "unavailable" and move on immediately
+- Pre-fetched RSS articles in Task 2 are your primary written source — do not do broad web searches if those articles cover the topic
+- Maximum 2 web searches in Task 3 — only if there are clear gaps after Tasks 1 and 2
+- Write the output file as soon as you have enough data — do not wait until everything is perfect
+- Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
@@ -333,7 +366,7 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
             cmd,
             capture_output=True,
             text=True,
-            timeout=900,   # 5 minute timeout per team
+            timeout=900,   # 15 minute timeout per team
             cwd=str(BASE_DIR),
         )
         elapsed = round(time.time() - start, 1)
