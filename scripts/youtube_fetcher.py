@@ -24,10 +24,46 @@ _here = os.path.dirname(os.path.abspath(__file__))
 _env  = os.path.join(_here, '..', '.env') if os.path.basename(_here) == 'scripts' else os.path.join(_here, '.env')
 load_dotenv(_env)
 
-YOUTUBE_API_KEY   = os.environ.get('YOUTUBE_API_KEY', '')
-CHANNELS_FILE     = Path("/cfb-research/config/youtube_channels.json")
+YOUTUBE_API_KEY    = os.environ.get('YOUTUBE_API_KEY', '')
+YOUTUBE_DIR        = Path("/cfb-research/config/youtube")           # per-conference files
+CHANNELS_FILE      = Path("/cfb-research/config/youtube_channels.json")  # legacy fallback
 YOUTUBE_SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
 YOUTUBE_VIDEO_URL  = "https://www.googleapis.com/youtube/v3/videos"
+
+def _load_all_youtube_channels():
+    """
+    Load channel configs by globbing config/youtube/*.json (one file per conference).
+    Falls back to the legacy single-file youtube_channels.json if the dir is missing.
+    Returns a merged dict keyed by team slug.
+    """
+    merged = {}
+
+    if YOUTUBE_DIR.exists():
+        for conf_file in sorted(YOUTUBE_DIR.glob("*.json")):
+            try:
+                data = json.loads(conf_file.read_text())
+                for slug, channels in data.items():
+                    if slug not in merged:
+                        merged[slug] = channels
+                    else:
+                        # Merge without duplicating by channel id
+                        existing_ids = {ch.get('id') for ch in merged[slug]}
+                        for ch in channels:
+                            if ch.get('id') not in existing_ids:
+                                merged[slug].append(ch)
+            except Exception as e:
+                print(f"  Warning: could not load {conf_file.name}: {e}", file=sys.stderr)
+        if merged:
+            return merged
+
+    # Legacy fallback — single youtube_channels.json
+    if CHANNELS_FILE.exists():
+        try:
+            return json.loads(CHANNELS_FILE.read_text())
+        except Exception as e:
+            print(f"  Warning: could not load legacy channels file: {e}", file=sys.stderr)
+
+    return {}
 
 # ---------------------------------------------------------------------------
 # Core API call
@@ -176,11 +212,9 @@ def fetch_team_videos(slug, days=14, max_results=5):
     if not YOUTUBE_API_KEY:
         return {'error': 'YOUTUBE_API_KEY not set in .env', 'videos': []}
 
-    try:
-        with open(CHANNELS_FILE) as f:
-            channels = json.load(f)
-    except FileNotFoundError:
-        return {'error': f'Channels file not found: {CHANNELS_FILE}', 'videos': []}
+    channels = _load_all_youtube_channels()
+    if not channels:
+        return {'error': 'No YouTube channel configs found in config/youtube/ or config/youtube_channels.json', 'videos': []}
 
     team_channels = channels.get(slug, [])
     if not team_channels:
