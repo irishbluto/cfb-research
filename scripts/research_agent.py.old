@@ -292,9 +292,7 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
     prompt_file.write_text(prompt)
 
     cmd = [
-        CLAUDE_BIN,
-        "--print",                    # non-interactive mode
-        "--output-format", "text",
+        CLAUDE_BIN, "--dangerously-skip-permissions",
         "-p", prompt,
     ]
 

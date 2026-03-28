@@ -8,6 +8,7 @@
 .env.local
 .env.production
 config/secrets.json
+webhook.py
 
 # --- Python virtual environment ---
 venv/

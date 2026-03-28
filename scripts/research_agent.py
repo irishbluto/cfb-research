@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Paths
+# Paths - Here are the paths
 # ---------------------------------------------------------------------------
 BASE_DIR      = Path("/cfb-research")
 CONTEXT_DIR   = BASE_DIR / "team_context"
@@ -128,13 +128,25 @@ def build_prompt(slug, context, channels):
                              f"{g['opponent']} (line: {g['line']}, "
                              f"win%: {g['win_pct']}%)\n")
 
-    # Format YouTube channels
-    team_channels = channels.get(slug, [])
-    channels_block = ""
-    if team_channels:
-        channels_block = "YouTube channels to check:\n"
-        for ch in team_channels:
-            channels_block += f"  - {ch['name']} ({ch['type']}): https://www.youtube.com/channel/{ch['id']}\n"
+    # Pre-fetch YouTube videos via API (much more reliable than asking Claude to scrape)
+    youtube_block = ""
+    prefetched_videos = []
+    try:
+        sys.path.insert(0, str(BASE_DIR / "scripts"))
+        from youtube_fetcher import fetch_team_videos
+        yt_result = fetch_team_videos(slug, days=14, max_results=5)
+        if 'error' not in yt_result:
+            prefetched_videos = yt_result['videos']
+            if yt_result['count'] > 0:
+                youtube_block = f"YouTube videos found ({yt_result['count']} football-relevant in last 14 days):\n"
+                youtube_block += yt_result['summary_text']
+                youtube_block += "\n\nFor each video above: fetch the URL, watch/read enough to extract 2-4 key points, assess sentiment."
+            else:
+                youtube_block = "YouTube: No football-relevant videos found in the last 14 days across configured channels."
+        else:
+            youtube_block = f"YouTube: Could not fetch videos ({yt_result['error']}). Skip YouTube section."
+    except Exception as e:
+        youtube_block = f"YouTube: Fetcher unavailable ({e}). Skip YouTube section."
 
     # Determine research mode based on time of year
     month = datetime.now().month
@@ -182,14 +194,12 @@ Current focus: {mode_focus}
 
 ## Your Research Tasks
 
-1. **YouTube Research** — Check each channel below for videos published in the last 14 days.
-   For each relevant video found:
-   - Note the title, URL, publish date
-   - Watch/read enough to extract 2-4 key points
-   - Assess sentiment (optimistic / cautious / concerned / mixed)
-   
-{channels_block}
-   If a channel has no recent videos, note that and move on.
+1. **YouTube Research** — Videos have been pre-fetched for you below. For each football-relevant video:
+   - Fetch the URL and read/watch enough to extract 2-4 specific key points
+   - Assess sentiment (optimistic / cautious / concerned / mixed / neutral)
+   - If a video is not football-relevant (basketball, baseball, etc.) skip it entirely
+
+{youtube_block}
 
 2. **Beat Writer / News Search** — Search for recent articles about {team_name} football.
    Use searches like:
@@ -359,15 +369,6 @@ def main():
     # Create output dir
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    # Load YouTube channels
-    try:
-        with open(CHANNELS_FILE) as f:
-            channels = json.load(f)
-        logging.info(f"Loaded {sum(len(v) for v in channels.values())} YouTube channels")
-    except FileNotFoundError:
-        logging.error(f"YouTube channels file not found: {CHANNELS_FILE}")
-        sys.exit(1)
-
     # Determine which teams to run
     teams = [args.team] if args.team else SEC_TEAMS
     for t in teams:
@@ -396,7 +397,7 @@ def main():
 
         logging.info(f"[{slug}] Starting research ({i+1}/{len(teams)})")
 
-        prompt, mode = build_prompt(slug, context, channels)
+        prompt, mode = build_prompt(slug, context, {})
 
         if args.debug:
             logging.info(f"[{slug}] Mode: {mode} | Prompt length: {len(prompt)} chars")
