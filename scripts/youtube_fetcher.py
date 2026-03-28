@@ -12,7 +12,6 @@ Standalone usage (test):
 
 Also importable:
     from youtube_fetcher import fetch_team_videos
-    Testing upload
 """
 
 import os, sys, json, argparse, urllib.request, urllib.parse
