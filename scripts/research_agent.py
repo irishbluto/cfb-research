@@ -327,7 +327,7 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
             cmd,
             capture_output=True,
             text=True,
-            timeout=300,   # 5 minute timeout per team
+            timeout=600,   # 5 minute timeout per team
             cwd=str(BASE_DIR),
         )
         elapsed = round(time.time() - start, 1)
