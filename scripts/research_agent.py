@@ -275,6 +275,12 @@ The file must be valid JSON matching this exact structure:
 - If a YouTube channel returns no recent videos, include it in youtube_findings with an empty key_points array and a note in the video_title field
 - If you cannot access a URL, note it but don't leave the field empty — use "unavailable" as the URL
 - key_storylines should be concrete and specific, not generic (not "team has questions at QB" but "Austin Mack vs Keelon Russell QB battle unresolved after spring")
+- You have a strict time budget. Do not retry failed URL fetches — if a URL 
+  doesn't load in one attempt, mark it "unavailable" and move on immediately.
+- Fetch a maximum of 3 beat writer articles total — do not keep searching for more.
+- Do not fetch more than 5 URLs total across all research tasks.
+- Write the output file as soon as you have enough data — do not wait until 
+  everything is perfect.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
@@ -327,7 +333,7 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
             cmd,
             capture_output=True,
             text=True,
-            timeout=600,   # 5 minute timeout per team
+            timeout=900,   # 5 minute timeout per team
             cwd=str(BASE_DIR),
         )
         elapsed = round(time.time() - start, 1)

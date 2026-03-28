@@ -1,0 +1,199 @@
+{
+  "arizona": [
+    {
+      "id": "UCnC5KNgIso_WGVOWHz5XX1Q",
+      "name": "Locked On Illini",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCJe7KO84AF-K5NNhQtBZNiQ",
+      "name": "Illini Inquirer: Illinois on 247Sports",
+      "type": "beat_writer"
+    }
+  ],
+    "arizona-state": [
+    {
+      "id": "UCybLgKCtOU8Lw_1NX5MIzqQ",
+      "name": "The Back Home Network - Indiana Hoosiers Podcasts",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCA_n6UOPs-fEIsqURcI-eqw",
+      "name": "Locked On Hoosiers",
+      "type": "fan_analysis"
+    }
+  ],
+    "baylor": [
+    {
+      "id": "UCa93j6__VEO_HzZg3iVNfdg",
+      "name": "Iowa at The Voice of College Football",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCMiLIhpLOu8gIGmriuSdhXQ",
+      "name": "From the Hawkeye of the Storm",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCMiLIhpLOu8gIGmriuSdhXQ",
+      "name": "Locked On Hawkeyes",
+      "type": "beat_writer"
+    }
+  ],
+    "byu": [
+    {
+      "id": "UCphEgRHRrQ1OnH1ciICA3yg",
+      "name": "wayneterp",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCjI83VgHTY6WojnQlwQneww",
+      "name": "Locked On Terps",
+      "type": "beat_writer"
+    }
+  ],
+    "cincinnati": [
+    {
+      "id": "UCUKQKAB2NG3Jpd71ebcLnLg",
+      "name": "Michigan at The Voice of College Football",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCs3PSo--fdHnhUuHBuLmxDA",
+      "name": "The Wolverine: Michigan Football and Basketball",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCCDPlfAuxms3K77nSV-5vSQ",
+      "name": "Michigan Podcast",
+      "type": "beat_writer"
+    }
+  ],
+    "colorado": [
+    {
+      "id": "UC8v0M_opsE7qIAgK6ShIa9w",
+      "name": "Locked On Spartans",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UC0xVROMibRvwwWSbR6BGmKQ",
+      "name": "SpartanMag",
+      "type": "beat_writer"
+    }
+  ],
+    "houston": [
+    {
+      "id": "UCMJNDAZTlGdIT5-z4s5J41w",
+      "name": "The Pair and a Spare Podcast",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCp2Cv4bsqtecNY36flQ61eg",
+      "name": "Minnesota Gophers Football",
+      "type": "fan_analysis"
+    }
+  ],
+    "iowa-state": [
+    {
+      "id": "UCCUKcYCGAg_7e80xyJQDQoQ",
+      "name": "Corn Nation",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCPkiqdgZgS2PQE-pEZiFGwA",
+      "name": "HuskerOnline",
+      "type": "beat_writer"
+    }
+  ],
+    "kansas": [
+    {
+      "id": "UC7qmMAxnfYY1Z-bn7E07_8w",
+      "name": "Northwestern Athletics",
+      "type": "beat_writer"
+    }
+  ],
+    "kansas-state": [
+    {
+      "id": "UC2kfc69aD-JmkPNPtFqcGcQ",
+      "name": "Ohio State Football At Buckeye Huddle",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCsI4uHxapDdBNBtvzwUmGPg",
+      "name": "Ohio State Football at Buckeye Scoop",
+      "type": "beat_writer"
+    }
+  ],
+    "oklahoma-state": [
+    {
+      "id": "UCRMjZciqNYfHVMUMKAMf04w",
+      "name": "SportsChat503 (Oregon Ducks Podcast)",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCc3ZiE5asLdyQMmMU1WEC1g",
+      "name": "Locked On Ducks (Oregon)",
+      "type": "beat_writer"
+    }
+  ],
+    "tcu": [
+    {
+      "id": "UCakjKUccM03IJyrm-Blr-Lw",
+      "name": "Locked On Nittany Lions",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCFpAgv2UZ1TblYO4Q2-HoOw",
+      "name": "Lions247",
+      "type": "beat_writer"
+    }
+  ],
+    "texas-tech": [
+    {
+      "id": "UC7CWycFd7lu1xNHFBanQQSA",
+      "name": "Boiled Sports",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCZnPBYrZRDiNsuf_YRVf8mQ",
+      "name": "Purdue Boilermakers Sports & Recruiting",
+      "type": "beat_writer"
+    }
+  ],
+    "ucf": [
+    {
+      "id": "UCcTlmab8StUwvIt_JpBG87A",
+      "name": "Rutgers at The Voice of College Football",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCDwhHBEG3JWJFXzbJII1pxw",
+      "name": "The Knight Report",
+      "type": "beat_writer"
+    }
+  ],
+    "utah": [
+    {
+      "id": "UC9G77Vcf0HyATfHPmvATetQ",
+      "name": "UCLA LAFB",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCcJwUjKYaoNj_czz9LRTBgg",
+      "name": "Locked On UCLA",
+      "type": "beat_writer"
+    }
+  ],
+    "west-virginia": [
+    {
+      "id": "UCdfrFa-5fbjPe8ky3r7eOvQ",
+      "name": "Reign of Troy Radio",
+      "type": "fan_analysis"
+    },
+	{
+      "id": "UCIjxXVx7XVWHDfTDkxxnFBA-6E7lw",
+      "name": "InsideTroy",
+      "type": "beat_writer"
+    }
+  ]
+}
