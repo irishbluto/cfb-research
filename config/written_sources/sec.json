@@ -24,11 +24,11 @@
   ],
     "arkansas": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "ABest of Arkansas Sports",
+      "url": "https://www.bestofarkansassports.com/arkansas-football/news/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.bestofarkansassports.com/arkansas-football/news/feed/",
+      "notes": "the biggest and most popular independent Arkansas sports website."
     },
     {
       "name": "Whole Hog Sports",

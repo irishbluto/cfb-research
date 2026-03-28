@@ -41,11 +41,17 @@ SEC_TEAMS = [
     "south-carolina", "tennessee", "texas", "texas-am", "vanderbilt",
 ]
 
+BIG10_TEAMS = [
+    "illinois", "indiana", "iowa", "maryland", "michigan", "michigan-state",
+    "minnesota", "nebraska", "northwestern", "ohio-state", "oregon",
+    "penn-state", "purdue", "rutgers", "ucla", "usc", "washington", "wisconsin",
+]
+
 # Conference → team slug mappings
 # Add new conferences here as you expand beyond SEC
 CONFERENCE_TEAMS = {
     "sec": SEC_TEAMS,
-    # "big10":  BIG10_TEAMS,
+    "big10":  BIG10_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
     # "mwc":    MWC_TEAMS,
@@ -307,6 +313,7 @@ The file must be valid JSON matching this exact structure:
 - Pre-fetched RSS articles in Task 2 are your primary written source — do not do broad web searches if those articles cover the topic
 - Maximum 2 web searches in Task 3 — only if there are clear gaps after Tasks 1 and 2
 - Write the output file as soon as you have enough data — do not wait until everything is perfect
+- Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
