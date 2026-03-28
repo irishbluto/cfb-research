@@ -1,0 +1,61 @@
+# =============================================================================
+# Punt & Rally — CFB Research Project .gitignore
+# =============================================================================
+
+# --- Secrets & credentials (NEVER commit these) ---
+.env
+*.env
+.env.local
+.env.production
+config/secrets.json
+
+# --- Python virtual environment ---
+venv/
+env/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# --- Logs (regenerated each run) ---
+logs/
+
+# --- Debug output from diagnostic scripts ---
+debug/
+
+# --- Research output (agent-generated, changes constantly) ---
+research/
+
+# --- Playwright browser cache (large, machine-specific) ---
+/home/*/.cache/ms-playwright/
+
+# --- OS files ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# --- VSCode (optional — remove these lines if you want to share settings) ---
+.vscode/
+*.code-workspace
+
+# --- Temporary files ---
+*.tmp
+*.temp
+prompt_*.txt
+
+# =============================================================================
+# What IS committed:
+#   scripts/          — all Python scripts
+#   config/           — youtube_channels.json and other config (no secrets)
+#   team_context/     — scraped team JSON files (curated data worth versioning)
+#   .gitignore        — this file
+#   README.md         — add one when you get a chance
+# =============================================================================

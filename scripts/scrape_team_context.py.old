@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""
+diagnose_tabs.py
+----------------
+Dumps the raw inner HTML and inner text from Roster, Schedule, and Recruiting
+tabs on a teamprofile page so we can fix selector issues in the main scraper.
+
+Usage:
+    python3 diagnose_tabs.py
+
+Output files written to /cfb-research/debug/
+"""
+
+import time
+import os
+from playwright.sync_api import sync_playwright
+
+URL = "https://www.puntandrally.com/teamprofile.php?team=Alabama"
+DEBUG_DIR = "/cfb-research/debug"
+os.makedirs(DEBUG_DIR, exist_ok=True)
+
+TABS_TO_CHECK = ["Roster", "Schedule", "Recruiting"]
+
+def click_tab(page, tab_name):
+    """Try every reasonable selector to click a tab."""
+    strategies = [
+        f"li:has-text('{tab_name}')",
+        f"a:has-text('{tab_name}')",
+        f"button:has-text('{tab_name}')",
+        f".nav-link:has-text('{tab_name}')",
+        f"[role='tab']:has-text('{tab_name}')",
+    ]
+    for sel in strategies:
+        try:
+            el = page.query_selector(sel)
+            if el:
+                el.click()
+                time.sleep(1.0)
+                print(f"  Clicked '{tab_name}' via: {sel}")
+                return True
+        except Exception:
+            continue
+    print(f"  WARNING: could not click tab '{tab_name}'")
+    return False
+
+with sync_playwright() as pw:
+    browser = pw.chromium.launch(headless=True)
+    ctx = browser.new_context(
+        user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
+        viewport={'width': 1280, 'height': 900}
+    )
+    page = ctx.new_page()
+
+    print(f"Loading {URL}")
+    page.goto(URL, wait_until="domcontentloaded", timeout=30000)
+    time.sleep(2.0)
+
+    # First: dump ALL div IDs on the page so we know what's available
+    div_ids = page.evaluate("""
+        () => Array.from(document.querySelectorAll('[id]'))
+                   .map(el => el.id)
+                   .filter(id => id.length > 0)
+    """)
+    print(f"\nAll element IDs on page: {div_ids}")
+    with open(f"{DEBUG_DIR}/all_ids.txt", "w") as f:
+        f.write("\n".join(div_ids))
+    print(f"Written: {DEBUG_DIR}/all_ids.txt")
+
+    # Also dump all nav/tab link texts so we know exact tab names
+    tab_texts = page.evaluate("""
+        () => Array.from(document.querySelectorAll('a, li, button, [role=tab]'))
+                   .map(el => el.innerText.trim())
+                   .filter(t => t.length > 0 && t.length < 30)
+    """)
+    unique_tabs = list(dict.fromkeys(tab_texts))  # dedupe preserving order
+    print(f"\nAll short link/button texts: {unique_tabs[:40]}")
+
+    # Now click each problem tab and dump its content
+    for tab_name in TABS_TO_CHECK:
+        print(f"\n--- {tab_name} tab ---")
+        click_tab(page, tab_name)
+        time.sleep(0.8)
+
+        # Dump inner text of entire page body (not just one div)
+        # so we catch content regardless of div ID
+        body_text = page.inner_text("body")
+
+        # Also try to find any visible div that appeared after tab click
+        # by looking for divs with substantial content
+        all_divs = page.evaluate("""
+            () => Array.from(document.querySelectorAll('div[id]'))
+                       .filter(el => {
+                           const style = window.getComputedStyle(el);
+                           return style.display !== 'none' && el.innerText.trim().length > 100;
+                       })
+                       .map(el => ({ id: el.id, textLength: el.innerText.length }))
+        """)
+        print(f"  Visible divs with content after clicking '{tab_name}': {all_divs}")
+
+        # Write body text snapshot
+        fname = f"{DEBUG_DIR}/{tab_name.lower()}_body.txt"
+        with open(fname, "w", encoding="utf-8") as f:
+            f.write(body_text)
+        print(f"  Written full body text: {fname}")
+
+        # Also get raw HTML of the full page for selector hunting
+        html = page.content()
+        fname_html = f"{DEBUG_DIR}/{tab_name.lower()}_html.html"
+        with open(fname_html, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"  Written full HTML: {fname_html}")
+
+    browser.close()
+
+print("\nDone. Check /cfb-research/debug/ for output files.")
+print("Key files to share:")
+print("  all_ids.txt        — all div/element IDs on the page")
+print("  roster_body.txt    — text content after clicking Roster tab")
+print("  schedule_body.txt  — text content after clicking Schedule tab")
+print("  recruiting_body.txt — text content after clicking Recruiting tab")

@@ -1,0 +1,194 @@
+{
+  "alabama": [
+    {
+      "id": "UCXLM426XzspM1Ea4aXWMhhw",
+      "name": "Bama Football with Kyle Henderson",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCXovZWLiLAQwhc07L_TuHYQ",
+      "name": "Alabama Crimson Tide on AL.com",
+      "type": "beat_writer"
+    }
+  ],
+  "arkansas": [
+    {
+      "id": "UCdx-rbSRZZ2sj9dnCuOWYcw",
+      "name": "WholeHogSports",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCJnVI2r-5FbRciYKBJXO54A",
+      "name": "Locked On Razorbacks",
+      "type": "beat_writer"
+    }
+  ],
+  "auburn": [
+    {
+      "id": "UCLQ56Q8JI4YqiKe0LZjjXxw",
+      "name": "Auburn Tigers on AuburnSports",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UC2JSgw37hwXBA-4PVeVlwAg",
+      "name": "Auburn Tigers on AL.com",
+      "type": "beat_writer"
+    }
+  ],
+  "florida": [
+    {
+      "id": "UC5B_phb3hOnNUAGIRTDlwNA",
+      "name": "Gators Breakdown",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UC4uzOAHPLPqEnNpNmDUP1VA",
+      "name": "The Gator Nation Football Podcast",
+      "type": "fan_analysis"
+    }
+  ],
+  "georgia": [
+    {
+      "id": "UCBbYAIPj1Ye-U-MdTk1GrCA",
+      "name": "Locked On Bulldogs",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCx1fIh0oakoyniYnrNxgaTg",
+      "name": "DawgNation",
+      "type": "beat_writer"
+    }
+  ],
+  "kentucky": [
+    {
+      "id": "UCRVwVDKScrGAbLhNc_K8otQ",
+      "name": "Kentucky Football Nation",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCxlgPWNLi8UInV0HHhfSQCg",
+      "name": "Kentucky Sports Radio",
+      "type": "beat_writer"
+    }
+  ],
+  "lsu": [
+    {
+      "id": "UCus9BsHCIAP8zVpNPQ5q8hw",
+      "name": "LSU Tigers on TigerBait",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCOVHqEOGp-qpmt2BbWosPqw",
+      "name": "Off The Bench: LSU",
+      "type": "beat_writer"
+    }
+  ],
+  "mississippi-state": [
+    {
+      "id": "UCP_0UKjRtvOyBnqG0A4d6ig",
+      "name": "Matt Wyatt",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCnTYg0UV8eFr295iyZHrlqw",
+      "name": "Locked On Mississippi State",
+      "type": "beat_writer"
+    }
+  ],
+  "missouri": [
+    {
+      "id": "UCw3m13t8LQWNC4sZH7MWOgQ",
+      "name": "Rock M Radio",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCYPvYbmf24DhRrEJpfKph2A",
+      "name": "PowerMizzou",
+      "type": "beat_writer"
+    }
+  ],
+  "oklahoma": [
+    {
+      "id": "UCRowaHip3InOauSL5TEyVvA",
+      "name": "The Oklahoma Breakdown with Ikard and Lehman",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCw06H_pnbhILc70fm8eWuuA",
+      "name": "SoonerScoop",
+      "type": "beat_writer"
+    }
+  ],
+  "ole-miss": [
+    {
+      "id": "UCXtnqhX3Ai6_Ty69ePoRCvA",
+      "name": "Talk of Champions | Ole Miss Spirit",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCtgkbVHHpOCK2cfwT3b_Lzg",
+      "name": "Locked On Ole Miss",
+      "type": "beat_writer"
+    }
+  ],
+  "south-carolina": [
+    {
+      "id": "UCy2JRInZnmBP0cgpXmNeF5A",
+      "name": "Inside the Gamecocks",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCesGFqYmQ3_wQ5P3jE4iDUg",
+      "name": "GamecockCentral.com South Carolina Gamecocks",
+      "type": "beat_writer"
+    }
+  ],
+  "tennessee": [
+    {
+      "id": "UCljH0U0oKAYMH_b2Xomh4fA",
+      "name": "vol freak",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCH9YFd-kZe4jscnWfDyRU_Q",
+      "name": "Tennessee Football Volquest On3",
+      "type": "beat_writer"
+    }
+  ],
+  "texas": [
+    {
+      "id": "UCxBJ2uOG2ordSgq5mnkhWAA",
+      "name": "On Texas Football",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCXo44K-0gUyqj_nPcDuzspg",
+      "name": "Orangebloods",
+      "type": "beat_writer"
+    }
+  ],
+  "texas-am": [
+    {
+      "id": "UC_y7FawpG7HceoNlKF7xfkw",
+      "name": "TexAgs",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCZIWlWe9UmXC6wuD7W2Sovg",
+      "name": "Locked On Aggies",
+      "type": "beat_writer"
+    }
+  ],
+  "vanderbilt": [
+    {
+      "id": "UCMwl3IO0uHESuIL6J5RsK5g",
+      "name": "Mays Sports Media",
+      "type": "fan_analysis"
+    },
+    {
+      "id": "UCBvCKCYHsFoH1s6Oy-6E7lw",
+      "name": "Vandy247",
+      "type": "beat_writer"
+    }
+  ]
+}

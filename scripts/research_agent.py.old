@@ -1,0 +1,431 @@
+#!/usr/bin/env python3
+"""
+research_agent.py
+-----------------
+Orchestrates CFB research for all SEC teams by spawning one Claude Code
+agent session per team. Each session reads the team context file, searches
+for recent news and YouTube content, and writes a structured research JSON.
+
+Each team gets a fresh Claude session — clean context window, resumable if
+one team fails, easy to debug.
+
+Usage:
+    python3 scripts/research_agent.py                    # all 16 SEC teams
+    python3 scripts/research_agent.py --team alabama     # single team test
+    python3 scripts/research_agent.py --resume           # skip teams with recent output
+    python3 scripts/research_agent.py --dry-run          # print prompts without running
+
+Output: /cfb-research/research/{slug}_latest.json
+Logs:   /cfb-research/logs/research_{date}.log
+"""
+
+import json, os, sys, time, argparse, subprocess, logging
+from datetime import datetime
+from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+BASE_DIR      = Path("/cfb-research")
+CONTEXT_DIR   = BASE_DIR / "team_context"
+CHANNELS_FILE = BASE_DIR / "config" / "youtube_channels.json"
+OUTPUT_DIR    = BASE_DIR / "research"
+LOG_DIR       = BASE_DIR / "logs"
+CLAUDE_BIN    = "/home/joleary/.local/bin/claude"  # adjust if different
+
+SEC_TEAMS = [
+    "alabama", "arkansas", "auburn", "florida", "georgia", "kentucky",
+    "lsu", "mississippi-state", "missouri", "oklahoma", "ole-miss",
+    "south-carolina", "tennessee", "texas", "texas-am", "vanderbilt",
+]
+
+# How many days before a research file is considered stale and needs refresh
+STALE_DAYS = 7
+
+# ---------------------------------------------------------------------------
+# Logging setup
+# ---------------------------------------------------------------------------
+def setup_logging():
+    LOG_DIR.mkdir(exist_ok=True)
+    log_file = LOG_DIR / f"research_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s  %(levelname)s  %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout),
+        ]
+    )
+    return log_file
+
+# ---------------------------------------------------------------------------
+# Build the research prompt for one team
+# ---------------------------------------------------------------------------
+def build_prompt(slug, context, channels):
+    team_name   = context.get('team', slug)
+    coach       = context.get('head_coach', 'Unknown Coach')
+    power_rank  = context.get('power_rank')
+    profile     = context.get('profile_2026', '')
+    qb_note     = context.get('starting_qb_note', '')
+    team_notes  = context.get('team_notes', [])
+    inj_notes   = context.get('injury_notes', [])
+    staff_notes = context.get('staff_schedule_notes', [])
+    portal_in   = context.get('portal_in', [])
+    portal_out  = context.get('portal_out', [])
+    ret_starters = context.get('returning_starters', 'unknown')
+    oc          = context.get('offensive_coordinator', '')
+    dc          = context.get('defensive_coordinator', '')
+    oc_rank     = context.get('offensive_coordinator_rank')
+    dc_rank     = context.get('defensive_coordinator_rank')
+    schedule    = context.get('schedule_2026', [])
+    talent_rank = context.get('talent_rank')
+    portal_net  = context.get('portal_net', 0)
+    top_portals = context.get('top_portal_additions', [])
+    top_recruits = context.get('top_recruits', [])
+    four_yr     = context.get('four_yr_record', '')
+    off_rank    = context.get('offense_power_rank')
+    def_rank    = context.get('defense_power_rank')
+    adv_season  = context.get('db_enriched_at', '')
+    ppa_off     = context.get('offense_ppa_rank')
+    ppa_def     = context.get('defense_ppa_rank')
+    off_profile = context.get('offense_profile_db', context.get('offense_profile', ''))
+
+    # Format team notes for prompt
+    notes_block = ""
+    if team_notes:
+        notes_block += "Team notes (your own curated observations):\n"
+        notes_block += "\n".join(f"  - {n}" for n in team_notes) + "\n"
+    if inj_notes:
+        notes_block += "Injury notes:\n"
+        notes_block += "\n".join(f"  - {n}" for n in inj_notes) + "\n"
+    if staff_notes:
+        notes_block += "Staff/schedule notes:\n"
+        notes_block += "\n".join(f"  - {n}" for n in staff_notes) + "\n"
+
+    # Format top portal additions
+    portal_block = ""
+    if top_portals:
+        portal_block = "Top portal additions: " + ", ".join(
+            f"{p['name']} ({p['position']}, {p['stars']}★)"
+            for p in top_portals[:5]
+        )
+
+    # Format top recruits
+    recruit_block = ""
+    if top_recruits:
+        recruit_block = "Top 2026 recruits: " + ", ".join(
+            f"{r['name']} ({r['position']}, {r['stars']}★)"
+            for r in top_recruits[:5]
+        )
+
+    # Format opening schedule
+    schedule_block = ""
+    if schedule:
+        schedule_block = "Opening 2026 schedule:\n"
+        for g in schedule[:5]:
+            fav = "favored" if g.get('favorite') == team_name else "underdog"
+            schedule_block += (f"  Wk{g['week']} {g['date']} {g['location']} "
+                             f"{g['opponent']} (line: {g['line']}, "
+                             f"win%: {g['win_pct']}%)\n")
+
+    # Format YouTube channels
+    team_channels = channels.get(slug, [])
+    channels_block = ""
+    if team_channels:
+        channels_block = "YouTube channels to check:\n"
+        for ch in team_channels:
+            channels_block += f"  - {ch['name']} ({ch['type']}): https://www.youtube.com/channel/{ch['id']}\n"
+
+    # Determine research mode based on time of year
+    month = datetime.now().month
+    if month in (1, 2, 3):
+        mode = "early_offseason"
+        mode_focus = "portal activity, recruiting, coaching changes, spring practice previews"
+    elif month in (4, 5, 6):
+        mode = "spring_offseason"
+        mode_focus = "spring practice results, depth chart battles, transfer portal updates"
+    elif month in (7, 8):
+        mode = "preseason"
+        mode_focus = "fall camp, depth chart, injury news, expectations and predictions"
+    else:
+        mode = "in_season"
+        mode_focus = "injury updates, weekly game prep, performance analysis, fanbase pulse"
+
+    output_path = str(OUTPUT_DIR / f"{slug}_latest.json")
+
+    prompt = f"""You are a college football research agent for Punt & Rally (puntandrally.com), a CFB analytics site.
+
+Your task: Research {team_name} football and write a structured JSON research report.
+
+## Team Context (use this to guide what to look for)
+
+Team: {team_name}
+Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
+2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
+Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}
+PPA: Offense #{ppa_off} | Defense #{ppa_def}
+Offense Profile: {off_profile}
+Talent Rank: #{talent_rank} | 4-Year Record: {four_yr}
+2026 Profile: {profile}
+OC: {oc} (#{oc_rank}) | DC: {dc} (#{dc_rank})
+Returning Starters: {ret_starters}
+QB Situation: {qb_note}
+Portal Net: {portal_net:+d} ({len(portal_in)} in, {len(portal_out)} out)
+{portal_block}
+{recruit_block}
+
+{notes_block}
+{schedule_block}
+
+## Research Mode: {mode.upper()}
+Current focus: {mode_focus}
+
+## Your Research Tasks
+
+1. **YouTube Research** — Check each channel below for videos published in the last 14 days.
+   For each relevant video found:
+   - Note the title, URL, publish date
+   - Watch/read enough to extract 2-4 key points
+   - Assess sentiment (optimistic / cautious / concerned / mixed)
+   
+{channels_block}
+   If a channel has no recent videos, note that and move on.
+
+2. **Beat Writer / News Search** — Search for recent articles about {team_name} football.
+   Use searches like:
+   - "{team_name} football 2026"
+   - "{team_name} {coach} spring practice"
+   - "{team_name} football injury news"
+   - "{team_name} football depth chart"
+   Focus on articles from the last 14 days. Fetch and read the most informative ones.
+
+3. **Synthesis** — Based on everything you found, identify:
+   - The 3-5 most important current storylines
+   - Any injury flags not already in the context
+   - Overall fanbase/media sentiment
+   - A 2-3 sentence summary a reader could scan in 10 seconds
+
+## Output Format
+
+Write your findings to this exact file path: {output_path}
+
+The file must be valid JSON matching this exact structure:
+{{
+  "team": "{team_name}",
+  "slug": "{slug}",
+  "research_date": "{datetime.now().strftime('%Y-%m-%d')}",
+  "mode": "{mode}",
+  "youtube_findings": [
+    {{
+      "channel": "channel name",
+      "video_title": "title of video",
+      "url": "https://youtube.com/watch?v=xxx",
+      "published": "YYYY-MM-DD",
+      "key_points": ["point 1", "point 2"],
+      "sentiment": "optimistic|cautious|concerned|mixed|neutral"
+    }}
+  ],
+  "beat_coverage": [
+    {{
+      "source": "outlet name",
+      "headline": "article headline",
+      "url": "https://...",
+      "published": "YYYY-MM-DD",
+      "key_points": ["point 1", "point 2"],
+      "sentiment": "optimistic|cautious|concerned|mixed|neutral"
+    }}
+  ],
+  "key_storylines": [
+    "storyline 1",
+    "storyline 2",
+    "storyline 3"
+  ],
+  "injury_flags": [
+    "any injuries not already in context file"
+  ],
+  "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
+  "sentiment_score": 0.0,
+  "agent_summary": "2-3 sentence summary of the most important things to know about this team right now"
+}}
+
+## Important Instructions
+- sentiment_score: 0.0 = extremely negative, 0.5 = neutral, 1.0 = extremely positive
+- If a YouTube channel returns no recent videos, include it in youtube_findings with an empty key_points array and a note in the video_title field
+- If you cannot access a URL, note it but don't leave the field empty — use "unavailable" as the URL
+- key_storylines should be concrete and specific, not generic (not "team has questions at QB" but "Austin Mack vs Keelon Russell QB battle unresolved after spring")
+- Write the JSON file before finishing — do not just print it
+- The JSON must be valid — no trailing commas, no comments inside the JSON
+"""
+    return prompt, mode
+
+# ---------------------------------------------------------------------------
+# Check if output is fresh enough to skip
+# ---------------------------------------------------------------------------
+def is_fresh(slug):
+    output_file = OUTPUT_DIR / f"{slug}_latest.json"
+    if not output_file.exists():
+        return False
+    try:
+        with open(output_file) as f:
+            data = json.load(f)
+        rd = data.get('research_date', '')
+        if rd:
+            age = (datetime.now() - datetime.strptime(rd, '%Y-%m-%d')).days
+            return age < STALE_DAYS
+    except Exception:
+        pass
+    return False
+
+# ---------------------------------------------------------------------------
+# Run Claude agent for one team
+# ---------------------------------------------------------------------------
+def run_agent(slug, prompt, dry_run=False, debug=False):
+    """Spawn a Claude Code session with the research prompt."""
+    if dry_run:
+        print(f"\n{'='*60}")
+        print(f"DRY RUN — prompt for {slug}:")
+        print(prompt[:500] + "..." if len(prompt) > 500 else prompt)
+        return True
+
+    # Write prompt to a temp file so we don't hit shell escaping issues
+    prompt_file = BASE_DIR / "logs" / f"prompt_{slug}.txt"
+    prompt_file.write_text(prompt)
+
+    cmd = [
+        CLAUDE_BIN,
+        "--print",                    # non-interactive mode
+        "--output-format", "text",
+        "-p", prompt,
+    ]
+
+    if debug:
+        logging.info(f"Running: {' '.join(cmd[:3])} [prompt length: {len(prompt)}]")
+
+    start = time.time()
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300,   # 5 minute timeout per team
+            cwd=str(BASE_DIR),
+        )
+        elapsed = round(time.time() - start, 1)
+
+        if result.returncode == 0:
+            # Check if output file was actually written
+            output_file = OUTPUT_DIR / f"{slug}_latest.json"
+            if output_file.exists():
+                try:
+                    with open(output_file) as f:
+                        json.load(f)  # validate JSON
+                    logging.info(f"  ✓ {slug} — valid JSON written ({elapsed}s)")
+                    return True
+                except json.JSONDecodeError as e:
+                    logging.error(f"  ✗ {slug} — invalid JSON in output: {e}")
+                    return False
+            else:
+                logging.warning(f"  ✗ {slug} — agent ran but no output file written ({elapsed}s)")
+                if debug:
+                    logging.debug(f"  Agent stdout: {result.stdout[:500]}")
+                return False
+        else:
+            logging.error(f"  ✗ {slug} — agent exited with code {result.returncode} ({elapsed}s)")
+            if result.stderr:
+                logging.error(f"  stderr: {result.stderr[:300]}")
+            return False
+
+    except subprocess.TimeoutExpired:
+        logging.error(f"  ✗ {slug} — timed out after 300s")
+        return False
+    except Exception as e:
+        logging.error(f"  ✗ {slug} — unexpected error: {e}")
+        return False
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--team',    default=None, help='Single team slug e.g. "alabama"')
+    parser.add_argument('--resume',  action='store_true', help='Skip teams with fresh output')
+    parser.add_argument('--dry-run', action='store_true', help='Print prompts without running')
+    parser.add_argument('--debug',   action='store_true')
+    parser.add_argument('--delay',   type=int, default=10,
+                        help='Seconds to wait between teams (default: 10)')
+    args = parser.parse_args()
+
+    log_file = setup_logging()
+    logging.info(f"Research agent starting — log: {log_file}")
+
+    # Create output dir
+    OUTPUT_DIR.mkdir(exist_ok=True)
+
+    # Load YouTube channels
+    try:
+        with open(CHANNELS_FILE) as f:
+            channels = json.load(f)
+        logging.info(f"Loaded {sum(len(v) for v in channels.values())} YouTube channels")
+    except FileNotFoundError:
+        logging.error(f"YouTube channels file not found: {CHANNELS_FILE}")
+        sys.exit(1)
+
+    # Determine which teams to run
+    teams = [args.team] if args.team else SEC_TEAMS
+    for t in teams:
+        if t not in SEC_TEAMS:
+            logging.error(f"Unknown team slug: {t}")
+            sys.exit(1)
+
+    results = {'success': [], 'skipped': [], 'failed': []}
+
+    for i, slug in enumerate(teams):
+        # Load context file
+        context_file = CONTEXT_DIR / f"{slug}.json"
+        if not context_file.exists():
+            logging.warning(f"[{slug}] No context file found — skipping")
+            results['failed'].append(slug)
+            continue
+
+        with open(context_file) as f:
+            context = json.load(f)
+
+        # Skip if fresh and --resume flag set
+        if args.resume and is_fresh(slug):
+            logging.info(f"[{slug}] Output is fresh — skipping")
+            results['skipped'].append(slug)
+            continue
+
+        logging.info(f"[{slug}] Starting research ({i+1}/{len(teams)})")
+
+        prompt, mode = build_prompt(slug, context, channels)
+
+        if args.debug:
+            logging.info(f"[{slug}] Mode: {mode} | Prompt length: {len(prompt)} chars")
+
+        success = run_agent(slug, prompt, dry_run=args.dry_run, debug=args.debug)
+
+        if success:
+            results['success'].append(slug)
+        else:
+            results['failed'].append(slug)
+
+        # Delay between teams to avoid rate limiting
+        if i < len(teams) - 1 and not args.dry_run:
+            logging.info(f"  Waiting {args.delay}s before next team...")
+            time.sleep(args.delay)
+
+    # Summary
+    logging.info(f"\n{'='*50}")
+    logging.info(f"Research run complete")
+    logging.info(f"  Success: {len(results['success'])} — {results['success']}")
+    logging.info(f"  Skipped: {len(results['skipped'])} — {results['skipped']}")
+    logging.info(f"  Failed:  {len(results['failed'])} — {results['failed']}")
+
+    if results['failed']:
+        logging.info(f"\nTo retry failed teams:")
+        for slug in results['failed']:
+            logging.info(f"  python3 scripts/research_agent.py --team {slug}")
+
+if __name__ == '__main__':
+    main()
