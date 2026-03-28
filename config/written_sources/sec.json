@@ -15,11 +15,11 @@
       "notes": "Recruiting and portal tracking"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Touchdown Alabama",
+      "url": "https://tdalabamamag.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://tdalabamamag.com/feed/",
+      "notes": "Touchdown Alabama is Alabama football's premier news source."
     }
   ],
     "arkansas": [

@@ -147,6 +147,14 @@ def _fetch_rss(source, days=14, max_items=5):
         if link.startswith('//'):
             link = 'https:' + link
 
+        # Filter non-Alabama-football content from broad RSS feeds
+        if source.get('type') == 'beat_writer':
+            combined = (title + ' ' + summary).lower()
+            NON_FOOTBALL = {'nba', 'nfl draft', 'ufl', 'nhl', 'mlb', 'basketball',
+                            'baseball', 'soccer', 'golf', 'tennis', 'track'}
+            if any(term in combined for term in NON_FOOTBALL):
+                continue
+
         articles.append({
             'source':      name,
             'source_type': src_type,
