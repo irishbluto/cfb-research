@@ -173,8 +173,8 @@
       "notes": "SB Nation — Ohio State Buckeyes community"
     },
     {
-      "name": "Buckeye Scoop",
-      "url": "https://www.buckeyescoop.com/",
+      "name": "Scarlet and Game",
+      "url": "https://scarletandgame.com/",
       "type": "fan_aggregator",
       "rss": null,
       "notes": "Ohio State football insider coverage"
@@ -183,7 +183,7 @@
       "name": "Eleven Warriors",
       "url": "https://www.elevenwarriors.com/",
       "type": "beat_writer",
-      "rss": "https://www.elevenwarriors.com/feed",
+      "rss": null,
       "notes": "Independent Ohio State football coverage — very active"
     }
   ],
