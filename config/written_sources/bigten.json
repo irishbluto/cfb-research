@@ -1,0 +1,339 @@
+{
+  "illinois": [
+    {
+      "name": "The Champaign Room",
+      "url": "https://www.thechampaignroom.com/",
+      "type": "beat_writer",
+      "rss": "https://www.thechampaignroom.com/rss/index.xml",
+      "notes": "SB Nation — Illinois Fighting Illini community"
+    },
+    {
+      "name": "Illinois Guys",
+      "url": "https://illiniguys.com/category/football/",
+      "type": "fan_aggregator",
+      "rss": "https://illiniguys.com/category/football/feed/",
+      "notes": "Illinois Guys football news and recruiting"
+    }
+  ],
+  "indiana": [
+    {
+      "name": "Crimson Quarry",
+      "url": "https://www.crimsonquarry.com/",
+      "type": "beat_writer",
+      "rss": "https://www.crimsonquarry.com/rss/index.xml",
+      "notes": "SB Nation — Indiana Hoosiers community"
+    },
+    {
+      "name": "Hoosier Huddle",
+      "url": "https://hoosierhuddle.com/football/",
+      "type": "fan_aggregator",
+      "rss": "https://hoosierhuddle.com/football/rss",
+      "notes": "All IU Sports All the Time"
+    }
+  ],
+  "iowa": [
+    {
+      "name": "Black Heart Gold Pants",
+      "url": "https://www.blackheartgoldpants.com/",
+      "type": "beat_writer",
+      "rss": "https://www.blackheartgoldpants.com/rss/index.xml",
+      "notes": "SB Nation — Iowa Hawkeyes community"
+    },
+    {
+      "name": "Dear Old Gold",
+      "url": "https://dearoldgold.com/iowa-football/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Iowa Hawkeyes football news"
+    }
+  ],
+  "maryland": [
+    {
+      "name": "Testudo Times",
+      "url": "https://www.testudotimes.com/",
+      "type": "beat_writer",
+      "rss": "https://www.testudotimes.com/rss/index.xml",
+      "notes": "SB Nation — Maryland Terrapins community"
+    },
+    {
+      "name": "Inside the Black and Gold",
+      "url": "https://www.insidetheblackandgold.net/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Maryland football"
+    }
+  ],
+  "michigan": [
+    {
+      "name": "Maize n Brew",
+      "url": "https://www.maizenbrew.com/",
+      "type": "beat_writer",
+      "rss": "https://www.maizenbrew.com/rss/index.xml",
+      "notes": "SB Nation — Michigan Wolverines community"
+    },
+    {
+      "name": "GBM Wolverine - Fansided Site",
+      "url": "https://gbmwolverine.com/",
+      "type": "fan_aggregator",
+      "rss": "https://gbmwolverine.com/feed",
+      "notes": "Michigan football insider coverage"
+    },
+    {
+      "name": "Ann Arbor News — Michigan Football",
+      "url": "https://www.mlive.com/wolverines/",
+      "type": "beat_writer",
+      "rss": "https://www.mlive.com/arc/outboundfeeds/rss/category/wolverines/",
+      "notes": "MLive beat coverage of Michigan football"
+    }
+  ],
+  "michigan-state": [
+    {
+      "name": "The Only Colors",
+      "url": "https://www.theonlycolors.com/",
+      "type": "beat_writer",
+      "rss": "https://www.theonlycolors.com/rss/index.xml",
+      "notes": "SB Nation — Michigan State Spartans community"
+    },
+    {
+      "name": "MLive — Michigan State Football",
+      "url": "https://www.mlive.com/spartans/",
+      "type": "beat_writer",
+      "rss": "https://www.mlive.com/arc/outboundfeeds/rss/category/spartans/",
+      "notes": "MLive beat coverage of Michigan State football"
+    },
+    {
+      "name": "Spartan Avenue",
+      "url": "https://spartanavenue.com/",
+      "type": "beat_writer",
+      "rss": "https://spartanavenue.com/feed",
+      "notes": "Spartan Avenue coverage of Michigan State football"
+    }
+  ],
+  "minnesota": [
+    {
+      "name": "The Daily Gopher",
+      "url": "https://www.thedailygopher.com/",
+      "type": "beat_writer",
+      "rss": "https://www.thedailygopher.com/rss/index.xml",
+      "notes": "SB Nation — Minnesota Golden Gophers community"
+    },
+    {
+      "name": "Gopher Guru",
+      "url": "https://gophersguru.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Gopher Gur - Covering Minnesota Athletics"
+    }
+  ],
+  "nebraska": [
+    {
+      "name": "Corn Nation",
+      "url": "https://www.cornnation.com/",
+      "type": "beat_writer",
+      "rss": "https://www.cornnation.com/rss/index.xml",
+      "notes": "SB Nation — Nebraska Cornhuskers community"
+    },
+    {
+      "name": "Husker Online",
+      "url": "https://www.huskeronline.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Nebraska football insider coverage"
+    },
+    {
+      "name": "Omaha World-Herald — Huskers",
+      "url": "https://omaha.com/sports/huskers/football/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Primary newspaper beat for Nebraska football"
+    }
+  ],
+  "northwestern": [
+    {
+      "name": "Inside NU",
+      "url": "https://www.insidenu.com/",
+      "type": "beat_writer",
+      "rss": "https://www.insidenu.com/rss/index.xml",
+      "notes": "SB Nation — Northwestern Wildcats community"
+    },
+    {
+      "name": "Northwestern Athletics News",
+      "url": "https://nusports.com/sports/football/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Official Northwestern athletics football news"
+    }
+  ],
+  "ohio-state": [
+    {
+      "name": "Land-Grant Holy Land",
+      "url": "https://www.landgrantholyland.com/",
+      "type": "beat_writer",
+      "rss": "https://www.landgrantholyland.com/rss/index.xml",
+      "notes": "SB Nation — Ohio State Buckeyes community"
+    },
+    {
+      "name": "Buckeye Scoop",
+      "url": "https://www.buckeyescoop.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Ohio State football insider coverage"
+    },
+    {
+      "name": "Eleven Warriors",
+      "url": "https://www.elevenwarriors.com/",
+      "type": "beat_writer",
+      "rss": "https://www.elevenwarriors.com/feed",
+      "notes": "Independent Ohio State football coverage — very active"
+    }
+  ],
+  "oregon": [
+    {
+      "name": "Addicted to Quack",
+      "url": "https://www.addictedtoquack.com/",
+      "type": "beat_writer",
+      "rss": "https://www.addictedtoquack.com/rss/index.xml",
+      "notes": "SB Nation — Oregon Ducks community"
+    },
+    {
+      "name": "Duckswire",
+      "url": "https://duckswire.usatoday.com/football/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Oregon Ducks football insider coverage"
+    },
+    {
+      "name": "The Autzen Zoo — Ducks Football",
+      "url": "https://autzenzoo.com/",
+      "type": "beat_writer",
+      "rss": "https://autzenzoo.com/feed",
+      "notes": "The Autzen Zoo"
+    }
+  ],
+  "penn-state": [
+    {
+      "name": "Black Shoe Diaries",
+      "url": "https://www.blackshoediaries.com/",
+      "type": "beat_writer",
+      "rss": "https://www.blackshoediaries.com/rss/index.xml",
+      "notes": "SB Nation — Penn State Nittany Lions community"
+    },
+    {
+      "name": "Lions247",
+      "url": "https://lions247.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Penn State football insider coverage"
+    },
+    {
+      "name": "Penn Live — Penn State Football",
+      "url": "https://www.pennlive.com/pennstatefootball/",
+      "type": "beat_writer",
+      "rss": "https://www.pennlive.com/arc/outboundfeeds/rss/category/pennstatefootball/",
+      "notes": "Primary newspaper beat for Penn State football"
+    }
+  ],
+  "purdue": [
+    {
+      "name": "Hammer and Rails",
+      "url": "https://www.hammerandrails.com/",
+      "type": "beat_writer",
+      "rss": "https://www.hammerandrails.com/rss/index.xml",
+      "notes": "SB Nation — Purdue Boilermakers community"
+    }
+  ],
+  "rutgers": [
+    {
+      "name": "On the Banks",
+      "url": "https://www.onthebanks.com/",
+      "type": "beat_writer",
+      "rss": "https://www.onthebanks.com/rss/index.xml",
+      "notes": "SB Nation — Rutgers Scarlet Knights community"
+    },
+    {
+      "name": "On3 — Rutgers Football",
+      "url": "https://www.on3.com/sites/the-knight-report/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "On3 for Rutgers football"
+    }
+  ],
+  "ucla": [
+    {
+      "name": "Go Joe Bruin",
+      "url": "https://gojoebruin.com/",
+      "type": "beat_writer",
+      "rss": "https://gojoebruin.com/feed",
+      "notes": "Go Joe Bruin — UCLA Bruins community"
+    },
+    {
+      "name": "UCLA Football Wire",
+      "url": "https://uclaWire.usatoday.com/",
+      "type": "fan_aggregator",
+      "rss": "https://uclawire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — UCLA football"
+    }
+  ],
+  "usc": [
+    {
+      "name": "Reign of Troy",
+      "url": "https://www.reignoftroy.com/",
+      "type": "beat_writer",
+      "rss": "https://www.reignoftroy.com/feed",
+      "notes": "Independent USC Trojans football coverage"
+    },
+    {
+      "name": "Trojans Wire",
+      "url": "https://trojanswire.usatoday.com/",
+      "type": "fan_aggregator",
+      "rss": "https://trojanswire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — USC football"
+    },
+    {
+      "name": "Trojan Daily Blog",
+      "url": "https://trojandailyblog.com/",
+      "type": "beat_writer",
+      "rss": "https://trojandailyblog.com/feed/",
+      "notes": "Trojan Daily Blog — USC Trojans community"
+    }
+  ],
+  "washington": [
+    {
+      "name": "UW Dawg Pound",
+      "url": "https://www.uwdawgpound.com/",
+      "type": "beat_writer",
+      "rss": "https://www.uwdawgpound.com/rss/index.xml",
+      "notes": "SB Nation — Washington Huskies community"
+    },
+    {
+      "name": "Huskies Haul",
+      "url": "https://thehuskyhaul.com/",
+      "type": "fan_aggregator",
+      "rss": "https://thehuskyhaul.com/feed",
+      "notes": "The Husky Haul — Washington football"
+    }
+  ],
+  "wisconsin": [
+    {
+      "name": "Bucky's 5th Quarter",
+      "url": "https://www.buckys5thquarter.com/",
+      "type": "beat_writer",
+      "rss": "https://www.buckys5thquarter.com/rss/index.xml",
+      "notes": "SB Nation — Wisconsin Badgers community"
+    },
+    {
+      "name": "Badgers Extra",
+      "url": "https://badgerextra.com/",
+      "type": "fan_aggregator",
+      "rss": "https://badgerswire.usatoday.com/feed/",
+      "notes": "Badgers Extra  — Wisconsin football"
+    },
+    {
+      "name": "Milwaukee Journal Sentinel — Badgers",
+      "url": "https://www.jsonline.com/sports/badgers/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Primary newspaper beat for Wisconsin football"
+    }
+  ]
+}
