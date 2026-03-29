@@ -2,20 +2,25 @@
 """
 research_agent.py
 -----------------
-Orchestrates CFB research for all SEC teams by spawning one Claude Code
-agent session per team. Each session reads the team context file, searches
-for recent news and YouTube content, and writes a structured research JSON.
+Orchestrates CFB research by spawning one Claude Code agent session per team.
+Each session reads the team context file, fetches YouTube and written source
+content, and writes a structured research JSON.
 
 Each team gets a fresh Claude session — clean context window, resumable if
 one team fails, easy to debug.
 
 Usage:
-    python3 scripts/research_agent.py                        # all 16 SEC teams (default)
+    python3 scripts/research_agent.py                        # all SEC teams (default)
     python3 scripts/research_agent.py --team alabama         # single team
     python3 scripts/research_agent.py --conference sec       # all teams in a conference
-    python3 scripts/research_agent.py --all                  # all configured teams
+    python3 scripts/research_agent.py --conference big10     # Big Ten
+    python3 scripts/research_agent.py --all                  # all active conferences
     python3 scripts/research_agent.py --resume               # skip teams with fresh output
     python3 scripts/research_agent.py --dry-run              # print prompts without running
+
+Active conferences: sec, big10
+Inactive (uncomment in CONFERENCE_TEAMS to enable):
+    acc, big12, pac12, aac, sbc, mwc, mac, cusa, fbsind
 
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
@@ -47,14 +52,72 @@ BIG10_TEAMS = [
     "penn-state", "purdue", "rutgers", "ucla", "usc", "washington", "wisconsin",
 ]
 
+ACC_TEAMS = [
+    "boston-college", "california", "clemson", "duke", "florida-state",
+    "georgia-tech", "louisville", "miami", "nc-state", "north-carolina",
+    "pittsburgh", "smu", "stanford", "syracuse", "virginia", "virginia-tech",
+    "wake-forest",
+]
+
+BIG12_TEAMS = [
+    "arizona", "arizona-state", "baylor", "byu", "cincinnati", "colorado",
+    "houston", "iowa-state", "kansas", "kansas-state", "oklahoma-state",
+    "tcu", "texas-tech", "ucf", "utah", "west-virginia",
+]
+
+PAC12_TEAMS = [
+    "boise-state", "colorado-state", "fresno-state", "oregon-state",
+    "san-diego-state", "texas-state", "utah-state", "washington-state",
+]
+
+AAC_TEAMS = [
+    "army", "charlotte", "east-carolina", "florida-atlantic", "memphis",
+    "navy", "north-texas", "rice", "south-florida", "temple", "tulane",
+    "tulsa", "uab", "utsa",
+]
+
+SBC_TEAMS = [
+    "app-state", "arkansas-state", "coastal-carolina", "georgia-southern",
+    "georgia-state", "james-madison", "louisiana", "marshall", "old-dominion",
+    "south-alabama", "southern-miss", "troy", "ul-monroe",
+]
+
+MWC_TEAMS = [
+    "air-force", "hawaii", "nevada", "new-mexico", "north-dakota-state",
+    "northern-illinois", "san-jose-state", "unlv", "utep", "wyoming",
+]
+
+MAC_TEAMS = [
+    "akron", "ball-state", "bowling-green", "buffalo", "central-michigan",
+    "eastern-michigan", "kent-state", "massachusetts", "miami-oh", "ohio",
+    "sacramento-state", "toledo", "western-michigan",
+]
+
+CUSA_TEAMS = [
+    "delaware", "fiu", "jacksonville-state", "kennesaw-state", "liberty",
+    "louisiana-tech", "middle-tennessee", "missouri-state", "new-mexico-state",
+    "sam-houston", "western-kentucky",
+]
+
+FBSIND_TEAMS = [
+    "notre-dame", "uconn",
+]
+
 # Conference → team slug mappings
-# Add new conferences here as you expand beyond SEC
+# To activate a conference: uncomment its line below AND ensure context/YouTube
+# files exist for those teams before running
 CONFERENCE_TEAMS = {
-    "sec": SEC_TEAMS,
+    "sec":    SEC_TEAMS,
     "big10":  BIG10_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
+    # "pac12":  PAC12_TEAMS,
+    # "aac":    AAC_TEAMS,
+    # "sbc":    SBC_TEAMS,
     # "mwc":    MWC_TEAMS,
+    # "mac":    MAC_TEAMS,
+    # "cusa":   CUSA_TEAMS,
+    # "fbsind": FBSIND_TEAMS,
 }
 
 # How many days before a research file is considered stale and needs refresh
