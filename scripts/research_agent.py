@@ -377,7 +377,10 @@ The file must be valid JSON matching this exact structure:
   ],
   "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
-  "agent_summary": "2-3 sentence summary of the most important things to know about this team right now"
+    "agent_summary": "3-4 dense, specific sentences a CFB analyst would write. Must include: (1) the team's single most important current narrative with specific player names and/or positions, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such as a key schedule game, ranking, or historical note, . Avoid generic phrases — not 'enters 2026 with questions at QB' but 'Austin Mack vs Keelon Russell remained split after the first scrimmage with DeBoer praising both without separation, leaving an OL replacing four starters as the defining concern heading into A-Day.'  After this, write one sentence regarding the most significant injury news regarding any key player if that player is expected to be out for a game, or for longer than two weeks.  Do not speculate and include the players name and position, and emphasize when a player is feared to be lost for the entire season." 
+
+ 
+
 }}
 
 ## Important Instructions
@@ -394,6 +397,8 @@ The file must be valid JSON matching this exact structure:
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
     return prompt, mode
+
+ #   "agent_summary": "2-3 sentence summary of the most important things to know about this team right now"
 
 # ---------------------------------------------------------------------------
 # Check if output is fresh enough to skip
