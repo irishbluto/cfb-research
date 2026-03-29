@@ -1,0 +1,41 @@
+{
+    "notre-dame": [
+    {
+      "name": "One Foot Down",
+      "url": "https://www.onefootdown.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.onefootdown.com/feed",
+      "notes": "Notre Dame Football News"
+    },
+    {
+      "name": "Irish Illustrated - Notre Dame Football",
+      "url": "https://247sports.com/college/notre-dame/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Notre Dame 247 site"
+    },
+    {
+      "name": "Irish Sports Daily",
+      "url": "https://irishsportsdaily.com/notre-dame-football",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Football News"
+    }
+  ],
+    "uconn": [
+    {
+      "name": "The UConn Blog",
+      "url": "https://www.theuconnblog.com/uconn-huskies-football",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Vanderbilt Recruiting and portal tracking"
+    },
+    {
+      "name": "Storrs Central",
+      "url": "https://storrscentral.com/football",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Husky Football News"
+    }
+  ]
+}
