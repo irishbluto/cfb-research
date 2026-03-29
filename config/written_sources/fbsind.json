@@ -31,6 +31,13 @@
       "notes": "Vanderbilt Recruiting and portal tracking"
     },
     {
+      "name": "UConn 247 site",
+      "url": "https://247sports.com/college/uconn/news/?sport=football",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "UConn 247 site"
+    },
+    {
       "name": "Storrs Central",
       "url": "https://storrscentral.com/football",
       "type": "fan_aggregator",
