@@ -18,9 +18,18 @@ Usage:
     python3 scripts/research_agent.py --resume               # skip teams with fresh output
     python3 scripts/research_agent.py --dry-run              # print prompts without running
 
-Active conferences: sec, big10
+    # Normal run (YouTube enabled)
+    python3 scripts/research_agent.py --conference big10 --resume
+
+    # Quota exhausted — skip YouTube entirely
+    python3 scripts/research_agent.py --conference big10 --resume --no-youtube
+
+    # Check quota before deciding which mode to use
+    python3 scripts/youtube_fetcher.py --quota
+
+Active conferences: sec, big10, fbsind
 Inactive (uncomment in CONFERENCE_TEAMS to enable):
-    acc, big12, pac12, aac, sbc, mwc, mac, cusa, fbsind
+    acc, big12, pac12, aac, sbc, mwc, mac, cusa
 
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
@@ -109,6 +118,7 @@ FBSIND_TEAMS = [
 CONFERENCE_TEAMS = {
     "sec":    SEC_TEAMS,
     "big10":  BIG10_TEAMS,
+    "fbsind": FBSIND_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
     # "pac12":  PAC12_TEAMS,
@@ -117,7 +127,7 @@ CONFERENCE_TEAMS = {
     # "mwc":    MWC_TEAMS,
     # "mac":    MAC_TEAMS,
     # "cusa":   CUSA_TEAMS,
-    # "fbsind": FBSIND_TEAMS,
+    
 }
 
 # How many days before a research file is considered stale and needs refresh
