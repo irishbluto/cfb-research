@@ -5,7 +5,7 @@
       "url": "https://www.al.com/alabamafootball/",
       "type": "beat_writer",
       "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "notes": "Football News"
     },
     {
       "name": "TideFans.com",
@@ -44,320 +44,299 @@
       "url": "https://www.auburnobserver.com/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "notes": "Football News"
     },
     {
       "name": "AL.com — Auburn Football",
       "url": "https://www.al.com/auburnfootball/",
       "type": "beat_writer",
       "rss": "https://www.al.com/arc/outboundfeeds/rss/category/auburnfootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "notes": "Football News"
     },
     {
       "name": "The Auburn Express",
       "url": "https://feeds.megaphone.fm/theauburnexpress",
-      "type": "podcast",
+      "type": "podcast_transcript",
       "rss": "https://feeds.megaphone.fm/theauburnexpress",
       "notes": "Auburn football podcast"
     }
   ],
     "florida": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Only Gators",
+      "url": "https://www.onlygators.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.onlygators.com/feed/",
+      "notes": "features full coverage of Florida Gators football, basketball and more"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "Hail Florida Hail Feed",
+      "url": "https://hailfloridahail.com/",
+      "type": "beat_writer",
+      "rss": "https://hailfloridahail.com/feed",
+      "notes": "Hail Florida Hail Feed"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Inside the Gators",
+      "url": "https://insidethegators.com",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://insidethegators.com/category/football/feed/",
+      "notes": "Coverage by Mark Wheeler"
     }
   ],
     "georgia": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Bulldawg Illustrated",
+      "url": "https://bulldawgillustrated.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://bulldawgillustrated.com/feed/",
+      "notes": "Bulldawg Illustrated"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "Dawn of the Dawg",
+      "url": "https://dawnofthedawg.com/",
+      "type": "beat_writer",
+      "rss": "https://dawnofthedawg.com/feed",
+      "notes": "https://dawnofthedawg.com/feed"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Dawg Nation",
+      "url": "https://www.dawgnation.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://www.dawgnation.com/",
+      "notes": "Dawg nation"
     }
   ],
     "kentucky": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Lexington Herald-Leader",
+      "url": "https://www.kentucky.com/sports/college/kentucky-sports/uk-football/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
-    },
-    {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "Lexington Herald-Leader"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "A Sea of Blue",
+      "url": "https://www.aseaofblue.com/rss/index.xml",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Your best source for quality Kentucky Wildcats news"
+    },
+    {
+      "name": "A Nation of Blue",
+      "url": "https://www.nationofblue.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://www.nationofblue.com/feed/",
+      "notes": "Football News"
     }
   ],
     "lsu": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "And the Valley Shook - LSU",
+      "url": "https://www.andthevalleyshook.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.andthevalleyshook.com/rss/index.xml",
+      "notes": "A LSU Tigers Community"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
-    },
-    {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Dandy Don’s LSU Sporting News",
+      "url": "https://www.dandydon.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://www.dandydon.com/feed/",
+      "notes": "Dandy Don’s LSU Sporting News"
+    },
+    {
+      "name": "The Advocate",
+      "url": "https://www.theadvocate.com/baton_rouge/sports/lsu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "The Advocate - LSU Football News"
     }
   ],
     "mississippi-state": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Maroon and White Nation Feed",
+      "url": "https://maroonandwhitenation.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://maroonandwhitenation.com/feed",
+      "notes": "Maroon and White Nation Feed"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "Maroon and White Daily",
+      "url": "https://www.on3.com/teams/mississippi-state-bulldogs/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
-    },
-    {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
-      "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "notes": "On3 Site"
     }
   ],
     "missouri": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Rock M Nation",
+      "url": "https://www.rockmnation.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.rockmnation.com/feed",
+      "notes": "Missouri Football News"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "247Sports — Missouri",
+      "url": "https://247sports.com/college/missouri/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
-    },
-    {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
-      "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "notes": "PowerMizzou - 247 site"
     }
   ],
     "oklahoma": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Stormin in Norman",
+      "url": "https://stormininnorman.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://stormininnorman.com/feed",
+      "notes": "Oklahomoa Sooners Football Site"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "USA Today — Oklahoma",
+      "url": "hhttps://soonerswire.usatoday.com/",
+      "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "The Oklahoman",
+      "url": "https://www.oklahoman.com/sports/sooners/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": null,
+      "notes": "Local OU Football News"
     }
   ],
     "ole-miss": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Red Cup Rebelion",
+      "url": "https://www.redcuprebellion.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.redcuprebellion.com/feed",
+      "notes": "SBNation Site"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "247Sports — Ole Miss",
+      "url": "https://247sports.com/college/ole-miss/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "Ole Miss 247 site"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Ole Hotty Toddy",
+      "url": "https://olehottytoddy.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://olehottytoddy.com/feed",
+      "notes": "Ole Miss Football News"
     }
   ],
     "south-carolina": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Garnet and Cocky",
+      "url": "https://garnetandcocky.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://garnetandcocky.com/feed",
+      "notes": "Gamecock News"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "247Sports — South Carolina",
+      "url": "https://247sports.com/college/south-carolina/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "247 site - Ole Miss"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "The State",
+      "url": "https://www.thestate.com/sports/college/university-of-south-carolina/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": null,
+      "notes": "The State - Football News"
     }
   ],
     "tennessee": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Rocky Top Talk",
+      "url": "https://www.rockytoptalk.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.rockytoptalk.com/feed",
+      "notes": "A Tennessee Volunteers Community"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "name": "AFT - All For Tennesssee",
+      "url": "https://allfortennessee.com/",
+      "type": "beat_writer",
+      "rss": "https://allfortennessee.com/feed",
+      "notes": "All for Tennessee Sports"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Rocky Top Insider",
+      "url": "https://www.rockytopinsider.com/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://www.rockytopinsider.com/feed/",
+      "notes": "Rocky Top Insider - Tennessee Football News"
     }
   ],
     "texas": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Hookemheadlines",
+      "url": "https://hookemheadlines.com/",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://hookemheadlines.com/feed",
+      "notes": "Texas Football News"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "247 Sports - Texas",
+      "url": "https://247sports.com/college/texas/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "Texas Football Recruiting and portal tracking"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Burnt Orange Nation",
+      "url": "https://www.burntorangenation.com",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://www.burntorangenation.com/feed",
+      "notes": "Texas Football News"
     }
   ],
     "texas-am": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "Good Bull Hunting",
+      "url": "https://www.goodbullhunting.com",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
+      "rss": "https://www.goodbullhunting.com/rss/index.xml",
+      "notes": "Texas A&M Football News"
     },
     {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
+      "name": "TexAgs — A&M Football",
+      "url": "https://texags.com/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "Texas A&M Football News"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "247 - Texas A&M",
+      "url": "https://247sports.com/college/texas-am/",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": null,
+      "notes": "Football News"
     }
   ],
     "vanderbilt": [
     {
-      "name": "AL.com — Alabama Football",
-      "url": "https://www.al.com/alabamafootball/",
+      "name": "247Sports — Vanderbilt",
+      "url": "https://247sports.com/college/vanderbilt/news/?sport=football",
       "type": "beat_writer",
-      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/alabamafootball/",
-      "notes": "Primary beat coverage, Josh Bean and Michael Casagrande"
-    },
-    {
-      "name": "247Sports — Alabama",
-      "url": "https://247sports.com/college/alabama/Season/2026-Football/",
-      "type": "recruiting_portal",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "Vanderbilt Recruiting and portal tracking"
     },
     {
-      "name": "Roll Tide Wire",
-      "url": "https://rolltidewire.usatoday.com/",
+      "name": "Anchor of Gold",
+      "url": "hthttps://www.anchorofgold.com",
       "type": "fan_aggregator",
-      "rss": "https://rolltidewire.usatoday.com/feed/",
-      "notes": "USA Today fan wire, good for quick news aggregation"
+      "rss": "https://www.anchorofgold.com/feed",
+      "notes": "Vandy Football News"
     }
   ]
 }
