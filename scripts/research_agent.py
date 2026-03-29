@@ -18,6 +18,15 @@ Usage:
     python3 scripts/research_agent.py --resume               # skip teams with fresh output
     python3 scripts/research_agent.py --dry-run              # print prompts without running
 
+    # Normal run (YouTube enabled)
+    python3 scripts/research_agent.py --conference big10 --resume
+
+    # Quota exhausted — skip YouTube entirely
+    python3 scripts/research_agent.py --conference big10 --resume --no-youtube
+
+    # Check quota before deciding which mode to use
+    python3 scripts/youtube_fetcher.py --quota
+
 Active conferences: sec, big10
 Inactive (uncomment in CONFERENCE_TEAMS to enable):
     acc, big12, pac12, aac, sbc, mwc, mac, cusa, fbsind
