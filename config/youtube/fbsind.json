@@ -1,0 +1,21 @@
+{
+  "notre-dame": [
+    {
+      "id": "UC6yeifyW6tb-PPaCFKN45xw",
+      "name": "Irish Illustrated",
+      "type": "beat_writer"
+    },
+    {
+      "id": "UCE4eowdQYjxFuDSlnsan94Q",
+      "name": "Blue and Gold",
+      "type": "beat_writer"
+    }
+  ],
+  "uconn": [
+    {
+      "id": "UCU1SlfA4fZxlLobmJN-FYiw",
+      "name": "UConn Sports Nation",
+      "type": "fan_analysis"
+    }
+  ]
+}
