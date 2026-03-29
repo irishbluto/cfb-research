@@ -1,0 +1,286 @@
+{
+  "arizona": [
+    {
+      "name": "Arizona Desert Swarm",
+      "url": "https://www.azdesertswarm.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.azdesertswarm.com/rss/index.xml",
+      "notes": "SBNation Arizona community — confirmed very active 2025, strong football-first coverage"
+    },
+    {
+      "name": "WildcatAuthority — 247Sports Arizona",
+      "url": "https://247sports.com/college/arizona/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "247Sports Arizona site — recruiting and portal tracking"
+    },
+    {
+      "name": "Zona Zealots",
+      "url": "https://zonazealots.com/",
+      "type": "fan_aggregator",
+      "rss": "https://zonazealots.com/feed/",
+      "notes": "FanSided Arizona fan site — confirmed active 2025"
+    }
+  ],
+  "arizona-state": [
+    {
+      "name": "House of Sparky",
+      "url": "https://www.houseofsparky.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.houseofsparky.com/rss/index.xml",
+      "notes": "SBNation ASU community — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Arizona State",
+      "url": "https://247sports.com/college/arizona-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "baylor": [
+    {
+      "name": "SicEm365",
+      "url": "https://sicem365.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest independent Baylor fan site (merged with BaylorFans.com) — confirmed active 2026; note: ourdailybears.com (former SBNation blog) is defunct as of 2025"
+    },
+    {
+      "name": "247Sports — Baylor",
+      "url": "https://247sports.com/college/baylor/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "byu": [
+    {
+      "name": "Vanquish The Foe",
+      "url": "https://www.vanquishthefoe.com/byu-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.vanquishthefoe.com/rss/index.xml",
+      "notes": "SBNation BYU community — confirmed active with 2025 football coverage"
+    },
+    {
+      "name": "CougarBoard",
+      "url": "https://www.cougarboard.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest independent BYU fan community — confirmed active 2025, high-volume message board with news"
+    },
+    {
+      "name": "247Sports — BYU",
+      "url": "https://247sports.com/college/byu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "cincinnati": [
+    {
+      "name": "Cincy On The Prowl",
+      "url": "https://cincyontheprowl.com/",
+      "type": "fan_aggregator",
+      "rss": "https://cincyontheprowl.com/feed/",
+      "notes": "FanSided Cincinnati Bearcats fan site — confirmed active 2025; note: downthedrive.com (former SBNation blog) is defunct as of 2025"
+    },
+    {
+      "name": "247Sports — Cincinnati",
+      "url": "https://247sports.com/college/cincinnati/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "colorado": [
+    {
+      "name": "The Ralphie Report",
+      "url": "https://www.ralphiereport.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.ralphiereport.com/rss/index.xml",
+      "notes": "SBNation Colorado community — confirmed very active 2025, strong football analysis"
+    },
+    {
+      "name": "247Sports — Colorado",
+      "url": "https://247sports.com/college/colorado/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "houston": [
+    {
+      "name": "Underdog Dynasty — Houston",
+      "url": "https://www.underdogdynasty.com/houston-cougars",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "AAC/Big 12-focused site with dedicated Houston football coverage — confirmed very active 2025"
+    },
+    {
+      "name": "GoCoogs.com",
+      "url": "https://gocoogs.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest Houston Cougar fan site (acquired CoogFans.com) — confirmed active, premium and free content"
+    },
+    {
+      "name": "247Sports — Houston",
+      "url": "https://247sports.com/college/houston/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "iowa-state": [
+    {
+      "name": "Wide Right & Natty Lite",
+      "url": "https://www.widerightnattylite.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.widerightnattylite.com/rss/index.xml",
+      "notes": "SBNation Iowa State community — confirmed active 2025 with strong football game coverage"
+    },
+    {
+      "name": "247Sports — Iowa State",
+      "url": "https://247sports.com/college/iowa-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "kansas": [
+    {
+      "name": "Rock Chalk Talk",
+      "url": "https://www.rockchalktalk.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.rockchalktalk.com/rss/index.xml",
+      "notes": "SBNation Kansas community — confirmed active 2025 with football-specific coverage"
+    },
+    {
+      "name": "247Sports — Kansas",
+      "url": "https://247sports.com/college/kansas/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "kansas-state": [
+    {
+      "name": "Bring On The Cats",
+      "url": "https://www.bringonthecats.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.bringonthecats.com/rss/index.xml",
+      "notes": "SBNation Kansas State community — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Kansas State",
+      "url": "https://247sports.com/college/kansas-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "oklahoma-state": [
+    {
+      "name": "Pistols Firing",
+      "url": "https://pistolsfiringblog.com/",
+      "type": "beat_writer",
+      "rss": "https://pistolsfiringblog.com/feed/",
+      "notes": "Premier independent OSU athletics site — confirmed very active through 2026, daily news output"
+    },
+    {
+      "name": "247Sports — Oklahoma State",
+      "url": "https://247sports.com/college/oklahoma-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "tcu": [
+    {
+      "name": "Frogs O' War",
+      "url": "https://www.frogsowar.com/college-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.frogsowar.com/rss/index.xml",
+      "notes": "SBNation TCU community — confirmed very active 2025, deep football-position breakdowns"
+    },
+    {
+      "name": "247Sports — TCU",
+      "url": "https://247sports.com/college/tcu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "texas-tech": [
+    {
+      "name": "Viva The Matadors",
+      "url": "https://www.vivathematadors.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.vivathematadors.com/rss/index.xml",
+      "notes": "SBNation Texas Tech community — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Texas Tech",
+      "url": "https://247sports.com/college/texas-tech/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "ucf": [
+    {
+      "name": "Black and Gold Banneret",
+      "url": "https://www.blackandgoldbanneret.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.blackandgoldbanneret.com/rss/index.xml",
+      "notes": "Independent UCF football fan site — confirmed active through early 2026, strong football analysis"
+    },
+    {
+      "name": "247Sports — UCF",
+      "url": "https://247sports.com/college/ucf/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "utah": [
+    {
+      "name": "Block U",
+      "url": "https://www.blocku.com/utah-utes-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.blocku.com/rss/index.xml",
+      "notes": "SBNation Utah community — use /utah-utes-football subpath; root domain returns minimal page but SBNation subpages remain active"
+    },
+    {
+      "name": "KSL Sports — Utah Football",
+      "url": "https://kslsports.com/ncaa/utah/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Salt Lake City's KSL Sports — solid beat coverage of Utah football with insider access"
+    },
+    {
+      "name": "247Sports — Utah",
+      "url": "https://247sports.com/college/utah/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "west-virginia": [
+    {
+      "name": "The Smoking Musket",
+      "url": "https://www.smokingmusket.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.smokingmusket.com/rss/index.xml",
+      "notes": "SBNation West Virginia community — confirmed active 2025 with strong football coverage"
+    },
+    {
+      "name": "247Sports — West Virginia",
+      "url": "https://247sports.com/college/west-virginia/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ]
+}
