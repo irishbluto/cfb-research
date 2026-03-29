@@ -109,7 +109,6 @@ FBSIND_TEAMS = [
 CONFERENCE_TEAMS = {
     "sec":    SEC_TEAMS,
     "big10":  BIG10_TEAMS,
-    "fbsind": FBSIND_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
     # "pac12":  PAC12_TEAMS,
@@ -118,7 +117,7 @@ CONFERENCE_TEAMS = {
     # "mwc":    MWC_TEAMS,
     # "mac":    MAC_TEAMS,
     # "cusa":   CUSA_TEAMS,
-    
+    # "fbsind": FBSIND_TEAMS,
 }
 
 # How many days before a research file is considered stale and needs refresh
@@ -143,7 +142,7 @@ def setup_logging():
 # ---------------------------------------------------------------------------
 # Build the research prompt for one team
 # ---------------------------------------------------------------------------
-def build_prompt(slug, context, channels):
+def build_prompt(slug, context, channels, no_youtube=False):
     team_name   = context.get('team', slug)
     coach       = context.get('head_coach', 'Unknown Coach')
     power_rank  = context.get('power_rank')
@@ -213,22 +212,25 @@ def build_prompt(slug, context, channels):
     # Pre-fetch YouTube videos via API (much more reliable than asking Claude to scrape)
     youtube_block = ""
     prefetched_videos = []
-    try:
-        sys.path.insert(0, str(BASE_DIR / "scripts"))
-        from youtube_fetcher import fetch_team_videos
-        yt_result = fetch_team_videos(slug, days=14, max_results=5)
-        if 'error' not in yt_result:
-            prefetched_videos = yt_result['videos']
-            if yt_result['count'] > 0:
-                youtube_block = f"YouTube videos found ({yt_result['count']} football-relevant in last 14 days):\n"
-                youtube_block += yt_result['summary_text']
-                youtube_block += "\n\nFor each video above: fetch the URL, watch/read enough to extract 2-4 key points, assess sentiment."
+    if no_youtube:
+        youtube_block = "YouTube: Skipped (--no-youtube flag set or daily quota reached). Skip YouTube section."
+    else:
+        try:
+            sys.path.insert(0, str(BASE_DIR / "scripts"))
+            from youtube_fetcher import fetch_team_videos
+            yt_result = fetch_team_videos(slug, days=14, max_results=5)
+            if 'error' not in yt_result:
+                prefetched_videos = yt_result['videos']
+                if yt_result['count'] > 0:
+                    youtube_block = f"YouTube videos found ({yt_result['count']} football-relevant in last 14 days):\n"
+                    youtube_block += yt_result['summary_text']
+                    youtube_block += "\n\nFor each video above: fetch the URL, watch/read enough to extract 2-4 key points, assess sentiment."
+                else:
+                    youtube_block = "YouTube: No football-relevant videos found in the last 14 days across configured channels."
             else:
-                youtube_block = "YouTube: No football-relevant videos found in the last 14 days across configured channels."
-        else:
-            youtube_block = f"YouTube: Could not fetch videos ({yt_result['error']}). Skip YouTube section."
-    except Exception as e:
-        youtube_block = f"YouTube: Fetcher unavailable ({e}). Skip YouTube section."
+                youtube_block = f"YouTube: Could not fetch videos ({yt_result['error']}). Skip YouTube section."
+        except Exception as e:
+            youtube_block = f"YouTube: Fetcher unavailable ({e}). Skip YouTube section."
 
     # Pre-fetch written sources via RSS (fast, structured — reduces Claude fetching)
     written_block = ""
@@ -480,6 +482,8 @@ def main():
                         help='Skip teams with fresh output (< STALE_DAYS old)')
     parser.add_argument('--dry-run',    action='store_true',
                         help='Print prompts without running agents')
+    parser.add_argument('--no-youtube',  action='store_true',
+                        help='Skip YouTube API fetches (use when quota is exhausted)')
     parser.add_argument('--debug',      action='store_true')
     parser.add_argument('--delay',      type=int, default=10,
                         help='Seconds to wait between teams (default: 10)')
@@ -487,6 +491,8 @@ def main():
 
     log_file = setup_logging()
     logging.info(f"Research agent starting — log: {log_file}")
+    if args.no_youtube:
+        logging.info("YouTube fetching disabled (--no-youtube)")
 
     OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -548,7 +554,7 @@ def main():
 
         logging.info(f"[{slug}] Starting research ({i+1}/{len(teams)})")
 
-        prompt, mode = build_prompt(slug, context, {})
+        prompt, mode = build_prompt(slug, context, {}, no_youtube=args.no_youtube)
 
         if args.debug:
             logging.info(f"[{slug}] Mode: {mode} | Prompt length: {len(prompt)} chars")
