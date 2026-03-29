@@ -118,6 +118,7 @@ FBSIND_TEAMS = [
 CONFERENCE_TEAMS = {
     "sec":    SEC_TEAMS,
     "big10":  BIG10_TEAMS,
+    "fbsind": FBSIND_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
     # "pac12":  PAC12_TEAMS,
@@ -126,7 +127,7 @@ CONFERENCE_TEAMS = {
     # "mwc":    MWC_TEAMS,
     # "mac":    MAC_TEAMS,
     # "cusa":   CUSA_TEAMS,
-    # "fbsind": FBSIND_TEAMS,
+    
 }
 
 # How many days before a research file is considered stale and needs refresh
