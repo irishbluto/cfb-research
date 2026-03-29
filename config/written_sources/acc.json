@@ -1,0 +1,351 @@
+{
+  "boston-college": [
+    {
+      "name": "BC Interruption",
+      "url": "https://www.bcinterruption.com/boston-college-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.bcinterruption.com/rss/index.xml",
+      "notes": "SBNation Eagles community — active, football-focused coverage"
+    },
+    {
+      "name": "247Sports — Boston College",
+      "url": "https://247sports.com/college/boston-college/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "california": [
+    {
+      "name": "California Golden Blogs",
+      "url": "https://www.californiagoldenblogs.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.californiagoldenblogs.com/rss/index.xml",
+      "notes": "SBNation Cal Bears community — confirmed active 2025"
+    },
+    {
+      "name": "Write For California",
+      "url": "https://writeforcalifornia.com/",
+      "type": "beat_writer",
+      "rss": "https://writeforcalifornia.com/feed",
+      "notes": "Independent Cal football coverage on Substack — strong football-specific analysis"
+    },
+    {
+      "name": "247Sports — California",
+      "url": "https://247sports.com/college/california/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "clemson": [
+    {
+      "name": "Shakin' The Southland",
+      "url": "https://www.shakinthesouthland.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.shakinthesouthland.com/rss/index.xml",
+      "notes": "SBNation Clemson community — confirmed active 2025, strong football depth"
+    },
+    {
+      "name": "The Clemson Insider",
+      "url": "https://www.theclemsoninsider.com/",
+      "type": "beat_writer",
+      "rss": "https://www.theclemsoninsider.com/feed/",
+      "notes": "Independent beat coverage — confirmed active 2025"
+    },
+    {
+      "name": "Clemson Wire — USA Today",
+      "url": "https://clemsonwire.usatoday.com/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "USA Today network Clemson coverage — recruiting and portal"
+    }
+  ],
+  "duke": [
+    {
+      "name": "Chronicle of Higher Education — Duke Sports",
+      "url": "https://www.dukechronicle.com/section/sports",
+      "type": "beat_writer",
+      "rss": "https://www.dukechronicle.com/rss.xml",
+      "notes": "Duke student newspaper — covers football news"
+    },
+    {
+      "name": "247Sports — Duke",
+      "url": "https://247sports.com/college/duke/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Blue Devil Nation",
+      "url": "https://www.bluedevilnation.net/",
+      "type": "fan_aggregator",
+      "rss": "https://www.bluedevilnation.net/feed/",
+      "notes": "Independent Duke athletics fan site — covers football"
+    }
+  ],
+  "florida-state": [
+    {
+      "name": "Tomahawk Nation",
+      "url": "https://www.tomahawknation.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.tomahawknation.com/rss/index.xml",
+      "notes": "SBNation FSU community — confirmed active 2025, strong football coverage"
+    },
+    {
+      "name": "Warchant.com",
+      "url": "https://247sports.com/college/florida-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "247Sports FSU site (Warchant) — recruiting and portal tracking"
+    },
+    {
+      "name": "NoleFan.org",
+      "url": "https://nolefan.org/",
+      "type": "fan_aggregator",
+      "rss": "https://nolefan.org/feed/",
+      "notes": "Independent FSU fan aggregator — confirmed active"
+    }
+  ],
+  "georgia-tech": [
+    {
+      "name": "From the Rumble Seat",
+      "url": "https://www.fromtherumbleseat.com/georgia-tech-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.fromtherumbleseat.com/rss/index.xml",
+      "notes": "SBNation Georgia Tech community — confirmed active 2025 with strong football coverage"
+    },
+    {
+      "name": "247Sports — Georgia Tech",
+      "url": "https://247sports.com/college/georgia-tech/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "louisville": [
+    {
+      "name": "Card Chronicle",
+      "url": "https://www.cardchronicle.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.cardchronicle.com/rss/index.xml",
+      "notes": "SBNation Louisville community — confirmed active 2025, very high volume"
+    },
+    {
+      "name": "Cardinal Sports Zone",
+      "url": "https://cardinalsportszone.com/",
+      "type": "fan_aggregator",
+      "rss": "https://cardinalsportszone.com/feed/",
+      "notes": "Independent Louisville athletics fan site with podcast"
+    },
+    {
+      "name": "247Sports — Louisville",
+      "url": "https://247sports.com/college/louisville/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "miami": [
+    {
+      "name": "State of The U",
+      "url": "https://www.stateoftheu.com/football-news",
+      "type": "fan_aggregator",
+      "rss": "https://www.stateoftheu.com/rss/index.xml",
+      "notes": "SBNation Miami community — confirmed very active 2025, football-first"
+    },
+    {
+      "name": "InsideTheU — 247Sports Miami",
+      "url": "https://247sports.com/college/miami/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "247Sports Miami site — recruiting, portal, and beat coverage"
+    },
+    {
+      "name": "Canes Warning",
+      "url": "https://caneswarning.com/",
+      "type": "fan_aggregator",
+      "rss": "https://caneswarning.com/feed",
+      "notes": "FanSided Miami fan site — active football coverage"
+    }
+  ],
+  "nc-state": [
+    {
+      "name": "Backing The Pack",
+      "url": "https://www.backingthepack.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.backingthepack.com/rss/index.xml",
+      "notes": "FanSided NC State community — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — NC State",
+      "url": "https://247sports.com/college/nc-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Wolf Pack Wire — USA Today",
+      "url": "https://wolfpackwire.usatoday.com/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "USA Today network NC State coverage"
+    }
+  ],
+  "north-carolina": [
+    {
+      "name": "Tar Heel Blog",
+      "url": "https://www.tarheelblog.com/unc-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.tarheelblog.com/rss/index.xml",
+      "notes": "SBNation UNC community — confirmed active 2025"
+    },
+    {
+      "name": "Tar Heel Fan Blog",
+      "url": "https://www.tarheelfanblog.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.tarheelfanblog.com/feed/",
+      "notes": "Independent UNC fan blog — football, basketball, and baseball focus"
+    },
+    {
+      "name": "Inside Carolina — On3",
+      "url": "https://www.on3.com/teams/north-carolina-tar-heels/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "On3 UNC site — recruiting and portal tracking"
+    }
+  ],
+  "pittsburgh": [
+    {
+      "name": "Panther-Lair — 247Sports Pitt",
+      "url": "https://247sports.com/college/pittsburgh/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Primary Pitt beat site via 247Sports — confirmed very active 2025; note: cardiachill.com (former SBNation blog) is defunct as of 2025"
+    },
+    {
+      "name": "Pittsburgh Sports Now",
+      "url": "https://www.si.com/college/pittsburgh",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Sports Illustrated Pitt channel — active football and recruiting coverage"
+    }
+  ],
+  "smu": [
+    {
+      "name": "PonyFans.com",
+      "url": "https://www.ponyfans.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Longest-running independent SMU fan site — football-focused with forum and articles"
+    },
+    {
+      "name": "Underdog Dynasty — SMU",
+      "url": "https://www.underdogdynasty.com/southern-methodist-university-mustangs",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "AAC/ACC-focused site with dedicated SMU football coverage — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — SMU",
+      "url": "https://247sports.com/college/smu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "stanford": [
+    {
+      "name": "Rule of Tree",
+      "url": "https://www.ruleoftree.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.ruleoftree.com/rss/index.xml",
+      "notes": "SBNation Stanford community — use /football subpath; root domain shows install page but SBNation subpages are active"
+    },
+    {
+      "name": "The Stanford Daily — Sports",
+      "url": "https://stanforddaily.com/category/sports/football/",
+      "type": "beat_writer",
+      "rss": "https://stanforddaily.com/category/sports/football/feed/",
+      "notes": "Stanford student newspaper — covers football news and game coverage"
+    },
+    {
+      "name": "247Sports — Stanford",
+      "url": "https://247sports.com/college/stanford/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "syracuse": [
+    {
+      "name": "Troy Nunes Is An Absolute Magician",
+      "url": "https://www.nunesmagician.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.nunesmagician.com/rss/index.xml",
+      "notes": "SBNation Syracuse community — confirmed very active 2025, strong football coverage"
+    },
+    {
+      "name": "247Sports — Syracuse",
+      "url": "https://247sports.com/college/syracuse/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Inside the Loud House",
+      "url": "https://insidetheloudhouse.com/",
+      "type": "beat_writer",
+      "rss": "https://insidetheloudhouse.com/feed/",
+      "notes": "Independent Syracuse football fan site — confirmed active with 2025 opponent previews"
+    }
+  ],
+  "virginia": [
+    {
+      "name": "Streaking The Lawn",
+      "url": "https://www.streakingthelawn.com/football",
+      "type": "fan_aggregator",
+      "rss": "https://www.streakingthelawn.com/rss/index.xml",
+      "notes": "SBNation UVA community — confirmed very active 2025, deep football coverage"
+    },
+    {
+      "name": "247Sports — Virginia",
+      "url": "https://247sports.com/college/virginia/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "virginia-tech": [
+    {
+      "name": "Gobbler Country",
+      "url": "https://www.gobblercountry.com/virginia-tech-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.gobblercountry.com/rss/index.xml",
+      "notes": "SBNation Virginia Tech community — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Virginia Tech",
+      "url": "https://247sports.com/college/virginia-tech/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "wake-forest": [
+    {
+      "name": "Blogger So Dear",
+      "url": "https://www.bloggersodear.com/wake-forest-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.bloggersodear.com/rss/index.xml",
+      "notes": "SBNation Wake Forest community — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Wake Forest",
+      "url": "https://247sports.com/college/wake-forest/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ]
+}
