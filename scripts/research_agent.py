@@ -27,9 +27,9 @@ Usage:
     # Check quota before deciding which mode to use
     python3 scripts/youtube_fetcher.py --quota
 
-Active conferences: sec, big10
+Active conferences: sec, big10, acc, big12, fbsind
 Inactive (uncomment in CONFERENCE_TEAMS to enable):
-    acc, big12, pac12, aac, sbc, mwc, mac, cusa, fbsind
+    pac12, aac, sbc, mwc, mac, cusa
 
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
