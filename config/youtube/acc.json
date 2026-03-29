@@ -1,120 +1,113 @@
 {
   "boston-college": [
     {
-      "id": "UCJe7KO84AF-K5NNhQtBZNiQ",
-      "name": "Illini Inquirer: Illinois on 247Sports",
+      "id": "UCUelLLoBK405btFlEQJwXmA",
+      "name": "Locked On Boston College",
       "type": "beat_writer"
     }
   ],
     "california": [
 	{
-      "id": "UCA_n6UOPs-fEIsqURcI-eqw",
-      "name": "Locked On Hoosiers",
+      "id": "UCfR7bdJa7gcvgoRJiHsw1qQ",
+      "name": "BearInsiderVideos",
       "type": "fan_analysis"
     }
   ],
     "clemson": [
 	{
-      "id": "UCMiLIhpLOu8gIGmriuSdhXQ",
-      "name": "Locked On Hawkeyes",
+      "id": "UC_wsp6_eSkGOSNxNoztYa8g",
+      "name": "ClemsonTigerNet",
       "type": "beat_writer"
     }
   ],
     "duke": [
 	{
-      "id": "UCjI83VgHTY6WojnQlwQneww",
-      "name": "Locked On Terps",
+      "id": "UCfdZlQatH7CkAxht18fgmmA",
+      "name": "Locked On Blue Devils",
       "type": "beat_writer"
     }
   ],
     "florida-state": [
 	{
-      "id": "UCCDPlfAuxms3K77nSV-5vSQ",
-      "name": "Michigan Podcast",
+      "id": "UCF0kads13wbyg-43YiMvXBw",
+      "name": "Florida State Football - Warchant TV",
       "type": "beat_writer"
     }
   ],
     "georgia-tech": [
 	{
-      "id": "UC0xVROMibRvwwWSbR6BGmKQ",
-      "name": "SpartanMag",
+      "id": "UCv2cVIIdaAdW3CL2PgwC4GA",
+      "name": "Locked On Georgia Tech",
       "type": "beat_writer"
     }
   ],
     "louisville": [
 	{
-      "id": "UCp2Cv4bsqtecNY36flQ61eg",
-      "name": "Minnesota Gophers Football",
+      "id": "UC-HszKuYaChReUlJ6FTRBqA",
+      "name": "Locked On Louisville",
       "type": "fan_analysis"
     }
   ],
     "miami": [
 	{
-      "id": "UCPkiqdgZgS2PQE-pEZiFGwA",
-      "name": "HuskerOnline",
+      "id": "UCJYA9W2HKBEil6VKoMhCprQ",
+      "name": "InsideTheU",
       "type": "beat_writer"
     }
   ],
     "nc-state": [
     {
-      "id": "UC7qmMAxnfYY1Z-bn7E07_8w",
-      "name": "Northwestern Athletics",
+      "id": "UCMF1qTJ6JjaDKd15BiOdzXQ",
+      "name": "Locked On Wolfpack",
       "type": "beat_writer"
     }
   ],
     "north-carolina": [
 	{
-      "id": "UCsI4uHxapDdBNBtvzwUmGPg",
-      "name": "Ohio State Football at Buckeye Scoop",
+      "id": "UC4xGiISxSHVwkA5Sx9m68sA",
+      "name": "Inside Carolina",
       "type": "beat_writer"
     }
   ],
     "pittsburgh": [
 	{
-      "id": "UCc3ZiE5asLdyQMmMU1WEC1g",
-      "name": "Locked On Ducks (Oregon)",
+      "id": "UCBQ2vZqgD7QdKdvf9xT_dsQ",
+      "name": "Panther-Lair.com",
       "type": "beat_writer"
     }
   ],
     "smu": [
 	{
-      "id": "UCFpAgv2UZ1TblYO4Q2-HoOw",
-      "name": "Lions247",
-      "type": "beat_writer"
-    }
-  ],
-    "stanford": [
-	{
-      "id": "UCZnPBYrZRDiNsuf_YRVf8mQ",
-      "name": "Purdue Boilermakers Sports & Recruiting",
+      "id": "UC2NkpjKqIsCtv8cF1l-HITQ",
+      "name": "On The Pony Express - SMU Mustangs",
       "type": "beat_writer"
     }
   ],
     "syracuse": [
 	{
-      "id": "UCDwhHBEG3JWJFXzbJII1pxw",
-      "name": "The Knight Report",
+      "id": "UCWWgpzVOfXWw6GpCCgK6mKA",
+      "name": "Syracuse Orange sports on syracuse.com",
       "type": "beat_writer"
     }
   ],
     "virginia": [
 	{
-      "id": "UCcJwUjKYaoNj_czz9LRTBgg",
-      "name": "Locked On UCLA",
+      "id": "UCqUWMDg4VdudojNs2Qf9V6g",
+      "name": "Cavalier Connection Podcast",
       "type": "beat_writer"
     }
   ],
     "virginia-tech": [
 	{
-      "id": "UCIjxXVx7XVWHDfTDkxxnFBA-6E7lw",
-      "name": "InsideTroy",
+      "id": "UCu4Q5z0S_bNSE_ewR-Gar0A",
+      "name": "Sons of Saturday",
       "type": "beat_writer"
     }
   ],
       "wake-forest": [
 	{
-      "id": "UClka9SIOb8ntSFaXAXhHoEw",
-      "name": "Locked On Huskies",
+      "id": "UC-6phZckGgsBATomtFMEChg",
+      "name": "Demon Deacon Digest",
       "type": "beat_writer"
     }
   ]
