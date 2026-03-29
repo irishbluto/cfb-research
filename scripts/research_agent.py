@@ -18,18 +18,9 @@ Usage:
     python3 scripts/research_agent.py --resume               # skip teams with fresh output
     python3 scripts/research_agent.py --dry-run              # print prompts without running
 
-    # Normal run (YouTube enabled)
-    python3 scripts/research_agent.py --conference big10 --resume
-
-    # Quota exhausted — skip YouTube entirely
-    python3 scripts/research_agent.py --conference big10 --resume --no-youtube
-
-    # Check quota before deciding which mode to use
-    python3 scripts/youtube_fetcher.py --quota
-
-Active conferences: sec, big10, fbsind
+Active conferences: sec, big10
 Inactive (uncomment in CONFERENCE_TEAMS to enable):
-    acc, big12, pac12, aac, sbc, mwc, mac, cusa
+    acc, big12, pac12, aac, sbc, mwc, mac, cusa, fbsind
 
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
@@ -118,7 +109,6 @@ FBSIND_TEAMS = [
 CONFERENCE_TEAMS = {
     "sec":    SEC_TEAMS,
     "big10":  BIG10_TEAMS,
-    "fbsind": FBSIND_TEAMS,
     # "acc":    ACC_TEAMS,
     # "big12":  BIG12_TEAMS,
     # "pac12":  PAC12_TEAMS,
@@ -127,7 +117,7 @@ CONFERENCE_TEAMS = {
     # "mwc":    MWC_TEAMS,
     # "mac":    MAC_TEAMS,
     # "cusa":   CUSA_TEAMS,
-    
+    # "fbsind": FBSIND_TEAMS,
 }
 
 # How many days before a research file is considered stale and needs refresh
@@ -219,6 +209,17 @@ def build_prompt(slug, context, channels, no_youtube=False):
                              f"{g['opponent']} (line: {g['line']}, "
                              f"win%: {g['win_pct']}%)\n")
 
+    # Format best players — used to constrain player identification in the summary
+    best_players_block = ""
+    best_players = context.get('best_players', [])
+    if best_players:
+        best_players_block = "Key players by impact rating (only use these names when identifying team leaders or standouts):\n"
+        for p in best_players:
+            line = f"  {p['player_name']} ({p['position']})"
+            if p.get('statsline'):
+                line += f" — {p['statsline']}"
+            best_players_block += line + "\n"
+
     # Pre-fetch YouTube videos via API (much more reliable than asking Claude to scrape)
     youtube_block = ""
     prefetched_videos = []
@@ -305,7 +306,7 @@ Portal Net: {portal_net:+d} ({len(portal_in)} in, {len(portal_out)} out)
 
 {notes_block}
 {schedule_block}
-
+{best_players_block}
 ## Research Mode: {mode.upper()}
 Current focus: {mode_focus}
 
@@ -377,10 +378,7 @@ The file must be valid JSON matching this exact structure:
   ],
   "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
-    "agent_summary": "3-4 dense, specific sentences a CFB analyst would write. Must include: (1) the team's single most important current narrative with specific player names and/or positions, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such as a key schedule game, ranking, or historical note, . Avoid generic phrases — not 'enters 2026 with questions at QB' but 'Austin Mack vs Keelon Russell remained split after the first scrimmage with DeBoer praising both without separation, leaving an OL replacing four starters as the defining concern heading into A-Day.'  After this, write one sentence regarding the most significant injury news regarding any key player if that player is expected to be out for a game, or for longer than two weeks.  Do not speculate and include the players name and position, and emphasize when a player is feared to be lost for the entire season." 
-
- 
-
+  "agent_summary": "3-4 dense, specific sentences a CFB analyst would write. Must include: (1) the team's single most important current narrative with specific player names and/or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such as a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.'"
 }}
 
 ## Important Instructions
@@ -392,13 +390,12 @@ The file must be valid JSON matching this exact structure:
 - Pre-fetched RSS articles in Task 2 are your primary written source — do not do broad web searches if those articles cover the topic
 - Maximum 2 web searches in Task 3 — only if there are clear gaps after Tasks 1 and 2
 - Write the output file as soon as you have enough data — do not wait until everything is perfect
-- Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report.
+- Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report
+- When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
     return prompt, mode
-
- #   "agent_summary": "2-3 sentence summary of the most important things to know about this team right now"
 
 # ---------------------------------------------------------------------------
 # Check if output is fresh enough to skip

@@ -253,6 +253,39 @@ def get_scoring(conn, team, season):
     return result
 
 # ---------------------------------------------------------------------------
+# Pull best players from roster_best_players table
+# ---------------------------------------------------------------------------
+
+def get_best_players(conn, team, season):
+    """
+    Pull top-rated players from roster_best_players table.
+    Returns a list of dicts ordered by points descending.
+    Used by the research agent to constrain player identification —
+    the agent should only name players from this list as leaders/standouts.
+    """
+    rows = query_all(conn, """
+        SELECT player_name, position, points, statsline
+        FROM roster_best_players
+        WHERE year = %s AND team = %s
+        ORDER BY points DESC
+        LIMIT 12
+    """, (season, team))
+
+    if not rows:
+        return {}
+
+    players = []
+    for row in rows:
+        players.append({
+            'player_name': row['player_name'],
+            'position':    row['position'] or '',
+            'points':      int(row['points']) if row['points'] else 0,
+            'statsline':   row['statsline'] or '',
+        })
+
+    return {'best_players': players}
+
+# ---------------------------------------------------------------------------
 # Main enrichment function
 # ---------------------------------------------------------------------------
 
@@ -271,6 +304,7 @@ def enrich_team(conn, context_path, debug=False):
     enriched.update(get_gc_mc_ranks(conn, team, ADV_SEASON))
     enriched.update(get_adv_stat_ranks(conn, team, ADV_SEASON))
     enriched.update(get_scoring(conn, team, SEASON))
+    enriched.update(get_best_players(conn, team, SEASON))
 
     # Merge into context — DB values take precedence for their fields
     context.update(enriched)
@@ -288,6 +322,10 @@ def enrich_team(conn, context_path, debug=False):
               f"profile={context.get('offense_profile_db','')}")
         print(f"  ppg home={context.get('scoring_home_ppg')} "
               f"road={context.get('scoring_road_ppg')}")
+        best = context.get('best_players', [])
+        if best:
+            print(f"  best_players ({len(best)}): " +
+                  ", ".join(f"{p['player_name']} ({p['position']})" for p in best[:5]))
     return True
 
 # ---------------------------------------------------------------------------
