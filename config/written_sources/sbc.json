@@ -1,0 +1,226 @@
+{
+  "app-state": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams, football + basketball. Verify RSS URL before first run."
+    },
+    {
+      "name": "247Sports — Appalachian State",
+      "url": "https://247sports.com/college/appalachian-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "247Sports pages are JS-rendered, no clean RSS. Pass URL directly for Claude to fetch."
+    }
+  ],
+  "arkansas-state": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Arkansas State",
+      "url": "https://247sports.com/college/arkansas-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "coastal-carolina": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Coastal Carolina",
+      "url": "https://247sports.com/college/coastal-carolina/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "georgia-southern": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Georgia Southern",
+      "url": "https://247sports.com/college/georgia-southern/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "georgia-state": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Georgia State",
+      "url": "https://247sports.com/college/georgia-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "james-madison": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — James Madison",
+      "url": "https://247sports.com/college/james-madison/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "louisiana": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Louisiana",
+      "url": "https://247sports.com/college/louisiana/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "louisiana-monroe": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Louisiana Monroe",
+      "url": "https://247sports.com/college/louisiana-monroe/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "louisiana-tech": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams. Note: Louisiana Tech conference status for 2026 in dispute (CUSA vs Sun Belt legal standoff)."
+    },
+    {
+      "name": "247Sports — Louisiana Tech",
+      "url": "https://247sports.com/college/louisiana-tech/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "marshall": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Marshall",
+      "url": "https://247sports.com/college/marshall/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "old-dominion": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Old Dominion",
+      "url": "https://247sports.com/college/old-dominion/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "south-alabama": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — South Alabama",
+      "url": "https://247sports.com/college/south-alabama/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "southern-miss": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Southern Miss",
+      "url": "https://247sports.com/college/southern-miss/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ],
+  "troy": [
+    {
+      "name": "Locked On Sun Belt Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2439186676",
+      "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "247Sports — Troy",
+      "url": "https://247sports.com/college/troy/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "No clean RSS — direct URL fetch."
+    }
+  ]
+}

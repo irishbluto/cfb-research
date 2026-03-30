@@ -12,5 +12,61 @@
       "name": "UTEP Athletics",
       "type": "beat_writer"
     }
+  ],
+  "air-force": [
+    {
+      "id": "UCPvuJLd9RDVK630zY2b6Ykg",
+      "name": "Air Force Falcons",
+      "type": "beat_writer"
+    }
+  ],
+  "hawaii": [
+    {
+      "id": "UCIdMh3LfMj9yEjM6t3B6m6A",
+      "name": "University of Hawaii Athletics Department - Manoa",
+      "type": "beat_writer"
+    }
+  ],
+  "nevada": [
+    {
+      "id": "UCHpG2jjry2W1NDrFkmaRC6A",
+      "name": "Nevada Sports Net",
+      "type": "beat_writer"
+    }
+  ],
+  "new-mexico": [
+    {
+      "id": "UCN_Aw5F5pAkHsF5OCn4j-Bw",
+      "name": "New Mexico Lobos",
+      "type": "beat_writer"
+    }
+  ],
+  "northern-illinois": [
+    {
+      "id": "UCqLQtLgLK_nJqU3JKY687oA",
+      "name": "NIU Athletics",
+      "type": "beat_writer"
+    }
+  ],
+  "san-jose-state": [
+    {
+      "id": "San Jose State Spartans",
+      "name": "UTEP Athletics",
+      "type": "beat_writer"
+    }
+  ],
+  "unlv": [
+    {
+      "id": "UCRWbmY4Q3bK3mOoWmChyoww",
+      "name": "Let’s Run with Jason Kelly",
+      "type": "beat_writer"
+    }
+  ],
+  "wyoming": [
+    {
+      "id": "UCy9b8FWD1N2TsU2jkij_O3Q",
+      "name": "Wyoming Athletics",
+      "type": "beat_writer"
+    }
   ]
 }
