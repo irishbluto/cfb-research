@@ -1,0 +1,294 @@
+{
+  "akron": [
+    {
+      "name": "Hustle Belt — Akron",
+      "url": "https://www.hustlebelt.com/akron-zips",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed very active through March 2026; deep game recaps and power rankings for every MAC team"
+    },
+    {
+      "name": "Zips Nation — CSNbbs",
+      "url": "https://csnbbs.com/forum-384.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Akron fan message board on CSNbbs MAC network — active community"
+    },
+    {
+      "name": "247Sports — Akron",
+      "url": "https://247sports.com/college/akron/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "ball-state": [
+    {
+      "name": "Hustle Belt — Ball State",
+      "url": "https://www.hustlebelt.com/ball-state-cardinals",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active with weekly game recaps and preseason previews for Ball State"
+    },
+    {
+      "name": "247Sports — Ball State",
+      "url": "https://247sports.com/college/ball-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "bowling-green": [
+    {
+      "name": "Hustle Belt — Bowling Green",
+      "url": "https://www.hustlebelt.com/bowling-green-falcons",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active; covers Eddie George era and Battle of I-75 rivalry with Toledo"
+    },
+    {
+      "name": "Ay-Ziggy-Zoomba — CSNbbs",
+      "url": "https://csnbbs.com/forum-418.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Bowling Green fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Bowling Green",
+      "url": "https://247sports.com/college/bowling-green/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "buffalo": [
+    {
+      "name": "Hustle Belt — Buffalo",
+      "url": "https://www.hustlebelt.com/buffalo-bulls",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active with regular Bulls coverage"
+    },
+    {
+      "name": "UB Fan — CSNbbs",
+      "url": "https://csnbbs.com/forum-419.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Buffalo Bulls fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Buffalo",
+      "url": "https://247sports.com/college/buffalo/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "central-michigan": [
+    {
+      "name": "Hustle Belt — Central Michigan",
+      "url": "https://www.hustlebelt.com/central-michigan-chippewas",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active with CMU coverage under first-year coach Matt Drinkall"
+    },
+    {
+      "name": "Chippewa Nation — CSNbbs",
+      "url": "https://csnbbs.com/forum-420.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Central Michigan fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Central Michigan",
+      "url": "https://247sports.com/college/central-michigan/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "eastern-michigan": [
+    {
+      "name": "Hustle Belt — Eastern Michigan",
+      "url": "https://www.hustlebelt.com/eastern-michigan-eagles",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active with EMU coverage"
+    },
+    {
+      "name": "EMU Eagle's Nest — CSNbbs",
+      "url": "https://csnbbs.com/forum-421.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Eastern Michigan fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Eastern Michigan",
+      "url": "https://247sports.com/college/eastern-michigan/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "kent-state": [
+    {
+      "name": "Hustle Belt — Kent State",
+      "url": "https://www.hustlebelt.com/kent-state-golden-flashes",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active with Kent State coverage"
+    },
+    {
+      "name": "Flash Fanatics — CSNbbs",
+      "url": "https://csnbbs.com/forum-430.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Kent State fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Kent State",
+      "url": "https://247sports.com/college/kent-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "massachusetts": [
+    {
+      "name": "Hustle Belt — UMass",
+      "url": "https://www.hustlebelt.com/umass-minutemen",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active; covers UMass in first full MAC season (0-12 in 2025)"
+    },
+    {
+      "name": "Maroon Musket — CSNbbs",
+      "url": "https://csnbbs.com/forum-422.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "UMass fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — UMass",
+      "url": "https://247sports.com/college/massachusetts/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "miami-oh": [
+    {
+      "name": "Hustle Belt — Miami (OH)",
+      "url": "https://www.hustlebelt.com/miami-redhawks",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active; Miami (OH) is a perennial contender and gets strong coverage"
+    },
+    {
+      "name": "Miami Hawk Talk — CSNbbs",
+      "url": "https://csnbbs.com/forum-431.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Miami (OH) fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Miami (OH)",
+      "url": "https://247sports.com/college/miami-oh/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "ohio": [
+    {
+      "name": "Hustle Belt — Ohio",
+      "url": "https://www.hustlebelt.com/ohio-bobcats",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active; Ohio won 2025 MAC title and gets strong regular coverage"
+    },
+    {
+      "name": "Bobcat Attack — CSNbbs",
+      "url": "https://csnbbs.com/forum-435.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Ohio Bobcats fan message board on CSNbbs MAC network"
+    },
+    {
+      "name": "247Sports — Ohio",
+      "url": "https://247sports.com/college/ohio/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "sacramento-state": [
+    {
+      "name": "Sactown Sports — Sacramento State Football",
+      "url": "https://sactownsports.com/ncaa/sacramento-state-football/",
+      "type": "beat_writer",
+      "rss": "https://sactownsports.com/feed/",
+      "notes": "Primary Sac State athletics coverage site — confirmed very active through March 2026 with FBS transition, MAC schedule, and AD interviews"
+    },
+    {
+      "name": "Hustle Belt — Sacramento State",
+      "url": "https://www.hustlebelt.com/sacramento-state-hornets",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — new Sac State coverage for inaugural 2026 FBS season; MACbbs already has a Sacramento State team forum"
+    },
+    {
+      "name": "247Sports — Sacramento State",
+      "url": "https://247sports.com/college/sacramento-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking for inaugural FBS season"
+    }
+  ],
+  "toledo": [
+    {
+      "name": "Hustle Belt — Toledo",
+      "url": "https://www.hustlebelt.com/toledo-rockets",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed very active; Toledo is a MAC powerhouse and gets detailed weekly coverage"
+    },
+    {
+      "name": "The Launchpad — CSNbbs",
+      "url": "https://csnbbs.com/forum-954.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Toledo Rockets fan message board on CSNbbs — confirmed active"
+    },
+    {
+      "name": "247Sports — Toledo",
+      "url": "https://247sports.com/college/toledo/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "western-michigan": [
+    {
+      "name": "Hustle Belt — Western Michigan",
+      "url": "https://www.hustlebelt.com/western-michigan-broncos",
+      "type": "fan_aggregator",
+      "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "notes": "SBNation MAC hub — confirmed active; WMU is 2025 MAC champion and gets strong coverage"
+    },
+    {
+      "name": "Bronco Stampede — CSNbbs",
+      "url": "https://csnbbs.com/forum-956.html",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Western Michigan fan message board on CSNbbs MAC network — confirmed active"
+    },
+    {
+      "name": "247Sports — Western Michigan",
+      "url": "https://247sports.com/college/western-michigan/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ]
+}

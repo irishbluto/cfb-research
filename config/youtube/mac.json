@@ -1,8 +1,92 @@
 {
   "akron": [
     {
-      "id": "XXXXXXXXXXXXXXX",
-      "name": "XXXXXXXXXX",
+      "id": "UC1gs5fPWwM-8oCi6OkTS2Dw",
+      "name": "Akron Zips",
+      "type": "fan_analysis"
+    }
+  ],
+  "ball-state": [
+    {
+      "id": "UC2NNBELgITQgnnBVg2jak0g",
+      "name": "Ball State All-Access",
+      "type": "fan_analysis"
+    }
+  ],
+  "bowling-green": [
+    {
+      "id": "UCl6iceomuO8UxePvfz610tQ",
+      "name": "FalconAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "buffalo": [
+    {
+      "id": "UC2fMl4Xc5TBqOq2M7ijJjzQ",
+      "name": "UB Bulls",
+      "type": "fan_analysis"
+    }
+  ],
+  "central-michigan": [
+    {
+      "id": "UCeolWbSWWwzTIC7w4uronXg",
+      "name": "Central Michigan Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "eastern-michigan": [
+    {
+      "id": "UC-dnlQgbOUztm4W2wVqWVvw",
+      "name": "emuathletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "kent-state": [
+    {
+      "id": "UC5i_E8hrUZode3b-xyH3aSQ",
+      "name": "GoldenFlashesTV",
+      "type": "fan_analysis"
+    }
+  ],
+  "massachusetts": [
+    {
+      "id": "UCTmJzvpNk8GeueSpBttmb2g",
+      "name": "MassachusettsAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "miami-oh": [
+    {
+      "id": "UC6O0l1HztB7XaXu_U1SL1sw",
+      "name": "MiamiRedHawks",
+      "type": "fan_analysis"
+    }
+  ],
+  "ohio": [
+    {
+      "id": "UCo_Ttgwb3zBiwEN8HlJFshw",
+      "name": "OhioBobcatsStudios",
+      "type": "fan_analysis"
+    }
+  ],
+  "sacramento-state": [
+    {
+      "id": "UCs9alin5H3BG3byenJqmVKQ",
+      "name": "sacramentofootballtv",
+      "type": "fan_analysis"
+    }
+  ],
+  "toledo": [
+    {
+      "id": "UCi-jnLQKem7R2AollamEZ7g",
+      "name": "utrockets",
+      "type": "fan_analysis"
+    }
+  ],
+  "western-michigan": [
+    {
+      "id": "UCLiZeT3xp0PHOJc3F3h3u_g",
+      "name": "WesternMichiganBroncos",
       "type": "fan_analysis"
     }
   ]
