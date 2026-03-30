@@ -5,5 +5,96 @@
       "name": "BlackKnight Nation",
       "type": "fan_analysis"
     }
+  ],
+  "charlotte": [
+    {
+      "id": "UCKuiGnWXMS4JfRlBZQGjzzg",
+      "name": "Charlotte 49ers Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "east-carolina": [
+    {
+      "id": "UChOluzxycDhMsLWvyL7emRA",
+      "name": "ECU Football",
+      "type": "fan_analysis"
+    }
+  ],
+  "florida-atlantic": [
+    {
+      "id": "UC7J785tF6we_y0vip0BRtfg",
+      "name": "FAUAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "memphis": [
+    {
+      "id": "UCzWw4a6Lp2uq891HbAT7ANw",
+      "name": "Memphis Tigers Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "navy": [
+    {
+      "id": "UCwVmrfUxcyIHyfsNZaXDf2A",
+      "name": "NavyAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "north-texas": [
+    {
+      "id": "UCZEUQg8iS--gz8-TLAznB5g",
+      "name": "MeanGreenSports",
+      "type": "fan_analysis"
+    }
+  ],
+  "south-florida": [
+    {
+      "id": "UC2hUZIkGfPjlJy8-P0MJjYA",
+      "name": "USF Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "rice": [
+    {
+      "id": "UCJaH9GHofzrX8iUgMIANEow",
+      "name": "RiceAthletics1912",
+      "type": "fan_analysis"
+    }
+  ],
+  "temple": [
+    {
+      "id": "UCcZHdlAqyXOhIZONkPIaI1w",
+      "name": "TempleUniversityAthletics1884",
+      "type": "fan_analysis"
+    }
+  ],
+  "tulane": [
+    {
+      "id": "UCNSyUGDZ0M4ATau4PkmNp9g",
+      "name": "Tulane Green Wave",
+      "type": "fan_analysis"
+    }
+  ],
+  "tulsa": [
+    {
+      "id": "UCCM89Zk2s49DxKXFQBv-tkg",
+      "name": "TulsaHurricaneAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "uab": [
+    {
+      "id": "UC6H7Iesgyz0mmhkpesbTbUQ",
+      "name": "UAB Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "utsa": [
+    {
+      "id": "UClmIPiqt858LtAMj79sKjtw",
+      "name": "Rowdy Creative",
+      "type": "fan_analysis"
+    }
   ]
 }

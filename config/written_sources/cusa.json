@@ -1,0 +1,213 @@
+{
+  "delaware": [
+    {
+      "name": "Underdog Dynasty — Delaware",
+      "url": "https://www.underdogdynasty.com/delaware-blue-hens",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed very active through March 2026; deep weekly game previews, recaps, and 'Weekday CUSA' coverage for all 11 teams"
+    },
+    {
+      "name": "GoHens.net — Delaware Fan Forum",
+      "url": "https://www.gohens.net/boards/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Primary Delaware athletics fan forum — confirmed active with 3,086 peak concurrent users in Oct 2025 during football season"
+    },
+    {
+      "name": "Delaware Live — Sports",
+      "url": "https://delawarelive.com/sports/",
+      "type": "beat_writer",
+      "rss": "https://delawarelive.com/feed/",
+      "notes": "Delaware-focused news outlet with active football coverage — confirmed reporting on CUSA games through 2025 season"
+    },
+    {
+      "name": "247Sports — Delaware",
+      "url": "https://247sports.com/college/delaware/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "florida-international": [
+    {
+      "name": "Underdog Dynasty — FIU",
+      "url": "https://www.underdogdynasty.com/fiu-panthers",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active with FIU coverage including Willie Simmons first-year rebuild in 2025"
+    },
+    {
+      "name": "247Sports — FIU",
+      "url": "https://247sports.com/college/fiu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "jacksonville-state": [
+    {
+      "name": "Underdog Dynasty — Jacksonville State",
+      "url": "https://www.underdogdynasty.com/jacksonville-state-gamecocks",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active; Jax State is a perennial CUSA contender and gets strong weekly coverage including title race scenarios"
+    },
+    {
+      "name": "247Sports — Jacksonville State",
+      "url": "https://247sports.com/college/jacksonville-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "kennesaw-state": [
+    {
+      "name": "Underdog Dynasty — Kennesaw State",
+      "url": "https://www.underdogdynasty.com/kennesaw-state-owls",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active; strong KSU coverage following their 2025 CUSA championship run and Jerry Mack era"
+    },
+    {
+      "name": "247Sports — Kennesaw State",
+      "url": "https://247sports.com/college/kennesaw-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking for a program still building its FBS recruiting infrastructure"
+    }
+  ],
+  "liberty": [
+    {
+      "name": "Underdog Dynasty — Liberty",
+      "url": "https://www.underdogdynasty.com/liberty-flames",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active; Liberty is one of the conference's most-covered teams given their FBS success history"
+    },
+    {
+      "name": "247Sports — Liberty",
+      "url": "https://247sports.com/college/liberty/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "louisiana-tech": [
+    {
+      "name": "Underdog Dynasty — Louisiana Tech",
+      "url": "https://www.underdogdynasty.com/louisiana-tech-bulldogs",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active; La Tech in limbo (Sun Belt exit likely 2026 or 2027) but schedule released for CUSA in 2026; include unless confirmed departed"
+    },
+    {
+      "name": "247Sports — Louisiana Tech",
+      "url": "https://247sports.com/college/louisiana-tech/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking; useful regardless of which conference La Tech plays in"
+    }
+  ],
+  "middle-tennessee": [
+    {
+      "name": "Underdog Dynasty — Middle Tennessee",
+      "url": "https://www.underdogdynasty.com/middle-tennessee-blue-raiders",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active with MTSU coverage"
+    },
+    {
+      "name": "MTSU Sidelines",
+      "url": "https://mtsusidelines.com/",
+      "type": "beat_writer",
+      "rss": "https://mtsusidelines.com/feed/",
+      "notes": "MTSU student newspaper — confirmed active through Nov 2025 with live game updates and season coverage; best beat source for the Blue Raiders"
+    },
+    {
+      "name": "The Raider Roundup — Rivals",
+      "url": "https://middletennessee.forums.rivals.com/forums/the-raider-roundup.6/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "MTSU fan forum on Rivals network — active community"
+    },
+    {
+      "name": "247Sports — Middle Tennessee",
+      "url": "https://247sports.com/college/middle-tennessee/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "missouri-state": [
+    {
+      "name": "Underdog Dynasty — Missouri State",
+      "url": "https://www.underdogdynasty.com/missouri-state-bears",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active with Missouri State coverage in their first CUSA season; Bears were competitive in 2025 despite FBS transition"
+    },
+    {
+      "name": "247Sports — Missouri State",
+      "url": "https://247sports.com/college/missouri-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking for a program still building FBS roster depth"
+    }
+  ],
+  "new-mexico-state": [
+    {
+      "name": "Underdog Dynasty — New Mexico State",
+      "url": "https://www.underdogdynasty.com/new-mexico-state-aggies",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active with NMSU coverage"
+    },
+    {
+      "name": "Crimson and White Nation",
+      "url": "https://nmstatefans.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Primary NMSU athletics fan forum — long-running independent site covering Aggie football and recruiting"
+    },
+    {
+      "name": "247Sports — New Mexico State",
+      "url": "https://247sports.com/college/new-mexico-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "sam-houston": [
+    {
+      "name": "Underdog Dynasty — Sam Houston",
+      "url": "https://www.underdogdynasty.com/sam-houston-bearkats",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed active with Sam Houston coverage including 2025 season struggles and November turnaround"
+    },
+    {
+      "name": "247Sports — Sam Houston",
+      "url": "https://247sports.com/college/sam-houston/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "western-kentucky": [
+    {
+      "name": "Underdog Dynasty — Western Kentucky",
+      "url": "https://www.underdogdynasty.com/western-kentucky-hilltoppers",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "notes": "SBNation CUSA hub — confirmed very active; WKU is a CUSA powerhouse and gets the deepest weekly coverage of any team in the conference"
+    },
+    {
+      "name": "247Sports — Western Kentucky",
+      "url": "https://247sports.com/college/western-kentucky/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ]
+}
