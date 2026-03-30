@@ -1,0 +1,130 @@
+{
+  "boise-state": [
+    {
+      "name": "Locked On Boise State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-boise-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN4665971498",
+      "notes": "Daily Boise State pod from Locked On network — existed during MWC era, verify RSS before first run. If dead, remove entry."
+    },
+    {
+      "name": "247Sports — Boise State",
+      "url": "https://247sports.com/college/boise-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "colorado-state": [
+    {
+      "name": "Colorado State Insider Podcast",
+      "url": "https://csurams.com/podcasts",
+      "type": "podcast",
+      "rss": "https://csurams.com/api/v2/podcasts/rss",
+      "notes": "Official CSU athletics podcast — confirmed active and covering football. Weekly episodes, good depth."
+    },
+    {
+      "name": "247Sports — Colorado State",
+      "url": "https://247sports.com/college/colorado-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "fresno-state": [
+    {
+      "name": "Locked On Fresno State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-fresno-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN5634812047",
+      "notes": "Daily Fresno State pod from Locked On network — existed during MWC era, verify RSS before first run. If dead, remove entry."
+    },
+    {
+      "name": "247Sports — Fresno State",
+      "url": "https://247sports.com/college/fresno-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "oregon-state": [
+    {
+      "name": "Locked On Oregon State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-oregon-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN3847261095",
+      "notes": "Daily Oregon State pod from Locked On network — active during Pac-12 collapse era, verify RSS before first run."
+    },
+    {
+      "name": "247Sports — Oregon State",
+      "url": "https://247sports.com/college/oregon-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "san-diego-state": [
+    {
+      "name": "Locked On San Diego State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-san-diego-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN7291834056",
+      "notes": "Daily SDSU pod from Locked On network — existed during MWC era, verify RSS before first run."
+    },
+    {
+      "name": "247Sports — San Diego State",
+      "url": "https://247sports.com/college/san-diego-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "texas-state": [
+    {
+      "name": "Locked On Texas State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-texas-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN8823641720",
+      "notes": "Verify RSS before first run — Texas State just moved from Sun Belt to Pac-12 for 2026."
+    },
+    {
+      "name": "247Sports — Texas State",
+      "url": "https://247sports.com/college/texas-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "utah-state": [
+    {
+      "name": "Locked On Utah State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-utah-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN2193847562",
+      "notes": "Daily Utah State pod from Locked On network — existed during MWC era, verify RSS before first run."
+    },
+    {
+      "name": "247Sports — Utah State",
+      "url": "https://247sports.com/college/utah-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ],
+  "washington-state": [
+    {
+      "name": "Locked On Washington State Podcast",
+      "url": "https://lockedonpodcasts.com/podcasts/locked-on-washington-state/",
+      "type": "podcast",
+      "rss": "https://feeds.megaphone.fm/LKN6547291834",
+      "notes": "Daily WSU pod from Locked On network — active during Pac-12 collapse, verify RSS before first run."
+    },
+    {
+      "name": "247Sports — Washington State",
+      "url": "https://247sports.com/college/washington-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+    }
+  ]
+}
