@@ -122,8 +122,9 @@ CONFERENCE_TEAMS = {
     "acc":    ACC_TEAMS,
     "big12":  BIG12_TEAMS,
     "sbc":    SBC_TEAMS,
+    "aac":    AAC_TEAMS,
     # "pac12":  PAC12_TEAMS,
-    # "aac":    AAC_TEAMS,
+    
     
     # "mwc":    MWC_TEAMS,
     # "mac":    MAC_TEAMS,
@@ -279,7 +280,10 @@ def build_prompt(slug, context, channels, no_youtube=False):
 
     # Determine research mode based on time of year
     month = datetime.now().month
-    if month in (1, 2, 3):
+    if month in (1):
+        mode = "cfb_playoffs"
+        mode_focus = "college football playoffs, injury updates, weekly game prep, postseason news, portal activity, recruiting, coaching changes"
+    elif month in (2, 3):
         mode = "early_offseason"
         mode_focus = "portal activity, recruiting, coaching changes, spring practice previews"
     elif month in (4, 5, 6):
@@ -347,7 +351,7 @@ Current focus: {mode_focus}
    - The 3-5 most important current storylines
    - Any injury flags not already in the context
    - Overall fanbase/media sentiment
-   - A 2-3 sentence summary a reader could scan in 10 seconds
+   - A 3-4 sentence summary a reader could scan in 10 seconds
 
 ## Output Format
 
