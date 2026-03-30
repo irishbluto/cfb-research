@@ -198,6 +198,158 @@ def youtube_api(endpoint, params):
         return None
 
 # ---------------------------------------------------------------------------
+# yt-dlp fallback — no API key, no quota cost
+# ---------------------------------------------------------------------------
+
+def fetch_channel_videos_ytdlp(channel_id, channel_name, channel_type, days=14, max_results=5):
+    """
+    Fetch recent videos from a channel using yt-dlp (no API key, no quota cost).
+    Used as fallback when YouTube Data API quota is exhausted.
+
+    Returns a list of video dicts in the same format as fetch_channel_videos()
+    so nothing downstream needs to change.
+    """
+    try:
+        import yt_dlp
+    except ImportError:
+        return [{
+            'channel':      channel_name,
+            'channel_type': channel_type,
+            'video_title':  'yt-dlp not installed — run: pip install yt-dlp',
+            'url':          f"https://www.youtube.com/channel/{channel_id}",
+            'published':    '',
+            'description':  '',
+            'key_points':   [],
+            'sentiment':    'neutral',
+            'error':        True,
+            'ytdlp':        True,
+        }]
+
+    import html as html_lib
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime('%Y%m%d')
+    channel_url = f"https://www.youtube.com/channel/{channel_id}/videos"
+
+    ydl_opts = {
+        'quiet':           True,
+        'no_warnings':     True,
+        'skip_download':   True,
+        'extract_flat':    True,        # titles + URLs only, very fast
+        'playlistend':     max_results * 3,  # fetch extra to allow for filtering
+        'ignoreerrors':    True,
+    }
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(channel_url, download=False)
+    except Exception as e:
+        return [{
+            'channel':      channel_name,
+            'channel_type': channel_type,
+            'video_title':  f"yt-dlp error: {str(e)[:100]}",
+            'url':          channel_url,
+            'published':    '',
+            'description':  '',
+            'key_points':   [],
+            'sentiment':    'neutral',
+            'error':        True,
+            'ytdlp':        True,
+        }]
+
+    if not info or 'entries' not in info:
+        return [{
+            'channel':      channel_name,
+            'channel_type': channel_type,
+            'video_title':  f"No videos found via yt-dlp for {channel_name}",
+            'url':          channel_url,
+            'published':    '',
+            'description':  '',
+            'key_points':   [],
+            'sentiment':    'neutral',
+            'no_recent':    True,
+            'ytdlp':        True,
+        }]
+
+    # Reuse the same football/non-football filters as the API path
+    FOOTBALL_TERMS = {
+        'football', 'quarterback', 'qb', 'scrimmage', 'spring practice',
+        'depth chart', 'offense', 'defense', 'linebacker', 'receiver',
+        'portal', 'recruit', 'signing', 'nfl draft', 'a-day', 'spring game',
+        'offensive line', 'defensive line', 'secondary', 'coaching',
+        'bowl', 'cfp', 'playoff', 'preseason', 'camp', 'practice', 'season',
+        'transfer', 'commit', 'decommit', 'roster', 'spring ball',
+    }
+    NON_FOOTBALL_TERMS = {
+        'basketball', 'baseball', 'softball', 'gymnastics', 'tennis',
+        'soccer', 'track', 'volleyball', 'swimming', 'golf', 'nba',
+        'march madness', 'sweet 16', 'elite 8', 'final four', 'ncaa tournament',
+        'nit', 'lacrosse', 'wrestling', 'hockey',
+    }
+
+    videos  = []
+    skipped = 0
+
+    for entry in (info.get('entries') or []):
+        if not entry:
+            continue
+
+        title       = html_lib.unescape(entry.get('title') or '')
+        video_id    = entry.get('id') or entry.get('url', '').split('=')[-1]
+        url         = f"https://www.youtube.com/watch?v={video_id}" if video_id else ''
+        description = html_lib.unescape((entry.get('description') or '')[:300])
+
+        # yt-dlp flat extract gives upload_date as YYYYMMDD string or None
+        upload_date = entry.get('upload_date') or ''
+        if upload_date and upload_date < cutoff:
+            continue  # older than our days window
+
+        # Format date as YYYY-MM-DD to match API path output
+        published = f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:]}" if len(upload_date) == 8 else ''
+
+        combined = (title + ' ' + description).lower()
+
+        if any(term in combined for term in NON_FOOTBALL_TERMS):
+            skipped += 1
+            continue
+
+        has_football = any(term in combined for term in FOOTBALL_TERMS)
+        if not has_football and channel_type == 'beat_writer':
+            skipped += 1
+            continue
+
+        videos.append({
+            'channel':      channel_name,
+            'channel_type': channel_type,
+            'video_title':  title,
+            'url':          url,
+            'published':    published,
+            'description':  description,
+            'key_points':   [],
+            'sentiment':    'neutral',
+            'ytdlp':        True,   # flag so we know which path was used
+        })
+
+        if len(videos) >= max_results:
+            break
+
+    if not videos:
+        return [{
+            'channel':      channel_name,
+            'channel_type': channel_type,
+            'video_title':  f"No football videos in last {days} days via yt-dlp ({skipped} filtered)",
+            'url':          channel_url,
+            'published':    '',
+            'description':  '',
+            'key_points':   [],
+            'sentiment':    'neutral',
+            'no_recent':    True,
+            'ytdlp':        True,
+        }]
+
+    return videos
+
+
+# ---------------------------------------------------------------------------
 # Fetch recent videos from one channel
 # ---------------------------------------------------------------------------
 
@@ -313,15 +465,35 @@ def fetch_channel_videos(channel_id, channel_name, channel_type, days=14, max_re
 # Fetch all videos for a team — with cache + quota guard
 # ---------------------------------------------------------------------------
 
-def fetch_team_videos(slug, days=14, max_results=5):
+def _build_summary_lines(all_videos, days):
+    """Build summary text lines from a video list for injection into the agent prompt."""
+    summary_lines = []
+    for v in all_videos:
+        if v.get('no_recent'):
+            summary_lines.append(f"  [{v['channel']}] No videos in last {days} days")
+        elif v.get('error'):
+            summary_lines.append(f"  [{v['channel']}] Error fetching videos")
+        else:
+            summary_lines.append(
+                f"  [{v['channel']} — {v['channel_type']}]\n"
+                f"    Title: {v['video_title']}\n"
+                f"    URL: {v['url']}\n"
+                f"    Published: {v['published']}\n"
+                f"    Description: {v['description'][:150]}..."
+            )
+    return summary_lines
+
+
+def fetch_team_videos(slug, days=14, max_results=5, no_ytdlp=False):
     """
     Fetch recent videos for all channels associated with a team slug.
 
     Cache behavior:
       - If results for this slug exist in today's cache, return them immediately
         with zero API cost.
-      - If not cached, check quota before calling the API.
-      - If quota is at the safe limit (9,000 units), skip and return a warning.
+      - If not cached, check quota before calling the YouTube Data API.
+      - If quota is at the safe limit (9,000 units), try yt-dlp fallback
+        (no API key, no quota cost). Pass no_ytdlp=True to skip fallback.
 
     Returns dict with videos list and summary_text for the agent prompt.
     """
@@ -352,19 +524,51 @@ def fetch_team_videos(slug, days=14, max_results=5):
     if num_searches == 0:
         return {'error': f'No valid channel IDs for team: {slug}', 'videos': [], 'count': 0}
 
-    # --- Quota check: bail out before hitting the limit ---
+    # --- Quota check ---
     ok, units_used, remaining = _check_quota(num_searches)
+
     if not ok:
-        msg = (f"YouTube quota limit reached — {units_used:,}/{QUOTA_DAILY_LIMIT:,} units used "
-               f"({remaining:,} remaining, need {num_searches * QUOTA_PER_SEARCH}). "
-               f"Resets daily at midnight Pacific. Run --quota to check status.")
-        print(f"  WARNING: {msg}", file=sys.stderr)
-        return {
-            'error':       msg,
-            'quota_limit': True,
-            'videos':      [],
-            'count':       0,
+        # --- yt-dlp fallback ---
+        if no_ytdlp:
+            msg = (f"YouTube quota limit reached — {units_used:,}/{QUOTA_DAILY_LIMIT:,} units used "
+                   f"({remaining:,} remaining, need {num_searches * QUOTA_PER_SEARCH}). "
+                   f"Resets daily at midnight Pacific. Run --quota to check status.")
+            print(f"  WARNING: {msg}", file=sys.stderr)
+            return {'error': msg, 'quota_limit': True, 'videos': [], 'count': 0}
+
+        print(f"  Quota limit reached ({units_used:,}/{QUOTA_DAILY_LIMIT:,} units) — "
+              f"falling back to yt-dlp for {slug}", file=sys.stderr)
+
+        all_videos = []
+        for ch in team_channels:
+            channel_id   = ch.get('id', '')
+            channel_name = ch.get('name', '')
+            channel_type = ch.get('type', 'unknown')
+            if not channel_id or not channel_id.startswith('UC'):
+                continue
+            videos = fetch_channel_videos_ytdlp(channel_id, channel_name, channel_type, days, max_results)
+            all_videos.extend(videos)
+
+        # Record yt-dlp usage in quota log (no units charged)
+        quota = _load_quota()
+        quota.setdefault('teams_ytdlp', [])
+        if slug not in quota['teams_ytdlp']:
+            quota['teams_ytdlp'].append(slug)
+        _save_quota(quota)
+
+        real_count = len([v for v in all_videos if not v.get('no_recent') and not v.get('error')])
+        summary_lines = _build_summary_lines(all_videos, days)
+        result = {
+            'videos':       all_videos,
+            'summary_text': '\n'.join(summary_lines),
+            'count':        real_count,
+            'from_cache':   False,
+            'quota_used':   units_used,
+            'ytdlp':        True,
         }
+        cache[slug] = result
+        _save_cache(cache)
+        return result
 
     # --- Live API fetch ---
     all_videos = []
@@ -393,22 +597,7 @@ def fetch_team_videos(slug, days=14, max_results=5):
     # Record quota usage after successful fetch
     units_now = _record_api_call(slug, num_searches)
 
-    # Build summary text for injection into the agent prompt
-    summary_lines = []
-    for v in all_videos:
-        if v.get('no_recent'):
-            summary_lines.append(f"  [{v['channel']}] No videos in last {days} days")
-        elif v.get('error'):
-            summary_lines.append(f"  [{v['channel']}] Error fetching videos")
-        else:
-            summary_lines.append(
-                f"  [{v['channel']} — {v['channel_type']}]\n"
-                f"    Title: {v['video_title']}\n"
-                f"    URL: {v['url']}\n"
-                f"    Published: {v['published']}\n"
-                f"    Description: {v['description'][:150]}..."
-            )
-
+    summary_lines = _build_summary_lines(all_videos, days)
     result = {
         'videos':       all_videos,
         'summary_text': '\n'.join(summary_lines),
@@ -435,20 +624,25 @@ def main():
     parser.add_argument('--max',         type=int, default=5)
     parser.add_argument('--quota',       action='store_true', help="Show today's quota usage and exit")
     parser.add_argument('--clear-cache', action='store_true', help="Clear today's cache and exit")
+    parser.add_argument('--no-ytdlp',   action='store_true', help="Disable yt-dlp fallback when quota is exhausted")
     args = parser.parse_args()
 
     # --quota: show usage summary and exit
     if args.quota:
         status = get_quota_status()
+        quota  = _load_quota()
         print(f"YouTube API Quota — {datetime.now().strftime('%Y-%m-%d')}")
         print(f"  Units used:       {status['units_used']:,} / {QUOTA_DAILY_LIMIT:,}")
         print(f"  Units remaining:  {status['units_remaining']:,}")
         print(f"  Searches used:    {status['searches_used']}")
         print(f"  Searches left:    {status['searches_remaining']}")
         print(f"  Safe limit:       {status['safe_limit']:,} units ({QUOTA_SAFE_LIMIT // QUOTA_PER_SEARCH} searches)")
-        print(f"  At safe limit:    {'YES — fetches blocked for today' if status['at_safe_limit'] else 'No'}")
+        print(f"  At safe limit:    {'YES — API fetches blocked, yt-dlp active' if status['at_safe_limit'] else 'No'}")
         print(f"  Teams fetched:    {len(status['teams_fetched'])} — {status['teams_fetched']}")
         print(f"  Teams from cache: {len(status['teams_cached'])} — {status['teams_cached']}")
+        ytdlp_teams = quota.get('teams_ytdlp', [])
+        if ytdlp_teams:
+            print(f"  Teams via yt-dlp: {len(ytdlp_teams)} — {ytdlp_teams}")
         return
 
     # --clear-cache: wipe today's cache and exit
@@ -475,7 +669,7 @@ def main():
         print(json.dumps(videos, indent=2))
 
     elif args.team:
-        result = fetch_team_videos(args.team, args.days, args.max)
+        result = fetch_team_videos(args.team, args.days, args.max, no_ytdlp=args.no_ytdlp)
         if 'error' in result:
             print(f"ERROR: {result['error']}")
         else:
@@ -486,6 +680,7 @@ def main():
             print(json.dumps(result['videos'], indent=2))
     else:
         print("Usage: python3 youtube_fetcher.py --team alabama")
+        print("       python3 youtube_fetcher.py --team alabama --no-ytdlp")
         print("       python3 youtube_fetcher.py --channel UCxxx")
         print("       python3 youtube_fetcher.py --quota")
         print("       python3 youtube_fetcher.py --clear-cache")

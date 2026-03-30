@@ -1,0 +1,275 @@
+{
+  "army": [
+    {
+      "name": "GoBlackKnights.com — On3",
+      "url": "https://www.on3.com/sites/go-black-knights/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Premier Army football news and analysis site — confirmed very active 2025, daily content through bowl season"
+    },
+    {
+      "name": "As For Football",
+      "url": "https://www.asforfootball.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.asforfootball.com/feed/",
+      "notes": "Independent Army football analysis blog — confirmed active 2025 with game previews and film breakdown"
+    },
+    {
+      "name": "Underdog Dynasty — Army",
+      "url": "https://www.underdogdynasty.com/army-black-knights",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "AAC-focused editorial hub — primary editorial source for all AAC teams; covers Army consistently"
+    }
+  ],
+  "charlotte": [
+    {
+      "name": "Underdog Dynasty — Charlotte",
+      "url": "https://www.underdogdynasty.com/charlotte-49ers",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage of Charlotte football; no active independent fan blog found"
+    },
+    {
+      "name": "247Sports — Charlotte",
+      "url": "https://247sports.com/college/charlotte/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "east-carolina": [
+    {
+      "name": "The Pirate Pulse",
+      "url": "https://www.thepiratepulse.com/",
+      "type": "beat_writer",
+      "rss": "https://www.thepiratepulse.com/feed/",
+      "notes": "Independent ECU football fan site — confirmed active 2025 with season previews and analysis"
+    },
+    {
+      "name": "Underdog Dynasty — East Carolina",
+      "url": "https://www.underdogdynasty.com/east-carolina-pirates",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "AAC editorial hub — strong ECU coverage including bowl previews and weekly game analysis"
+    },
+    {
+      "name": "247Sports — East Carolina",
+      "url": "https://247sports.com/college/east-carolina/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "florida-atlantic": [
+    {
+      "name": "Underdog Dynasty — Florida Atlantic",
+      "url": "https://www.underdogdynasty.com/florida-atlantic-owls",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage of FAU football; no prominent active independent fan blog found"
+    },
+    {
+      "name": "247Sports — Florida Atlantic",
+      "url": "https://247sports.com/college/florida-atlantic/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "memphis": [
+    {
+      "name": "Tiger Sports Report — On3",
+      "url": "https://www.on3.com/sites/tiger-sports-report/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "On3 Memphis athletics site — confirmed active through 2026 spring practice, primary beat coverage"
+    },
+    {
+      "name": "Underdog Dynasty — Memphis",
+      "url": "https://www.underdogdynasty.com/memphis-tigers",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "AAC editorial hub — top Memphis football analysis including preseason previews and bowl coverage"
+    },
+    {
+      "name": "247Sports — Memphis",
+      "url": "https://247sports.com/college/memphis/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "navy": [
+    {
+      "name": "Underdog Dynasty — Navy",
+      "url": "https://www.underdogdynasty.com/navy-midshipmen",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage for Navy football — strong weekly game previews, confirmed active 2025"
+    },
+    {
+      "name": "AcademyWars.com — Army Football Forum",
+      "url": "https://academywars.com/awforums/viewforum.php?f=6",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Long-running service academy fan forum — active Army and Navy discussion through December 2025"
+    },
+    {
+      "name": "247Sports — Navy",
+      "url": "https://247sports.com/college/navy/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "north-texas": [
+    {
+      "name": "Mean Green Nation",
+      "url": "https://www.meangreennation.com/",
+      "type": "beat_writer",
+      "rss": "https://www.meangreennation.com/feed",
+      "notes": "Independent UNT football-focused Substack — confirmed very active 2025 with deep in-game analysis and game previews"
+    },
+    {
+      "name": "GoMeanGreen.com",
+      "url": "https://www.gomeangreen.com/forums/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest UNT fan forum community — confirmed active 2025 recruiting and football discussion"
+    },
+    {
+      "name": "247Sports — North Texas",
+      "url": "https://247sports.com/college/north-texas/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "rice": [
+    {
+      "name": "Underdog Dynasty — Rice",
+      "url": "https://www.underdogdynasty.com/rice-owls",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage for Rice football — confirmed active 2025, including upset previews"
+    },
+    {
+      "name": "247Sports — Rice",
+      "url": "https://247sports.com/college/rice/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "south-florida": [
+    {
+      "name": "Green, Gold and Bold",
+      "url": "https://greengoldandbold.com/",
+      "type": "fan_aggregator",
+      "rss": "https://greengoldandbold.com/feed/",
+      "notes": "USF fan news and community site — confirmed active 2025 with game coverage and analysis"
+    },
+    {
+      "name": "The Bulls Pen",
+      "url": "https://www.thebullspen.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest USF fan forum — confirmed active 2025, long-running community with football coverage"
+    },
+    {
+      "name": "247Sports — South Florida",
+      "url": "https://247sports.com/college/south-florida/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "temple": [
+    {
+      "name": "Underdog Dynasty — Temple",
+      "url": "https://www.underdogdynasty.com/temple-owls",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage for Temple football — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Temple",
+      "url": "https://247sports.com/college/temple/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "tulane": [
+    {
+      "name": "Underdog Dynasty — Tulane",
+      "url": "https://www.underdogdynasty.com/tulane-green-wave",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "AAC editorial hub — top Tulane football analysis; confirmed active with CFP-level coverage 2025"
+    },
+    {
+      "name": "247Sports — Tulane",
+      "url": "https://247sports.com/college/tulane/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "tulsa": [
+    {
+      "name": "Underdog Dynasty — Tulsa",
+      "url": "https://www.underdogdynasty.com/tulsa-golden-hurricane",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage for Tulsa football — confirmed active 2025 under first-year coach Tre Lamb"
+    },
+    {
+      "name": "247Sports — Tulsa",
+      "url": "https://247sports.com/college/tulsa/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "uab": [
+    {
+      "name": "Underdog Dynasty — UAB",
+      "url": "https://www.underdogdynasty.com/uab-blazers",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Best external editorial coverage for UAB football; no active independent fan blog found"
+    },
+    {
+      "name": "247Sports — UAB",
+      "url": "https://247sports.com/college/uab/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "utsa": [
+    {
+      "name": "Underdog Dynasty — UTSA",
+      "url": "https://www.underdogdynasty.com/utsa-roadrunners",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Strong UTSA football coverage — confirmed very active 2025 including preseason previews and weekly analysis"
+    },
+    {
+      "name": "Rowdy Talk",
+      "url": "https://www.rowdytalk.com/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest UTSA fan forum — confirmed active 2025, covers football recruiting and game discussion"
+    },
+    {
+      "name": "247Sports — UTSA",
+      "url": "https://247sports.com/college/utsa/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ]
+}
