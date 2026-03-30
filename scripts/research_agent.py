@@ -280,7 +280,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
 
     # Determine research mode based on time of year
     month = datetime.now().month
-    if month in (1):
+    if month == (1):
         mode = "cfb_playoffs"
         mode_focus = "college football playoffs, injury updates, weekly game prep, postseason news, portal activity, recruiting, coaching changes"
     elif month in (2, 3):
