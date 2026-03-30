@@ -5,5 +5,54 @@
       "name": "Boise State sports coverage by Bronco Nation News",
       "type": "fan_analysis"
     }
+  ],
+  "colorado-state": [
+    {
+      "id": "UCjo6qGSNLTH50heHy4dZvrw",
+      "name": "Colorado State Rams",
+      "type": "fan_analysis"
+    }
+  ],
+  "fresno-state": [
+    {
+      "id": "UCcLLepYprPuttYSaE6HmIqQ",
+      "name": "fresnostateathletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "oregon-state": [
+    {
+      "id": "UC2uRaa7X0yUTq_at7QF2Txg",
+      "name": "Beavers Edge",
+      "type": "fan_analysis"
+    }
+  ],
+  "san-deigo-state": [
+    {
+      "id": "UCMZ4cpbv--KkHFrd_UlnFpg",
+      "name": "Sons of Montezuma",
+      "type": "fan_analysis"
+    }
+  ],
+  "texas-state": [
+    {
+      "id": "UCJbpjcQELDgCgCLqYtxHZaQ",
+      "name": "Win Now or Get Bent",
+      "type": "fan_analysis"
+    }
+  ],
+  "utah-state": [
+    {
+      "id": "UCyIZoJ7Ge36sqkMPV_eKGfg",
+      "name": "KSL Sports",
+      "type": "fan_analysis"
+    }
+  ],
+  "washington-state": [
+    {
+      "id": "UCwL51tUez4x2TSb_gfAyLfw",
+      "name": "WSUCougarAthletics",
+      "type": "fan_analysis"
+    }
   ]
 }

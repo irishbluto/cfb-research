@@ -1,0 +1,218 @@
+{
+  "air-force": [
+    {
+      "name": "Mountain West Connection — Air Force",
+      "url": "https://www.mwcconnection.com/air-force-falcons-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — confirmed very active through March 2026; dedicated Air Force beat writer each season"
+    },
+    {
+      "name": "Against All Enemies",
+      "url": "https://www.againstallenemies.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.againstallenemies.com/rss/index.xml",
+      "notes": "SBNation service academy community covering Air Force, Army and Navy athletics — confirmed active 2025"
+    },
+    {
+      "name": "247Sports — Air Force",
+      "url": "https://247sports.com/college/air-force/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "hawaii": [
+    {
+      "name": "Mountain West Connection — Hawaii",
+      "url": "https://www.mwcconnection.com/hawaii-warriors-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — confirmed very active; dedicated Hawaii beat writer with recruiting class breakdowns and season previews"
+    },
+    {
+      "name": "247Sports — Hawaii",
+      "url": "https://247sports.com/college/hawaii/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "nevada": [
+    {
+      "name": "Mountain West Connection — Nevada",
+      "url": "https://www.mwcconnection.com/nevada-wolfpack-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — confirmed active; dedicated Nevada beat writer (Dom) each season"
+    },
+    {
+      "name": "Nevada Sports Net",
+      "url": "https://nevadasportsnet.com/",
+      "type": "beat_writer",
+      "rss": "https://nevadasportsnet.com/feed/",
+      "notes": "Independent Nevada athletics news outlet — confirmed active 2025-2026 with scheduling and recruiting coverage"
+    },
+    {
+      "name": "247Sports — Nevada",
+      "url": "https://247sports.com/college/nevada/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "new-mexico": [
+    {
+      "name": "Lobo Lane",
+      "url": "https://www.lobolane.com/",
+      "type": "fan_aggregator",
+      "rss": "https://www.lobolane.com/feed/",
+      "notes": "Independent UNM fan blog — confirmed very active 2025; running game blogs with game-by-game analysis during strong 2025 season"
+    },
+    {
+      "name": "Mountain West Connection — New Mexico",
+      "url": "https://www.mwcconnection.com/new-mexico-lobos-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — dedicated New Mexico beat writer (Roger); good season previews and analysis"
+    },
+    {
+      "name": "The Daily Lobo — Sports",
+      "url": "https://www.dailylobo.com/section/football",
+      "type": "beat_writer",
+      "rss": "https://www.dailylobo.com/search/?f=rss&q=football",
+      "notes": "UNM student newspaper — confirmed active 2025 with game recaps and football coverage"
+    },
+    {
+      "name": "Albuquerque Journal — Lobos",
+      "url": "https://www.abqjournal.com/tag/sports/lobos",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Primary local paper covering UNM sports — no free RSS but pages are fetchable by the agent"
+    }
+  ],
+  "north-dakota-state": [
+    {
+      "name": "Bison Media Zone — InForum",
+      "url": "https://www.inforum.com/sports/bison-media-zone",
+      "type": "beat_writer",
+      "rss": "https://www.inforum.com/arcio/rss/?query=bison+football",
+      "notes": "Primary NDSU beat coverage by Fargo's InForum — confirmed very active through 2025 FCS playoffs; best editorial source for NDSU football"
+    },
+    {
+      "name": "Mountain West Connection — NDSU",
+      "url": "https://www.mwcconnection.com/north-dakota-state-bison-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "MWC hub covering NDSU's transition to FBS — confirmed active with 2026 schedule and conference intro coverage"
+    },
+    {
+      "name": "247Sports — North Dakota State",
+      "url": "https://247sports.com/college/north-dakota-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking for NDSU's inaugural FBS season"
+    }
+  ],
+  "northern-illinois": [
+    {
+      "name": "Mountain West Connection — NIU",
+      "url": "https://www.mwcconnection.com/northern-illinois-huskies-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "MWC hub covering NIU's transition from the MAC — confirmed active with 2026 schedule coverage"
+    },
+    {
+      "name": "247Sports — Northern Illinois",
+      "url": "https://247sports.com/college/northern-illinois/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking; best external source for NIU roster moves entering the MWC"
+    }
+  ],
+  "san-jose-state": [
+    {
+      "name": "Mountain West Connection — San Jose State",
+      "url": "https://www.mwcconnection.com/san-jose-state-spartans-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — dedicated SJSU beat writer (Vic); confirmed active with weekly analysis"
+    },
+    {
+      "name": "247Sports — San Jose State",
+      "url": "https://247sports.com/college/san-jose-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "unlv": [
+    {
+      "name": "Mountain West Connection — UNLV",
+      "url": "https://www.mwcconnection.com/unlv-rebels-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — dedicated UNLV beat writer (Zane); confirmed active 2025 with strong Rebels coverage during title run"
+    },
+    {
+      "name": "Rebel-Net — UNLV Rivals",
+      "url": "https://unlv.forums.rivals.com/forums/rebel-football.10/",
+      "type": "fan_aggregator",
+      "rss": null,
+      "notes": "Largest UNLV fan forum on Rivals network — active community covering Rebels football"
+    },
+    {
+      "name": "247Sports — UNLV",
+      "url": "https://247sports.com/college/unlv/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "utep": [
+    {
+      "name": "Mountain West Connection — UTEP",
+      "url": "https://www.mwcconnection.com/utep-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "MWC hub covering UTEP's arrival — confirmed active March 2026 with MWC fan intro feature for the Miners"
+    },
+    {
+      "name": "Underdog Dynasty — UTEP",
+      "url": "https://www.underdogdynasty.com/utep-miners",
+      "type": "beat_writer",
+      "rss": "https://www.underdogdynasty.com/feed",
+      "notes": "Strong UTEP editorial coverage through CUSA days — confirmed active with 2026 MWC schedule preview; good source for roster and context"
+    },
+    {
+      "name": "247Sports — UTEP",
+      "url": "https://247sports.com/college/utep/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "wyoming": [
+    {
+      "name": "WyoNation",
+      "url": "https://wyonation.com/",
+      "type": "fan_aggregator",
+      "rss": "https://wyonation.com/forums/-/index.rss",
+      "notes": "Largest Wyoming Cowboys fan forum and blog — confirmed active through March 2026; covers football, recruiting, and all UW sports"
+    },
+    {
+      "name": "Mountain West Connection — Wyoming",
+      "url": "https://www.mwcconnection.com/wyoming-cowboys-football",
+      "type": "fan_aggregator",
+      "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "notes": "SBNation MWC hub — Wyoming coverage with season previews and game analysis"
+    },
+    {
+      "name": "247Sports — Wyoming",
+      "url": "https://247sports.com/college/wyoming/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ]
+}
