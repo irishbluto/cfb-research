@@ -12,5 +12,90 @@
       "name": "JMU Sports News Network",
       "type": "fan_analysis"
     }
+  ],
+  "app-state": [
+    {
+      "id": "UCOsgKld4QG2ChPvMGsZcC7w",
+      "name": "App State Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "arkansas-state": [
+    {
+      "id": "UCP3x7ltAxXdBLBw_zz0eHKg",
+      "name": "AStateRedWolves",
+      "type": "fan_analysis"
+    }
+  ],
+  "coastal-carolina": [
+    {
+      "id": "UC7iDsocAdhqZqWMZSQTz1iA",
+      "name": "Coastal Carolina Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "georgia-southern": [
+    {
+      "id": "UC-B9vuSXBTEGxt8L9ZFF4BQ",
+      "name": "Georgia Southern Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "georgia-state": [
+    {
+      "id": "UCCsxmvh7p8d3zGEOzvVJRBQ",
+      "name": "Georgia State Athletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "louisiana": [
+    {
+      "id": "UCjsYZED-HMkeglF6kJGpFxA",
+      "name": "Louisiana Ragin' Cajuns",
+      "type": "fan_analysis"
+    }
+  ],
+  "marshall": [
+    {
+      "id": "UCYLr_fBkooI9lPAqi3HhNsg",
+      "name": "ThunderCast_Pod",
+      "type": "fan_analysis"
+    }
+  ],
+  "old-dominion": [
+    {
+      "id": "UCZDLzmkkp41fJZdC91J35MA",
+      "name": "odumonarchists",
+      "type": "fan_analysis"
+    }
+  ],
+  "south-alabama": [
+    {
+      "id": "UCA0nROGPwyo4EIqqK_0i0HA",
+      "name": "SouthAlabamaAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "southern-miss": [
+    {
+      "id": "UCKNJ9-vQzAgMv2Bl6C7ZdCQ",
+      "name": "SouthernMissSports",
+      "type": "fan_analysis"
+    }
+  ],
+  "troy": [
+    {
+      "id": "UCFpAc8Esr6KU8NDSucUY2yg",
+      "name": "TroyAthletics",
+      "type": "fan_analysis"
+    }
+  ],
+  "ul-monroe": [
+    {
+      "id": "UCmZegoVv2MqBEtk8QcF6lWg",
+      "name": "warhawkvideo",
+      "type": "fan_analysis"
+    }
   ]
+
 }
