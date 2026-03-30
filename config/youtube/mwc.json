@@ -1,0 +1,16 @@
+{
+  "north-dakota-state": [
+    {
+      "id": "UCQjokkfg7pdFjjmyj_yDVNw",
+      "name": "Bison Information Network",
+      "type": "fan_analysis"
+    }
+  ],
+  "utep": [
+    {
+      "id": "UCecz1wGLsHz1b0AcQXKFJow",
+      "name": "UTEP Athletics",
+      "type": "beat_writer"
+    }
+  ]
+}
