@@ -203,8 +203,9 @@ CONFERENCE_TEAMS = {
     "acc":    ACC_TEAMS,
     "big12":  BIG12_TEAMS,
     "aac":    AAC_TEAMS,
+    "sbc":    SBC_TEAMS,
     # "pac12":  PAC12_TEAMS,
-    # "sbc":    SBC_TEAMS,
+    
     # "mwc":    MWC_TEAMS,
     # "mac":    MAC_TEAMS,
     # "cusa":   CUSA_TEAMS,
