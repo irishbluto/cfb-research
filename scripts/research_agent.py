@@ -123,7 +123,7 @@ CONFERENCE_TEAMS = {
     "big12":  BIG12_TEAMS,
     "sbc":    SBC_TEAMS,
     "aac":    AAC_TEAMS,
-    # "pac12":  PAC12_TEAMS,
+    "pac12":  PAC12_TEAMS,
     
     
     # "mwc":    MWC_TEAMS,
