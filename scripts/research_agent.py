@@ -155,6 +155,7 @@ def setup_logging():
 def build_prompt(slug, context, channels, no_youtube=False):
     team_name   = context.get('team', slug)
     coach       = context.get('head_coach', 'Unknown Coach')
+    conference  = context.get('conference')
     power_rank  = context.get('power_rank')
     profile     = context.get('profile_2026', '')
     qb_note     = context.get('starting_qb_note', '')
@@ -308,6 +309,7 @@ Your task: Research {team_name} football and write a structured JSON research re
 ## Team Context (use this to guide what to look for)
 
 Team: {team_name}
+Conference: {conference}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
 2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
 2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_record_overall}
