@@ -155,6 +155,7 @@ def setup_logging():
 def build_prompt(slug, context, channels, no_youtube=False):
     team_name   = context.get('team', slug)
     coach       = context.get('head_coach', 'Unknown Coach')
+    prev_coach = context.get('previous_head_coach', '')
     conference  = context.get('conference')
     power_rank  = context.get('power_rank')
     profile     = context.get('profile_2026', '')
@@ -311,6 +312,7 @@ Your task: Research {team_name} football and write a structured JSON research re
 Team: {team_name}
 Conference: {conference}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
+{f"Previous Head Coach (2025): {prev_coach}" if prev_coach else "Previous Head Coach: Not recorded — do NOT name or guess"}
 2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
 2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_record_overall}
 4-Year Record: {four_yr}
@@ -419,7 +421,7 @@ The file must be valid JSON matching this exact structure:
 - Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report
 - When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
 - IMPORTANT: When naming player as team leaders, you MUST use ONLY players from the Key Players list. If a source names a player not on the list as a leader, note the source's claim but do not echo it as fact in key_storylines or agent_summary.
-- IMPORTANT: When naming a head coach, you MUST use only the Head Coach from context.  Same rules for naming the OC or Offensive Coordinator and the DC or Defensive Coordinator, only use the names that are in the context.  If referring to an ex head coach or former head coach, you must have two independent sources to verify, do not guess or approximate former coaches or coordinators. (not "ex-HC Scotty Walden" or "former OC Chip Kelly" when they were not mentioned or referenced from two independent sources)
+- IMPORTANT: Coaching staff accuracy is critical. You MUST only use the Head Coach, OC, and DC names from the Team Context block above. Do NOT name any former/previous/ex head coach or coordinator under any circumstances unless they are explicitly named in the Team Context block — this includes do not infer, approximate, or echo a former coach's name from sources even if a source mentions them. If a source references a player leaving "to follow a coach" or "after a coaching change," describe it generically (e.g. "following the previous coaching staff departure") without naming the former coach. Incorrect former coach attributions are a disqualifying error in this output.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
