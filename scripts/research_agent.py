@@ -202,6 +202,23 @@ def build_prompt(slug, context, channels, no_youtube=False):
         notes_block += "Staff/schedule notes:\n"
         notes_block += "\n".join(f"  - {n}" for n in staff_notes) + "\n"
 
+    # Build position-grouped roster lookup from full_roster
+    roster_block = ""
+    full_roster = context.get('full_roster', [])
+    if full_roster:
+        # Group by position_group
+        from collections import defaultdict
+        groups = defaultdict(list)
+        for p in full_roster:
+            pg = p.get('position_group', 'Unknown')
+            name = p.get('name', '')
+            if name:
+                groups[pg].append(name)
+        
+        roster_block = "Full roster by position group (use this to verify any player's position before naming them in a positional context):\n"
+        for group, names in sorted(groups.items()):
+            roster_block += f"  {group}: {', '.join(names)}\n"
+            
     # Format top portal additions
     portal_block = ""
     if top_portals:
@@ -333,6 +350,7 @@ Portal Net: {portal_net:+d} ({len(portal_in)} in, {len(portal_out)} out)
 
 {notes_block}
 {schedule_block}
+{roster_block}
 {best_players_block}
 ## Research Mode: {mode.upper()}
 Current focus: {mode_focus}
@@ -424,6 +442,11 @@ The file must be valid JSON matching this exact structure:
 - When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
 - IMPORTANT: When naming player as team leaders, you MUST use ONLY players from the Key Players list. If a source names a player not on the list as a leader, note the source's claim but do not echo it as fact in key_storylines or agent_summary.
 - IMPORTANT: Coaching staff accuracy is critical. You MUST only use the Head Coach, OC, and DC names from the Team Context block above. Do NOT name any former/previous/ex head coach or coordinator under any circumstances unless they are explicitly named in the Team Context block — this includes do not infer, approximate, or echo a former coach's name from sources even if a source mentions them. If a source references a player leaving "to follow a coach" or "after a coaching change," describe it generically (e.g. "following the previous coaching staff departure") without naming the former coach. Incorrect former coach attributions are a disqualifying error in this output.
+- IMPORTANT — Player naming rules (strictly enforced):
+  (1) You may ONLY name players from the Key Players list in key_storylines or agent_summary as leaders or standouts.
+  (2) Before placing ANY player in a positional context (e.g. "RB room", "QB battle", "OL depth"), look them up in the Full Roster by position group above. Their listed position group MUST match the context. If it does not match, remove the name entirely — do not guess or assume a source is correct.
+  (3) "And others" constructions are only permitted if every named player in that sentence has been verified against the roster. Do not add unverified names as filler.
+  (4) If a source names a player in a position context that contradicts the roster, ignore that reference entirely — the roster is ground truth.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
