@@ -419,7 +419,7 @@ The file must be valid JSON matching this exact structure:
 - Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report
 - When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
 - IMPORTANT: When naming player as team leaders, you MUST use ONLY players from the Key Players list. If a source names a player not on the list as a leader, note the source's claim but do not echo it as fact in key_storylines or agent_summary.
-- IMPORTANT: When naming a head coach, you MUST use only the Head Coach from context.  Same rules for naming the OC or Offensive Coordinator and the DC or Defensive Coordinator, only use the names that are in the context.  If referring to an ex head coach or former head coach, you must have two independent sources to verify, do not guess or approximate former coaches or coordinators.
+- IMPORTANT: When naming a head coach, you MUST use only the Head Coach from context.  Same rules for naming the OC or Offensive Coordinator and the DC or Defensive Coordinator, only use the names that are in the context.  If referring to an ex head coach or former head coach, you must have two independent sources to verify, do not guess or approximate former coaches or coordinators. (not "ex-HC Scotty Walden" or "former OC Chip Kelly" when they were not mentioned or referenced from two independent sources)
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
