@@ -307,7 +307,17 @@ def enrich_team(conn, context_path, debug=False):
     enriched.update(get_best_players(conn, team, SEASON))
 
     # Merge into context — DB values take precedence for their fields
+    # Merge into context — DB values take precedence for their fields
     context.update(enriched)
+
+    # Rebuild search_keywords to include top 3 best players
+    existing_keywords = context.get('search_keywords', [])
+    for p in context.get('best_players', [])[:5]:
+        if p.get('player_name') and p['player_name'] not in existing_keywords:
+            existing_keywords.append(p['player_name'])
+    context['search_keywords'] = existing_keywords
+
+    context['db_enriched_at'] = __import__('datetime').datetime.now().strftime('%Y-%m-%d')
     context['db_enriched_at'] = __import__('datetime').datetime.now().strftime('%Y-%m-%d')
 
     with open(context_path, 'w') as f:
