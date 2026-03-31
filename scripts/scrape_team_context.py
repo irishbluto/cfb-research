@@ -1005,7 +1005,7 @@ def scrape_schedule_outlook(page, url_param, debug=False):
 # Master scrape
 # ---------------------------------------------------------------------------
 
-def scrape_team(page, team_name, url_param, slug, debug=False):
+def scrape_team(page, team_name, url_param, slug, conference='', debug=False):
     print(f"  {team_name}")
 
     profile_url = f"{BASE_URL}/teamprofile.php?team={encode(url_param)}"
@@ -1014,7 +1014,7 @@ def scrape_team(page, team_name, url_param, slug, debug=False):
 
     context = {
         'team': team_name, 'slug': slug, 'url_param': url_param,
-        'conference': 'SEC', 'source_url': profile_url,
+        'conference': conference, 'source_url': profile_url,
         'last_scraped': datetime.now().strftime('%Y-%m-%d'),
         'agent_notes': '', 'known_injuries': [], 'position_battles': [],
         'search_keywords': [], 'youtube_channels': [], 'beat_writers': [],
@@ -1066,16 +1066,16 @@ def main():
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Build flat list of all known teams for --team lookup
-    all_teams = [t for team_list in CONFERENCE_TEAMS.values() for t in team_list]
-
-    # Determine which teams to scrape
+    # Determine which teams to scrape — list of (conf_key, (team_name, url_param, slug))
     if args.team:
-        teams = [t for t in all_teams
-                 if args.team.lower() in t[0].lower() or args.team.lower() in t[2].lower()]
+        teams = []
+        for conf_key, team_list in CONFERENCE_TEAMS.items():
+            for t in team_list:
+                if args.team.lower() in t[0].lower() or args.team.lower() in t[2].lower():
+                    teams.append((conf_key, t))
         if not teams:
             print(f"ERROR: '{args.team}' not found in any configured conference")
-            print(f"Known slugs: {sorted(t[2] for t in all_teams)}")
+            print(f"Known slugs: {sorted(t[2] for tl in CONFERENCE_TEAMS.values() for t in tl)}")
             sys.exit(1)
 
     elif args.conference:
@@ -1084,22 +1084,22 @@ def main():
             print(f"ERROR: Unknown conference '{conf}'")
             print(f"Known conferences: {sorted(CONFERENCE_TEAMS.keys())}")
             sys.exit(1)
-        teams = CONFERENCE_TEAMS[conf]
+        teams = [(conf, t) for t in CONFERENCE_TEAMS[conf]]
         print(f"Conference: {conf.upper()} — {len(teams)} teams")
 
     elif args.all:
         seen = set()
         teams = []
-        for team_list in CONFERENCE_TEAMS.values():
+        for conf_key, team_list in CONFERENCE_TEAMS.items():
             for t in team_list:
                 if t[2] not in seen:
                     seen.add(t[2])
-                    teams.append(t)
+                    teams.append((conf_key, t))
         print(f"All conferences — {len(teams)} teams")
 
     else:
         # Default: SEC (original behaviour)
-        teams = SEC_TEAMS
+        teams = [("sec", t) for t in SEC_TEAMS]
         print(f"Defaulting to SEC — {len(teams)} teams")
 
     print(f"Scraping {len(teams)} team(s) → {args.output_dir}\n")
@@ -1114,10 +1114,10 @@ def main():
         )
         page = bctx.new_page()
 
-        for team_name, url_param, slug in teams:
+        for conf_key, (team_name, url_param, slug) in teams:
             print(f"[{slug}]")
             try:
-                data = scrape_team(page, team_name, url_param, slug, args.debug)
+                data = scrape_team(page, team_name, url_param, slug, conf_key, args.debug)
                 if data:
                     out = os.path.join(args.output_dir, f"{slug}.json")
                     with open(out, 'w', encoding='utf-8') as f:
