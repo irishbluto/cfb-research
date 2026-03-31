@@ -286,26 +286,34 @@ def get_best_players(conn, team, season):
     return {'best_players': players}
 
 # ---------------------------------------------------------------------------
-# Pull previous head coach from coachingstaff table
+# Pull previous coaching staff from coachingstaff table
 # ---------------------------------------------------------------------------
 
 def get_previous_coach(conn, team, current_season):
     """
-    Pull the head coach name from the prior season's coachingstaff row.
+    Pull the prior season's head coach, OC, and DC from coachingstaff.
     Used to ground the research agent on coaching changes — prevents the
-    agent from inferring or hallucinating a former coach's name from sources.
-    Returns dict with 'previous_head_coach' key, or empty dict if not found.
+    agent from inferring or hallucinating former staff names from sources.
+    Returns dict with previous staff fields, or empty dict if not found.
     """
     row = query_one(conn, """
-        SELECT hc_name
+        SELECT headcoach, oc, dc
         FROM coachingstaff
-        WHERE team = %s AND year = %s
+        WHERE school = %s AND year = %s
         LIMIT 1
     """, (team, current_season - 1))
 
-    if row and row.get('hc_name'):
-        return {'previous_head_coach': row['hc_name']}
-    return {}
+    if not row:
+        return {}
+
+    result = {}
+    if row.get('headcoach'):
+        result['previous_head_coach'] = row['headcoach']
+    if row.get('oc'):
+        result['previous_oc'] = row['oc']
+    if row.get('dc'):
+        result['previous_dc'] = row['dc']
+    return result
 
 # ---------------------------------------------------------------------------
 # Main enrichment function
