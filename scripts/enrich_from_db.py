@@ -286,6 +286,28 @@ def get_best_players(conn, team, season):
     return {'best_players': players}
 
 # ---------------------------------------------------------------------------
+# Pull previous head coach from coachingstaff table
+# ---------------------------------------------------------------------------
+
+def get_previous_coach(conn, team, current_season):
+    """
+    Pull the head coach name from the prior season's coachingstaff row.
+    Used to ground the research agent on coaching changes — prevents the
+    agent from inferring or hallucinating a former coach's name from sources.
+    Returns dict with 'previous_head_coach' key, or empty dict if not found.
+    """
+    row = query_one(conn, """
+        SELECT hc_name
+        FROM coachingstaff
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (team, current_season - 1))
+
+    if row and row.get('hc_name'):
+        return {'previous_head_coach': row['hc_name']}
+    return {}
+
+# ---------------------------------------------------------------------------
 # Main enrichment function
 # ---------------------------------------------------------------------------
 
@@ -305,6 +327,7 @@ def enrich_team(conn, context_path, debug=False):
     enriched.update(get_adv_stat_ranks(conn, team, ADV_SEASON))
     enriched.update(get_scoring(conn, team, SEASON))
     enriched.update(get_best_players(conn, team, SEASON))
+    enriched.update(get_previous_coach(conn, team, SEASON))
 
     # Merge into context — DB values take precedence for their fields
     # Merge into context — DB values take precedence for their fields
@@ -336,6 +359,9 @@ def enrich_team(conn, context_path, debug=False):
         if best:
             print(f"  best_players ({len(best)}): " +
                   ", ".join(f"{p['player_name']} ({p['position']})" for p in best[:5]))
+        prev_coach = context.get('previous_head_coach', '')
+        if prev_coach:
+            print(f"  previous_head_coach: {prev_coach}")
     return True
 
 # ---------------------------------------------------------------------------
@@ -351,6 +377,7 @@ def main():
 
     conn = get_conn()
     print(f"DB connected. Enriching context files in {args.context_dir}\n")
+    
 
     if args.team:
         path = os.path.join(args.context_dir, f"{args.team}.json")
