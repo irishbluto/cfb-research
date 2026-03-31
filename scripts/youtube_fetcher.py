@@ -46,7 +46,7 @@ YOUTUBE_VIDEO_URL  = "https://www.googleapis.com/youtube/v3/videos"
 # YouTube Data API v3 quota costs
 QUOTA_PER_SEARCH   = 100    # units per search request
 QUOTA_DAILY_LIMIT  = 10000  # free tier daily limit
-QUOTA_SAFE_LIMIT   = 9000   # stop at 90% to leave headroom for other uses
+QUOTA_SAFE_LIMIT   = 9800   # stop at 98% to leave headroom for other uses
 
 # ---------------------------------------------------------------------------
 # Daily cache — one JSON file per day, keyed by team slug

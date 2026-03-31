@@ -170,10 +170,15 @@ def build_prompt(slug, context, channels, no_youtube=False):
     dc_rank     = context.get('defensive_coordinator_rank')
     schedule    = context.get('schedule_2026', [])
     talent_rank = context.get('talent_rank')
+    bc_ratio = context.get('blue_chip_pct')
     portal_net  = context.get('portal_net', 0)
     top_portals = context.get('top_portal_additions', [])
     top_recruits = context.get('top_recruits', [])
+    portal_class_rank = context.get('portal_class_rank')
+    recruit_class_rank = context.get('recruiting_class_rank')
     four_yr     = context.get('four_yr_record', '')
+    close_game_record = context.get('one_score_games', '')
+    close_game_record_overall = context.get('one_score_games_under_coach', '')
     off_rank    = context.get('offense_power_rank')
     def_rank    = context.get('defense_power_rank')
     adv_season  = context.get('db_enriched_at', '')
@@ -305,14 +310,17 @@ Your task: Research {team_name} football and write a structured JSON research re
 Team: {team_name}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
 2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
+2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_record_overall}
+4-Year Record: {four_yr}
 Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}
 PPA: Offense #{ppa_off} | Defense #{ppa_def}
 Offense Profile: {off_profile}
-Talent Rank: #{talent_rank} | 4-Year Record: {four_yr}
+Talent Rank: #{talent_rank} | Blue Chip %: {bc_ratio}
 2026 Profile: {profile}
 OC: {oc} (#{oc_rank}) | DC: {dc} (#{dc_rank})
 Returning Starters: {ret_starters}
 QB Situation: {qb_note}
+Recruiting Class Rank: {recruit_class_rank} | Portal Class Rank: #{portal_class_rank}
 Portal Net: {portal_net:+d} ({len(portal_in)} in, {len(portal_out)} out)
 {portal_block}
 {recruit_block}
@@ -342,14 +350,14 @@ Current focus: {mode_focus}
 
 3. **Web Search Fallback** — Only if Tasks 1 and 2 leave obvious gaps, do a targeted search:
    - Maximum 2 searches total — be specific, not broad
-   - Good examples: "{team_name} injury update March 2026", "{team_name} depth chart spring 2026"
+   - Good examples: "{team_name} injury update April 2026", "{team_name} depth chart spring 2026", "{team_name} 2026 football outlook"
    - Do NOT search for things already covered by YouTube or written sources above
 
 4. **Synthesis** — Based on everything you found, identify:
    - The 3-5 most important current storylines
    - Any injury flags not already in the context
    - Overall fanbase/media sentiment
-   - A 3-4 sentence summary a reader could scan in 10 seconds
+   - A 4-5 sentence summary a reader could scan in 10 seconds
 
 ## Output Format
 
@@ -391,7 +399,7 @@ The file must be valid JSON matching this exact structure:
   ],
   "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
-  "agent_summary": "3-4 dense, specific sentences a CFB analyst would write. Must include: (1) the team's single most important current narrative with specific player names and/or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such as a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.'"
+  "agent_summary": "4-5 dense, specific sentences a CFB analyst would write. Must include: (1) the team's single most important current narrative with specific player names and/or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such as a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.'"
 }}
 
 ## Important Instructions
@@ -406,6 +414,7 @@ The file must be valid JSON matching this exact structure:
 - Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report
 - When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
 - IMPORTANT: When naming player as team leaders, you MUST use ONLY players from the Key Players list. If a source names a player not on the list as a leader, note the source's claim but do not echo it as fact in key_storylines or agent_summary.
+- IMPORTANT: When naming a head coach, you MUST use only the Head Coach from context.  Same rules for naming the OC or Offensive Coordinator and the DC or Defensive Coordinator, only use the names that are in the context.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
