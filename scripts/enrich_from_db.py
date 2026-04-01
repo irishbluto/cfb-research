@@ -343,7 +343,7 @@ def enrich_team(conn, context_path, debug=False):
 
     # Rebuild search_keywords to include top 3 best players
     existing_keywords = context.get('search_keywords', [])
-    for p in context.get('best_players', [])[:5]:
+    for p in context.get('best_players', [])[:8]:
         if p.get('player_name') and p['player_name'] not in existing_keywords:
             existing_keywords.append(p['player_name'])
     context['search_keywords'] = existing_keywords
@@ -366,7 +366,7 @@ def enrich_team(conn, context_path, debug=False):
         best = context.get('best_players', [])
         if best:
             print(f"  best_players ({len(best)}): " +
-                  ", ".join(f"{p['player_name']} ({p['position']})" for p in best[:5]))
+                  ", ".join(f"{p['player_name']} ({p['position']})" for p in best[:8]))
         prev_coach = context.get('previous_head_coach', '')
         if prev_coach:
             print(f"  previous_head_coach: {prev_coach}")
