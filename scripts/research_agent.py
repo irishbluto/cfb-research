@@ -263,9 +263,12 @@ def build_prompt(slug, context, channels, no_youtube=False):
         youtube_block = "YouTube: Skipped (--no-youtube flag set or daily quota reached). Skip YouTube section."
     else:
         try:
+            import concurrent.futures
             sys.path.insert(0, str(BASE_DIR / "scripts"))
             from youtube_fetcher import fetch_team_videos
-            yt_result = fetch_team_videos(slug, days=14, max_results=5)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(fetch_team_videos, slug, days=14, max_results=5)
+                yt_result = future.result(timeout=60)   # 60s max — never blocks the pipeline
             if 'error' not in yt_result:
                 prefetched_videos = yt_result['videos']
                 if yt_result['count'] > 0:
@@ -273,9 +276,12 @@ def build_prompt(slug, context, channels, no_youtube=False):
                     youtube_block += yt_result['summary_text']
                     youtube_block += "\n\nFor each video above: fetch the URL, watch/read enough to extract 2-4 key points, assess sentiment."
                 else:
-                    youtube_block = "YouTube: No football-relevant videos found in the last 14 days across configured channels."
+                    youtube_block = "YouTube: No football-relevant videos found in last 14 days. Skip YouTube section."
             else:
-                youtube_block = f"YouTube: Could not fetch videos ({yt_result['error']}). Skip YouTube section."
+                youtube_block = f"YouTube: {yt_result['error']}. Skip YouTube section."
+        except concurrent.futures.TimeoutError:
+            youtube_block = "YouTube: Fetch timed out after 60s. Skip YouTube section."
+            logging.warning(f"  [{slug}] YouTube fetch timed out — skipping")
         except Exception as e:
             youtube_block = f"YouTube: Fetcher unavailable ({e}). Skip YouTube section."
 
@@ -528,7 +534,7 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
             return False
 
     except subprocess.TimeoutExpired:
-        logging.error(f"  ✗ {slug} — timed out after 300s")
+        logging.error(f"  ✗ {slug} — timed out after 900s")
         return False
     except Exception as e:
         logging.error(f"  ✗ {slug} — unexpected error: {e}")

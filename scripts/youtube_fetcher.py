@@ -237,6 +237,7 @@ def fetch_channel_videos_ytdlp(channel_id, channel_name, channel_type, days=14, 
         'extract_flat':    True,        # titles + URLs only, very fast
         'playlistend':     max_results * 3,  # fetch extra to allow for filtering
         'ignoreerrors':    True,
+        'socket_timeout':  30,    # ← ADD THIS
     }
 
     try:
