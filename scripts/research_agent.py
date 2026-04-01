@@ -274,7 +274,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
                 if yt_result['count'] > 0:
                     youtube_block = f"YouTube videos found ({yt_result['count']} football-relevant in last 14 days):\n"
                     youtube_block += yt_result['summary_text']
-                    youtube_block += "\n\nFor each video above: fetch the URL, watch/read enough to extract 2-4 key points, assess sentiment."
+                    youtube_block += "\n\nUse the video titles and descriptions above to identify 2-4 key points per video and assess sentiment. Do NOT fetch these YouTube URLs — use only the pre-fetched metadata provided above."
                 else:
                     youtube_block = "YouTube: No football-relevant videos found in last 14 days. Skip YouTube section."
             else:
