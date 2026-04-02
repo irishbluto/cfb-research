@@ -446,13 +446,15 @@ The file must be valid JSON matching this exact structure:
 - Write the output file as soon as you have enough data — do not wait until everything is perfect
 - Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report
 - When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
+- Context about a teams offensive philosophy can be found in offense_profile_db, but that applies to last year and teams can change offenses from year to year.
 - IMPORTANT: When naming player as team leaders, you MUST use ONLY players from the Key Players list. If a source names a player not on the list as a leader, note the source's claim but do not echo it as fact in key_storylines or agent_summary.
 - IMPORTANT: Coaching staff accuracy is critical. You MUST only use the Head Coach, OC, and DC names from the Team Context block above. Do NOT name any former/previous/ex head coach or coordinator under any circumstances unless they are explicitly named in the Team Context block — this includes do not infer, approximate, or echo a former coach's name from sources even if a source mentions them. If a source references a player leaving "to follow a coach" or "after a coaching change," describe it generically (e.g. "following the previous coaching staff departure") without naming the former coach. Incorrect former coach attributions are a disqualifying error in this output.
 - IMPORTANT — Player naming rules (strictly enforced):
-  (1) You may ONLY name players from the Key Players list in key_storylines or agent_summary as leaders or standouts.
+  (1) You may ONLY name players from the Key Players list in key_storylines, team_notes or agent_summary as leaders or standouts.
   (2) Before placing ANY player in a positional context (e.g. "RB room", "QB battle", "OL depth"), look them up in the Full Roster by position group above. Their listed position group MUST match the context. If it does not match, remove the name entirely — do not guess or assume a source is correct.
   (3) "And others" constructions are only permitted if every named player in that sentence has been verified against the roster. Do not add unverified names as filler.
-  (4) If a source names a player in a position context that contradicts the roster, ignore that reference entirely — the roster is ground truth.
+  (4) Refer to portal_in and portal_out for players added or left after last season.  A player not on this list should not be referred to as a new addition, rather a returning player.  Conversly a player not on the portal_out list should not be referred to in this teams context.  
+  (5) If a source names a player in a position context that contradicts the roster, ignore that reference entirely — the roster is ground truth.
 - Write the JSON file before finishing — do not just print it
 - The JSON must be valid — no trailing commas, no comments inside the JSON
 """
