@@ -475,15 +475,16 @@ The file must be valid JSON matching this exact structure:
 
 **Schedule accuracy:** The opening schedule tags each game [CONF] or [NON-CONF]. Never describe a non-conference game as a conference or MWC game. Only label a game as a conference matchup if it is tagged [CONF].
 
-**Data sanity:** If a context value is implausible (a percentage above 100, a rank of "None", an obviously wrong stat), do not use it in the output — omit it silently rather than echoing bad data.
+**Data sanity:** If a context value is implausible (a percentage above 100, a rank of "None", an obviously wrong stat), do not use it in the output — omit it silently rather than echoing bad data. Offense-type labeling must match the numeric split: never call an offense "run-first" if pass_pct > run_pct, or "pass-first" if run_pct > pass_pct — the context numbers override any article label.
 
 **Coaching staff (disqualifying error if wrong):** Use ONLY the Head Coach, OC, and DC named in Team Context. Never name a former coach under any circumstances — describe changes generically (e.g. "following the previous staff departure").
 
 **Player rules (strictly enforced):**
   (1) Name players as leaders or standouts ONLY from the Key Players list — not from sources.
   (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position_group in the Roster block. If it doesn't match, remove the name entirely.
-  (3) Use portal_in/portal_out to distinguish new additions from returning players. A player not on portal_in is a returner; a player not on portal_out is still on the team.
+  (3) `portal_in` contains ONLY this offseason's new transfers — prior-cycle transfers are already integrated as returning players and do NOT appear in portal_in. If a player is on the roster but not in portal_in, treat them as a returner regardless of what any article says about their transfer history. Never label a player a "transfer" or "newcomer" based on an article alone — portal_in is the authoritative list of new arrivals. A player not on portal_out is still on the team.
   (4) If a source contradicts the roster on position for a player WHO IS listed in the roster, ignore the source — the roster is ground truth for listed players.
+  (4b) Do not describe a P4-to-P4 transfer as "unproven at this level." That label is reserved for players arriving from G5 programs or below (FBS G5, FCS, D2, JUCO). A transfer from another Power Four school is a peer-level move.
   (5) The roster is capped and does not include every player on the team. If a source specifically calls out a player NOT found anywhere in the roster as a breakout or emerging performer (e.g. a freshman impressing in spring, a walk-on earning reps), you MAY include them in key_storylines only — use a qualifier like "not yet in depth rankings" or "emerging depth." Trust the position the source assigns them. Do NOT name uncapped players as starters, leaders, or key contributors in agent_summary.
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
