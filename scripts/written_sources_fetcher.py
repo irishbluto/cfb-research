@@ -297,8 +297,11 @@ def _fetch_article_body(url, max_chars=1000, timeout=8):
 
     # Strip remaining HTML tags (including self-closing like <img .../>)
     text = re.sub(r'<[^>]+/?>', ' ', content_raw)
-    # Strip leftover HTML attribute fragments that survive tag removal
-    text = re.sub(r'\b(class|style|src|alt|href|data-\w+|loading|decoding|aria-\w+)=["\'][^"\']*["\']', ' ', text)
+    # Remove orphaned/truncated tag openings that had no closing > in scope
+    text = re.sub(r'<[^>]*$', '', text)
+    # Strip leftover HTML attribute fragments — use a general pattern to catch
+    # any attr="value" or attr='value' regardless of attribute name or case
+    text = re.sub(r'\b\w+=(?:"[^"]*"|\'[^\']*\')', ' ', text)
     text = html.unescape(text)
     text = re.sub(r'\s+', ' ', text).strip()
 
