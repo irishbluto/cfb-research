@@ -7,8 +7,11 @@ puntandrally database. Fills in fields that are unreliable to scrape
 (Overview tab) and adds DB-sourced stats that aren't on any page.
 
 Run after scrape_team_context.py:
-    python3 scripts/enrich_from_db.py                  # all teams in context dir
-    python3 scripts/enrich_from_db.py --team alabama    # single team slug
+    python3 scripts/enrich_from_db.py --conf sec
+    python3 scripts/enrich_from_db.py --conference big10   # alias works too
+    python3 scripts/enrich_from_db.py --conf aac --debug
+    python3 scripts/enrich_from_db.py --team notre-dame    # single team unchanged
+    python3 scripts/enrich_from_db.py                      # all teams unchanged
 
 DB fields added to each context file:
     offense_power_rank, defense_power_rank
@@ -45,6 +48,43 @@ DB_CONFIG = {
 CONTEXT_DIR = "/cfb-research/team_context"
 SEASON      = 2026   # current season for power ratings
 ADV_SEASON  = 2025   # most recent completed season for advancedstats
+
+# ---------------------------------------------------------------------------
+# Conference → team slug mapping (mirrors scrape_team_context.py structure)
+# Update when conference realignment occurs
+# ---------------------------------------------------------------------------
+CONF_TEAMS = {
+    "sec":   ["alabama", "arkansas", "auburn", "florida", "georgia", "kentucky",
+               "lsu", "mississippi-state", "missouri", "oklahoma", "ole-miss",
+               "south-carolina", "tennessee", "texas", "texas-am", "vanderbilt"],
+    "big10": ["illinois", "indiana", "iowa", "maryland", "michigan", "michigan-state",
+               "minnesota", "nebraska", "northwestern", "ohio-state", "oregon",
+               "penn-state", "purdue", "rutgers", "ucla", "usc", "washington", "wisconsin"],
+    "acc":   ["boston-college", "california", "clemson", "duke", "florida-state",
+               "georgia-tech", "louisville", "miami", "nc-state", "north-carolina",
+               "pittsburgh", "smu", "stanford", "syracuse", "virginia", "virginia-tech",
+               "wake-forest"],
+    "big12": ["arizona", "arizona-state", "baylor", "byu", "cincinnati", "colorado",
+               "houston", "iowa-state", "kansas", "kansas-state", "oklahoma-state",
+               "tcu", "texas-tech", "ucf", "utah", "west-virginia"],
+    "pac12": ["boise-state", "colorado-state", "fresno-state", "oregon-state",
+               "san-diego-state", "texas-state", "utah-state", "washington-state"],
+    "fbsind": ["notre-dame", "uconn"],
+    "aac":   ["army", "charlotte", "east-carolina", "florida-atlantic", "memphis",
+               "navy", "north-texas", "rice", "south-florida", "temple", "tulane",
+               "tulsa", "uab", "utsa"],
+    "sbc":   ["app-state", "arkansas-state", "coastal-carolina", "georgia-southern",
+               "georgia-state", "james-madison", "louisiana", "marshall", "old-dominion",
+               "south-alabama", "southern-miss", "troy", "ul-monroe"],
+    "mwc":   ["air-force", "hawaii", "nevada", "new-mexico", "north-dakota-state",
+               "northern-illinois", "san-jose-state", "unlv", "utep", "wyoming"],
+    "mac":   ["akron", "ball-state", "bowling-green", "buffalo", "central-michigan",
+               "eastern-michigan", "kent-state", "massachusetts", "miami-oh", "ohio",
+               "sacramento-state", "toledo", "western-michigan"],
+    "cusa":  ["delaware", "fiu", "jacksonville-state", "kennesaw-state", "liberty",
+               "louisiana-tech", "middle-tennessee", "missouri-state", "new-mexico-state",
+               "sam-houston", "western-kentucky"],
+}
 
 # ---------------------------------------------------------------------------
 # DB helpers
@@ -377,21 +417,43 @@ def enrich_team(conn, context_path, debug=False):
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--team',        default=None, help='Slug e.g. "alabama"')
+    parser = argparse.ArgumentParser(description='Enrich team context JSON files from DB.')
+    parser.add_argument('--team',        default=None, help='Single team slug e.g. "alabama"')
+    parser.add_argument('--conf',        default=None, dest='conf',
+                        help='Conference slug e.g. "sec", "big10", "aac"')
+    parser.add_argument('--conference',  default=None, dest='conf',
+                        help='Alias for --conf')
     parser.add_argument('--context-dir', default=CONTEXT_DIR)
     parser.add_argument('--debug',       action='store_true')
     args = parser.parse_args()
 
     conn = get_conn()
     print(f"DB connected. Enriching context files in {args.context_dir}\n")
-    
 
     if args.team:
-        path = os.path.join(args.context_dir, f"{args.team}.json")
+        slug = args.team.lower().replace(' ', '-').replace('+', '-')
+        path = os.path.join(args.context_dir, f"{slug}.json")
         if not os.path.exists(path):
             print(f"ERROR: {path} not found"); sys.exit(1)
         files = [path]
+
+    elif args.conf:
+        conf = args.conf.lower()
+        if conf not in CONF_TEAMS:
+            print(f"ERROR: Unknown conference '{conf}'")
+            print(f"Known conferences: {sorted(CONF_TEAMS.keys())}")
+            sys.exit(1)
+        slugs = CONF_TEAMS[conf]
+        print(f"Conference: {conf.upper()} — {len(slugs)} teams\n")
+        files = []
+        for slug in slugs:
+            path = os.path.join(args.context_dir, f"{slug}.json")
+            if os.path.isfile(path):
+                files.append(path)
+            else:
+                print(f"  [skip] {slug}.json not found in context dir")
+        files = sorted(files)
+
     else:
         files = sorted(f for f in
                       [os.path.join(args.context_dir, x)
