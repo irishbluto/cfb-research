@@ -369,12 +369,25 @@ def _clean_selftext(text, max_chars=400):
 def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
                            auth_token=None):
     """
-    Fetch top posts from a team subreddit for the past month.
+    Fetch football-relevant posts from a team subreddit for the past month.
+
+    Uses a football-specific search within the subreddit rather than top posts.
+    This avoids the offseason problem where basketball / other sport posts
+    dominate the top feed and leave us with zero football content.
+
     Returns (list_of_posts, error_string_or_None).
     """
-    # Use OAuth endpoint if we have a token
     base = 'https://oauth.reddit.com' if auth_token else 'https://www.reddit.com'
-    url = f"{base}/r/{subreddit}/top.json?t=month&limit={limit}"
+
+    # Search within the subreddit for football-relevant terms.
+    # Broad enough to catch spring practice, QB battles, coaching news, etc.
+    search_terms = urllib.parse.quote(
+        'football OR spring OR quarterback OR coach OR roster OR recruit OR transfer'
+    )
+    url = (
+        f"{base}/r/{subreddit}/search.json"
+        f"?q={search_terms}&sort=top&t=month&restrict_sr=1&limit={limit + 5}"
+    )
 
     data, err = _reddit_get(url, auth_token=auth_token)
     if err:
@@ -394,7 +407,7 @@ def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
         if score < min_score:
             continue
 
-        # Skip pure image/media posts with no text discussion
+        # Skip pure image posts with no discussion text
         post_hint = post.get('post_hint', '')
         is_self   = post.get('is_self', False)
         selftext  = _clean_selftext(post.get('selftext', ''))
@@ -407,15 +420,12 @@ def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
         if created_dt < cutoff:
             continue
 
-        permalink = post.get('permalink', '')
-        title     = post.get('title', '')
-        flair     = post.get('link_flair_text', '') or ''
+        permalink    = post.get('permalink', '')
+        title        = post.get('title', '')
+        flair        = post.get('link_flair_text', '') or ''
         num_comments = post.get('num_comments', 0)
 
         if not title:
-            continue
-
-        if not _is_football_relevant(post, subreddit):
             continue
 
         posts.append({
@@ -429,7 +439,7 @@ def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
             'source':       f"r/{subreddit}",
         })
 
-    return posts, None
+    return posts[:limit], None
 
 
 # ---------------------------------------------------------------------------
