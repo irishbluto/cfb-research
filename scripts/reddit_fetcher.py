@@ -81,38 +81,38 @@ TEAM_SUBREDDITS = {
     "wisconsin":          "badgers",
     # ACC
     "boston-college":     "bostoncollege",
-    "california":         "CalBears",
-    "clemson":            "ClemsonFootball",
-    "duke":               "Duke",
+    "california":         "CalFootball",
+    "clemson":            "Clemson",
+    "duke":               "DukeFootball",
     "florida-state":      "fsusports",
-    "georgia-tech":       "GeorgiaTech",
+    "georgia-tech":       None,           # r/GeorgiaTech API-restricted; r/YellowJackets is the TV show
     "louisville":         "LouisvilleCardinals",
     "miami":              "miamihurricanes",
     "nc-state":           "ncstate",
     "north-carolina":     "tarheels",
     "pittsburgh":         "Pitt",
-    "smu":                "SMUMustangs",
+    "smu":                "SMUFootball",
     "stanford":           "Stanford",
     "syracuse":           "syracuse",
-    "virginia":           "hoos",
-    "virginia-tech":      "VirginiaTech",
+    "virginia":           "UVA",           # r/hoos showed Indiana Hoosiers basketball content
+    "virginia-tech":      "Hokies",        # r/Hokies had football-specific content (James Franklin/VT)
     "wake-forest":        "WakeForest",
     # Big 12
     "arizona":            "ArizonaWildcats",
-    "arizona-state":      "arizonastatesports",
+    "arizona-state":      None,           # r/arizonastatesports empty; no working football sub found
     "baylor":             "Baylor",
-    "byu":                "byu",
+    "byu":                "BYUFootball",
     "cincinnati":         "bearcats",
-    "colorado":           "coloradobuffaloes",
+    "colorado":           "ColoradoFootball",
     "houston":            "UHCougars",
-    "iowa-state":         "cyclones",
-    "kansas":             "KUWildcats",
-    "kansas-state":       "kstatecats",
-    "oklahoma-state":     "OklahomaState",
+    "iowa-state":         None,           # r/cyclones is private (403); no working alternative found
+    "kansas":             None,           # r/KUWildcats empty; r/KansasFootball is Missouri content
+    "kansas-state":       None,           # r/kstatecats empty; r/KStateFootball only shows sidebar content
+    "oklahoma-state":     None,           # r/OklahomaState empty; r/GoPokes = Pokémon GO; r/CowboyFootball = sidebar only
     "tcu":                "TCU",
     "texas-tech":         "TexasTech",
     "ucf":                "ucf",
-    "utah":               "UtahAthletics",
+    "utah":               "UtahFootball",
     "west-virginia":      "westvirginia",
     # FBS Independents
     "notre-dame":         "FightingIrish",

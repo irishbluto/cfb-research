@@ -168,15 +168,21 @@ CANDIDATES = {
         "massachusetts":     ["UMassAmherst", "UMassFootball"],
         "miami-oh":          ["MiamiOH", "MiamiOhioFootball"],
         "ohio":              ["OhioAthletics", "OhioBobcats"],
+        "sacramento-state":  ["SacStateHornets", "SacState", "SacramentoStateFootball"],
         "toledo":            ["ToledoRockets", "ToledoFootball"],
         "western-michigan":  ["WesternMichigan", "BroncosFB"],
     },
     "cusa": {
+        "delaware":          ["DelawareBlueHens", "DelawareFootball"],
         "fiu":               ["FIUSports", "FIUFootball"],
+        "jacksonville-state": ["JacksonvilleState", "JSUGamecocks", "GamecocksJSU"],
+        "kennesaw-state":    ["KennesawState", "KSUOwls", "KennesawFootball"],
         "liberty":           ["Liberty", "LibertyFootball"],
         "louisiana-tech":    ["LouisianaTech", "LATechFootball"],
         "middle-tennessee":  ["MTSU", "BlueRaiders"],
+        "missouri-state":    ["MissouriStateBears", "MissouriStateFootball", "MSUBears"],
         "new-mexico-state":  ["NewMexicoState", "AggiesFootball"],
+        "sam-houston":       ["SamHouston", "BearkatFB", "SamHoustonState"],
         "western-kentucky":  ["WKU", "HilltopperFB"],
     },
 }
@@ -283,7 +289,9 @@ def main():
                 cnt   = best_result['count']
                 score = best_result.get('top_score', 0)
                 title = best_result.get('top_title', '')
-                print(f"✓ {cnt} posts via {best_ep}  [{score:,}] {title[:45]}")
+                # score:0 on top post = likely sidebar/wiki/pinned, not real discussion
+                quality = "⚠ SIDEBAR?" if score == 0 else "✓"
+                print(f"{quality} {cnt} posts via {best_ep}  [{score:,}] {title[:45]}")
                 ranked.append((cnt, sub))
             else:
                 statuses = {ep: r['status'] for ep, r in all_results.items()}
