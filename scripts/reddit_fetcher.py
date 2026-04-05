@@ -70,7 +70,7 @@ TEAM_SUBREDDITS = {
     "minnesota":          "GopherSports",
     "nebraska":           "huskers",
     "northwestern":       "Northwestern",
-    "ohio-state":         "Buckeyes",
+    "ohio-state":         "OhioStateFootball",
     "oregon":             "oregonducks",
     "penn-state":         "PennStateFootball",
     "purdue":             "Purdue",
@@ -371,23 +371,16 @@ def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
     """
     Fetch football-relevant posts from a team subreddit for the past month.
 
-    Uses a football-specific search within the subreddit rather than top posts.
-    This avoids the offseason problem where basketball / other sport posts
-    dominate the top feed and leave us with zero football content.
+    Uses top.json rather than search — some subreddits disable Reddit's search
+    index, which makes search.json return empty results. top.json is always
+    available and reliable. When the mapping points to a football-specific
+    subreddit (e.g. r/OhioStateFootball), sport filtering is minimal since the
+    entire community is football-focused.
 
     Returns (list_of_posts, error_string_or_None).
     """
     base = 'https://oauth.reddit.com' if auth_token else 'https://www.reddit.com'
-
-    # Search within the subreddit for football-relevant terms.
-    # Broad enough to catch spring practice, QB battles, coaching news, etc.
-    search_terms = urllib.parse.quote(
-        'football OR spring OR quarterback OR coach OR roster OR recruit OR transfer'
-    )
-    url = (
-        f"{base}/r/{subreddit}/search.json"
-        f"?q={search_terms}&sort=top&t=month&restrict_sr=1&limit={limit + 5}"
-    )
+    url  = f"{base}/r/{subreddit}/top.json?t=month&limit={limit + 5}"
 
     data, err = _reddit_get(url, auth_token=auth_token)
     if err:
