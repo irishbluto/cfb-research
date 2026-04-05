@@ -3,217 +3,308 @@
 find_subreddits.py
 ------------------
 Tests multiple candidate subreddit names for teams where the current mapping
-is broken (404/403) or empty (0 posts). Tries both top.json and hot.json
-since some subreddits restrict one endpoint but not the other.
-
-Prints a ranked result for each team so you can pick the best mapping.
+is broken (404/403) or empty (0 posts). Tries top.json, hot.json, and new.json
+since some subreddits restrict specific endpoints.
 
 Usage:
-    python3 scripts/find_subreddits.py
+    python3 scripts/find_subreddits.py                   # all teams in CANDIDATES
+    python3 scripts/find_subreddits.py --conf acc        # one conference
+    python3 scripts/find_subreddits.py --slug ohio-state # single team
+    python3 scripts/find_subreddits.py --conf big12 --delay 10
 
 Edit CANDIDATES below to add/remove options per team.
 """
 
-import sys, time, json, urllib.request
+import sys, time, json, urllib.request, argparse
 from datetime import datetime, timedelta, timezone
 
 HEADERS = {'User-Agent': 'CFBResearchBot/1.0 (subreddit finder)'}
 
-
 # ---------------------------------------------------------------------------
-# Candidates to test per broken/empty team slug
-# Add as many options as you like — script will rank them by post count
+# Candidate subreddits to test, organized by conference → team slug → list
+# Add more candidates to any list; script ranks them by post count
 # ---------------------------------------------------------------------------
 CANDIDATES = {
-    # SEC - EMPTY (return 0 posts from top.json)
-    "mississippi-state": [
-        "HailState", "MSUSports", "MississippiState", "MSFootball",
-    ],
-    "tennessee": [
-        "VolNation", "TennesseeSports", "GBO", "TennesseeVols", "GoVols",
-        "VolunteerNation", "VolunteerFootball",
-    ],
-
-    # Big Ten - ERROR
-    "illinois": [
-        "Illini", "Illinois", "IlliniNation", "IlliniFB", "FightingIllini",
-    ],
-    "penn-state": [
-        "PennStateFootball", "nittanylions", "PennState", "WeArePS",
-        "PSUNittanyLions",
-    ],
-
-    # Big Ten - EMPTY
-    "oregon": [
-        "oregonducks", "GoDucks", "DuckFootball", "OregonDucks",
-        "oregonfootball",
-    ],
-    "washington": [
-        "UWHuskies", "udubfootball", "Huskies", "WashingtonHuskies",
-        "GoHuskies", "HuskyFootball",
-    ],
-
-    # Major programs - try football-specific subs (model: OhioStateFootball works great)
-    "alabama": [
-        "rolltide", "AlabamaFootball", "BamaFB", "CrimsonTide",
-    ],
-    "lsu": [
-        "LSU", "LSUFootball", "GeauxTigers", "LSUsports",
-    ],
-    "georgia": [
-        "georgiabulldogs", "UGAFootball", "DawgNation", "ugafootball",
-    ],
-    "michigan": [
-        "MichiganWolverines", "MichiganFootball", "GoBlue",
-    ],
-    "clemson": [
-        "ClemsonFootball", "Clemson", "ClemsonTigers",
-    ],
-    "florida-state": [
-        "fsusports", "FloridaState", "NoleFans", "FSUFootball",
-    ],
-    "notre-dame": [
-        "notredamefootball", "NotreDame", "NDFootball", "FightingIrish",
-    ],
-    "florida": [
-        "FloridaGators", "GatorFBFans", "FloridaFootball",
-    ],
-    "texas": [
-        "LonghornNation", "TexasLonghorns", "HookEm",
-    ],
-    "penn-state": [
-        "nittanylions", "PennStateFootball", "PennState",
-    ],
-    "oklahoma": [
-        "sooners", "SoonerFootball", "OUFootball",
-    ],
-    "tennessee": [
-        "VolNation", "TennesseeVols", "GBO",
-    ],
+    "sec": {
+        "alabama":           ["rolltide", "AlabamaFootball", "BamaFB"],
+        "arkansas":          ["razorbacks", "ArkansasFootball"],
+        "auburn":            ["auburn", "AuburnFootball"],
+        "florida":           ["FloridaGators", "GatorNation"],
+        "georgia":           ["georgiabulldogs", "UGAFootball", "DawgNation"],
+        "kentucky":          ["Wildcats", "KentuckyFootball", "BBN"],
+        "lsu":               ["LSU", "LSUFootball", "GeauxTigers"],
+        "mississippi-state": ["HailState", "MSUSports", "MSFootball"],
+        "missouri":          ["Mizzou", "MizzouFootball"],
+        "oklahoma":          ["sooners", "SoonerFootball"],
+        "ole-miss":          ["OleMiss", "OleMissFootball"],
+        "south-carolina":    ["GamecockFB", "SouthCarolinaGamecocks"],
+        "tennessee":         ["VolNation", "GBO", "TennesseeVols", "GoVols"],
+        "texas":             ["LonghornNation", "HookEm", "TexasLonghorns"],
+        "texas-am":          ["aggies", "TexasAMFootball"],
+        "vanderbilt":        ["vanderbilt", "VandyFootball"],
+    },
+    "big10": {
+        "illinois":          ["FightingIllini", "Illinois", "IllinoisFootball"],
+        "indiana":           ["IndianaHoosiers", "IndianaFootball"],
+        "iowa":              ["hawkeyes", "IowaFootball"],
+        "maryland":          ["MarylandTerps", "TerrapinFB"],
+        "michigan":          ["MichiganWolverines", "MichiganFootball", "GoBlue"],
+        "michigan-state":    ["msu", "MSUSpartans", "SpartanFootball"],
+        "minnesota":         ["GopherSports", "MinnesotaGophers"],
+        "nebraska":          ["huskers", "HuskerFootball"],
+        "northwestern":      ["Northwestern", "WildcatFootball"],
+        "ohio-state":        ["OhioStateFootball", "Buckeyes"],
+        "oregon":            ["oregonducks", "GoDucks", "DuckFootball"],
+        "penn-state":        ["PennState", "nittanylions", "WeArePS"],
+        "purdue":            ["Purdue", "PurdueFootball"],
+        "rutgers":           ["Rutgers", "RutgersFootball"],
+        "ucla":              ["ucla", "UCLAFootball", "BruinNation"],
+        "usc":               ["USC", "USCFootball", "TrojanFootball"],
+        "washington":        ["UWHuskies", "udubfootball", "GoHuskies"],
+        "wisconsin":         ["badgers", "BadgerFootball"],
+    },
+    "acc": {
+        "boston-college":    ["bostoncollege", "BCEagles", "BostonCollege"],
+        "california":        ["CalBears", "CalFootball"],
+        "clemson":           ["ClemsonFootball", "Clemson"],
+        "duke":              ["Duke", "DukeBlueDevils", "DukeFootball"],
+        "florida-state":     ["fsusports", "FloridaState", "Seminoles", "NoleFans"],
+        "georgia-tech":      ["GeorgiaTech", "GTech", "YellowJackets"],
+        "louisville":        ["LouisvilleCardinals", "UofLFootball"],
+        "miami":             ["miamihurricanes", "HurricaneFB", "CanesFootball"],
+        "nc-state":          ["ncstate", "WolfpackNation", "NCStateFootball"],
+        "north-carolina":    ["tarheels", "UNC", "CarolinaFootball"],
+        "pittsburgh":        ["Pitt", "PittFootball"],
+        "smu":               ["SMUMustangs", "SMUFootball"],
+        "stanford":          ["Stanford", "StanfordFootball"],
+        "syracuse":          ["syracuse", "OrangeNation", "CuseFootball"],
+        "virginia":          ["hoos", "UVA", "VirginiaFootball"],
+        "virginia-tech":     ["VirginiaTech", "Hokies", "VTFootball"],
+        "wake-forest":       ["WakeForest", "WakeFootball"],
+    },
+    "big12": {
+        "arizona":           ["ArizonaWildcats", "ArizonaFootball"],
+        "arizona-state":     ["arizonastatesports", "ASUFootball", "SunDevilNation"],
+        "baylor":            ["Baylor", "BaylorFootball", "SicEm"],
+        "byu":               ["byu", "BYUFootball", "CougNation"],
+        "cincinnati":        ["bearcats", "CincinnatiFootball"],
+        "colorado":          ["coloradobuffaloes", "ColoradoFootball", "CUBuffs"],
+        "houston":           ["UHCougars", "HoustonFootball"],
+        "iowa-state":        ["cyclones", "CycloneFootball"],
+        "kansas":            ["KUWildcats", "KansasFootball"],
+        "kansas-state":      ["kstatecats", "KStateFootball"],
+        "oklahoma-state":    ["OklahomaState", "CowboyFootball", "GoPokes"],
+        "tcu":               ["TCU", "TCUFootball", "FrogFans"],
+        "texas-tech":        ["TexasTech", "RedRaiders"],
+        "ucf":               ["ucf", "UCFFootball", "ChargeOn"],
+        "utah":              ["UtahAthletics", "UtahFootball", "GoUtes"],
+        "west-virginia":     ["westvirginia", "WVUFootball", "MountaineerNation"],
+    },
+    "fbsind": {
+        "notre-dame":        ["FightingIrish", "notredamefootball", "NotreDame"],
+        "uconn":             ["UCONN", "UConnFootball"],
+    },
+    "pac12": {
+        "boise-state":       ["BoiseState", "BroncoNation"],
+        "colorado-state":    ["coloradostatefootball", "CSURams"],
+        "fresno-state":      ["FresnoState", "BullDogNation"],
+        "oregon-state":      ["OregonState", "BeaverNation"],
+        "san-diego-state":   ["SDSU", "SDSUFootball", "AztecFB"],
+        "texas-state":       ["TexasStateFootball", "TexasState"],
+        "utah-state":        ["USUAggies", "UtahState"],
+        "washington-state":  ["WSUCougars", "CougarFootball"],
+    },
+    "aac": {
+        "army":              ["ArmyWP", "ArmyFootball"],
+        "charlotte":         ["CharlotteSports", "Charlotte49ers"],
+        "east-carolina":     ["ECUPirates", "ECUFootball"],
+        "florida-atlantic":  ["FAUFootball", "FAUFB"],
+        "memphis":           ["MemphisTigers", "GoTigersGo"],
+        "navy":              ["NavySports", "NavyFootball"],
+        "north-texas":       ["MeanGreenNation", "NorthTexasFootball"],
+        "rice":              ["Rice", "RiceFootball"],
+        "south-florida":     ["USFBulls", "USFFootball"],
+        "temple":            ["TempleOwls", "TempleFootball"],
+        "tulane":            ["tulane", "GreenWave"],
+        "tulsa":             ["TulsaHurricane", "TulsaFootball"],
+        "uab":               ["UABBlazers", "UABFootball"],
+        "utsa":              ["UTSA", "UTSAFootball", "Roadrunners"],
+    },
+    "sbc": {
+        "app-state":         ["AppState", "AppalachianState"],
+        "arkansas-state":    ["ArkansasState", "RedWolves"],
+        "coastal-carolina":  ["CoastalCarolina", "ChantsFB"],
+        "georgia-southern":  ["GeorgiaSouthern", "GSUFootball"],
+        "georgia-state":     ["GeorgiaState", "PantherFB"],
+        "james-madison":     ["JMU", "JMUDukes"],
+        "louisiana":         ["RaginCajuns", "LouisianaSports"],
+        "marshall":          ["WeAreMarshall", "MarshallFootball"],
+        "old-dominion":      ["ODUMonarchs", "ODUFootball"],
+        "south-alabama":     ["SouthAlabama", "JaguarFB"],
+        "southern-miss":     ["SouthernMiss", "GoldenEagles"],
+        "troy":              ["TroyTrojans", "TroyFootball"],
+        "ul-monroe":         ["ULMonroe", "WarhawkFB"],
+    },
+    "mwc": {
+        "air-force":         ["AirForce", "AirForceFootball"],
+        "hawaii":            ["HawaiiRainbows", "HawaiiFootball"],
+        "nevada":            ["Nevada", "WolfPackFootball"],
+        "new-mexico":        ["NewMexicoLobos", "GoLobos"],
+        "north-dakota-state": ["NDSU", "BisonFootball"],
+        "northern-illinois": ["NIUHuskies", "NIUFootball"],
+        "san-jose-state":    ["SJSUSpartans", "SJSUFootball"],
+        "unlv":              ["UNLV", "UNLVFootball", "RebelFB"],
+        "utep":              ["UTEPMiners", "UTEPFootball"],
+        "wyoming":           ["WyomingCowboys", "WyomingFootball"],
+    },
+    "mac": {
+        "akron":             ["AkronZips", "AkronFootball"],
+        "ball-state":        ["BallState", "CardinalFB"],
+        "bowling-green":     ["bgsu", "BGSUFootball"],
+        "buffalo":           ["UBuffalo", "BuffaloFootball"],
+        "central-michigan":  ["CentralMichigan", "CMUChippewas"],
+        "eastern-michigan":  ["EasternMichigan", "EMUEagles"],
+        "kent-state":        ["KentState", "KentFootball"],
+        "massachusetts":     ["UMassAmherst", "UMassFootball"],
+        "miami-oh":          ["MiamiOH", "MiamiOhioFootball"],
+        "ohio":              ["OhioAthletics", "OhioBobcats"],
+        "toledo":            ["ToledoRockets", "ToledoFootball"],
+        "western-michigan":  ["WesternMichigan", "BroncosFB"],
+    },
+    "cusa": {
+        "fiu":               ["FIUSports", "FIUFootball"],
+        "liberty":           ["Liberty", "LibertyFootball"],
+        "louisiana-tech":    ["LouisianaTech", "LATechFootball"],
+        "middle-tennessee":  ["MTSU", "BlueRaiders"],
+        "new-mexico-state":  ["NewMexicoState", "AggiesFootball"],
+        "western-kentucky":  ["WKU", "HilltopperFB"],
+    },
 }
 
 
-def test_subreddit(subreddit):
-    """
-    Test a subreddit with both top.json and hot.json.
-    Returns dict with results for each endpoint.
-    """
+def test_subreddit(subreddit, delay=1.5):
+    """Test a subreddit with top, hot, and new endpoints. Returns best result."""
     results = {}
-    for endpoint in ('top', 'hot', 'new'):
+    for endpoint in ('top', 'hot'):
         if endpoint == 'top':
             url = f"https://www.reddit.com/r/{subreddit}/top.json?t=month&limit=10"
-        elif endpoint == 'hot':
-            url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=10"
         else:
-            url = f"https://www.reddit.com/r/{subreddit}/new.json?limit=10"
+            url = f"https://www.reddit.com/r/{subreddit}/hot.json?limit=15"
 
         try:
             req = urllib.request.Request(url, headers=HEADERS)
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with urllib.request.urlopen(req, timeout=12) as resp:
                 data = json.loads(resp.read().decode())
 
-            if not data or 'data' not in data:
-                results[endpoint] = {'status': 'bad_response', 'count': 0, 'top_title': ''}
-                continue
+            children = data.get('data', {}).get('children', [])
 
-            children = data['data'].get('children', [])
-            count = len(children)
-
-            if count == 0:
-                results[endpoint] = {'status': 'empty', 'count': 0, 'top_title': ''}
-                continue
-
-            # For 'new', filter to past 30 days
-            if endpoint == 'new':
+            if endpoint == 'hot':
                 cutoff = datetime.now(timezone.utc) - timedelta(days=30)
-                recent = [
+                children = [
                     c for c in children
                     if datetime.fromtimestamp(
                         c['data'].get('created_utc', 0), tz=timezone.utc
                     ) > cutoff
                 ]
-                children = recent
 
-            if not children:
-                results[endpoint] = {'status': 'empty_filtered', 'count': 0, 'top_title': ''}
-                continue
-
-            top = children[0]['data']
-            results[endpoint] = {
-                'status':    'ok',
-                'count':     len(children),
-                'top_score': top.get('score', 0),
-                'top_title': top.get('title', '')[:80],
-            }
+            count = len(children)
+            if count == 0:
+                results[endpoint] = {'status': 'empty', 'count': 0}
+            else:
+                top = children[0]['data']
+                results[endpoint] = {
+                    'status':    'ok',
+                    'count':     count,
+                    'top_score': top.get('score', 0),
+                    'top_title': top.get('title', '')[:75],
+                }
 
         except urllib.error.HTTPError as e:
-            results[endpoint] = {'status': f'HTTP {e.code}', 'count': 0, 'top_title': ''}
+            results[endpoint] = {'status': f'HTTP {e.code}', 'count': 0}
         except Exception as e:
-            results[endpoint] = {'status': f'error: {str(e)[:40]}', 'count': 0, 'top_title': ''}
+            results[endpoint] = {'status': f'err:{str(e)[:30]}', 'count': 0}
 
-        time.sleep(0.8)  # stay under rate limit
+        time.sleep(delay / 2)
 
-    return results
-
-
-def score_result(results):
-    """Pick the best endpoint result and return a summary score (higher = better)."""
-    best_count = 0
-    for ep_result in results.values():
-        if ep_result.get('status') == 'ok':
-            best_count = max(best_count, ep_result.get('count', 0))
-    return best_count
+    # Pick best endpoint
+    best = max(results.values(), key=lambda r: r.get('count', 0))
+    best_ep = next(ep for ep, r in results.items() if r is best)
+    return best_ep, best, results
 
 
 def main():
-    print(f"Testing {sum(len(v) for v in CANDIDATES.values())} candidate subreddits "
-          f"for {len(CANDIDATES)} teams...\n")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--conf',  default=None,
+                        help='Conference slug e.g. "acc" — tests only that conference')
+    parser.add_argument('--slug',  default=None,
+                        help='Single team slug e.g. "ohio-state"')
+    parser.add_argument('--delay', type=float, default=3.0,
+                        help='Seconds between subreddit tests (default 3.0)')
+    args = parser.parse_args()
 
-    for slug, candidates in CANDIDATES.items():
+    # Build the work list
+    if args.slug:
+        # Find which conference this slug belongs to
+        work = {}
+        for conf, slugs in CANDIDATES.items():
+            if args.slug in slugs:
+                work = {args.slug: slugs[args.slug]}
+                break
+        if not work:
+            print(f"Slug '{args.slug}' not found in CANDIDATES.")
+            sys.exit(1)
+    elif args.conf:
+        conf = args.conf.lower()
+        if conf not in CANDIDATES:
+            print(f"Unknown conference '{conf}'. Known: {', '.join(CANDIDATES)}")
+            sys.exit(1)
+        work = CANDIDATES[conf]
+    else:
+        # All teams
+        work = {}
+        for slugs in CANDIDATES.values():
+            work.update(slugs)
+
+    total_tests = sum(len(v) for v in work.values())
+    print(f"Testing {total_tests} candidate subreddits for {len(work)} teams "
+          f"(delay={args.delay}s)...\n")
+
+    for slug, candidates in work.items():
         print(f"\n{'='*65}")
         print(f"TEAM: {slug}")
         print(f"{'='*65}")
 
         ranked = []
-
         for sub in candidates:
-            print(f"  Testing r/{sub}...", end='', flush=True)
-            results = test_subreddit(sub)
-            sc = score_result(results)
-            ranked.append((sc, sub, results))
+            print(f"  r/{sub:30s}", end='', flush=True)
+            best_ep, best_result, all_results = test_subreddit(sub, delay=args.delay)
 
-            # Quick status line
-            best_ep = None
-            for ep in ('top', 'hot', 'new'):
-                if results.get(ep, {}).get('status') == 'ok':
-                    best_ep = ep
-                    break
-            if best_ep:
-                r = results[best_ep]
-                print(f"  ✓ {r['count']} posts via {best_ep}  [{r.get('top_score',0):,}] {r['top_title'][:50]}")
+            if best_result.get('status') == 'ok':
+                cnt   = best_result['count']
+                score = best_result.get('top_score', 0)
+                title = best_result.get('top_title', '')
+                print(f"✓ {cnt} posts via {best_ep}  [{score:,}] {title[:45]}")
+                ranked.append((cnt, sub))
             else:
-                statuses = {ep: results[ep]['status'] for ep in results}
-                print(f"  ✗ {statuses}")
+                statuses = {ep: r['status'] for ep, r in all_results.items()}
+                print(f"✗ {statuses}")
+                ranked.append((0, sub))
 
-            time.sleep(0.5)
+            time.sleep(args.delay * 0.2)  # small extra buffer between subs
 
-        # Rank by post count
-        ranked.sort(key=lambda x: x[0], reverse=True)
-        print(f"\n  RECOMMENDATION for {slug}:")
+        ranked.sort(reverse=True)
+        print(f"\n  ➜  RECOMMENDATION for {slug}:")
         if ranked[0][0] > 0:
-            best_count, best_sub, best_results = ranked[0]
-            print(f"    → r/{best_sub}  ({best_count} posts)")
-            # Show all working options
-            working = [(c, s, r) for c, s, r in ranked if c > 0]
-            if len(working) > 1:
-                others = ', '.join(f"r/{s} ({c})" for c, s, r in working[1:])
-                print(f"    Alternatives: {others}")
+            print(f"     r/{ranked[0][1]}  ({ranked[0][0]} posts)")
+            others = [(c, s) for c, s in ranked[1:] if c > 0]
+            if others:
+                print(f"     Alternatives: {', '.join(f'r/{s}({c})' for c,s in others)}")
         else:
-            print(f"    → None of the candidates returned posts. May need manual research.")
-            print(f"    Tried: {', '.join(f'r/{s}' for s in candidates)}")
+            print(f"     None worked — rely on r/CFB search only")
+            print(f"     Tried: {', '.join(f'r/{s}' for _,s in ranked)}")
 
     print(f"\n{'='*65}")
-    print("Done. Update TEAM_SUBREDDITS in reddit_fetcher.py with the recommendations above.")
+    print("Done. Update TEAM_SUBREDDITS in reddit_fetcher.py accordingly.")
 
 
 if __name__ == '__main__':
