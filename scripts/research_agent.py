@@ -357,9 +357,32 @@ def build_prompt(slug, context, channels, no_youtube=False):
                     + ", ".join(unfetched)
                 )
         else:
-            written_block = "Written sources: No pre-configured sources available — rely on web search in Task 3."
+            written_block = "Written sources: No pre-configured sources available — rely on web search in Task 4."
     except Exception as e:
-        written_block = f"Written sources: Fetcher unavailable ({e}). Rely on web search in Task 3."
+        written_block = f"Written sources: Fetcher unavailable ({e}). Rely on web search in Task 4."
+
+    # Pre-fetch Reddit posts - fan community sentiment and program outlook
+    reddit_block = ""
+    try:
+        sys.path.insert(0, str(BASE_DIR / "scripts"))
+        from reddit_fetcher import fetch_team_reddit
+        reddit_result = fetch_team_reddit(slug, days=30, verbose=False)
+        if reddit_result['count'] > 0:
+            reddit_block = (
+                f"Reddit sources ({reddit_result['sub_count']} fan subreddit posts, "
+                f"{reddit_result['cfb_count']} r/CFB posts - unfiltered community perspective):\n"
+            )
+            reddit_block += reddit_result['summary_text']
+            reddit_block += (
+                "\n\nFor each Reddit post above: use the title and post text to assess "
+                "fan/community sentiment and surface recurring concerns, optimism, or storylines. "
+                "Reddit reflects unfiltered fan perspective - weight it for sentiment and program "
+                "outlook signals, not as authoritative factual reporting. Do NOT fetch Reddit URLs."
+            )
+        else:
+            reddit_block = reddit_result['summary_text']  # graceful 'skip' message
+    except Exception as e:
+        reddit_block = f"Reddit: Fetcher unavailable ({e}). Skip Reddit section."
 
     output_path = str(OUTPUT_DIR / f"{slug}_latest.json")
 
@@ -413,12 +436,20 @@ Current focus: {mode_focus}
 
 {written_block}
 
-3. **Web Search Fallback** — Only if Tasks 1 and 2 leave obvious gaps, do a targeted search:
+3. **Reddit Sources** — Fan and community perspective on the program:
+   - Read post titles and any provided post text for sentiment signals and recurring themes
+   - Note when multiple posts echo the same concern or optimism — that's a signal worth capturing
+   - Weight these for overall_sentiment and key_storylines, not as factual reporting
+   - If a Reddit post references a player or storyline also found in written sources, treat it as corroboration
+
+{reddit_block}
+
+4. **Web Search Fallback** — Only if Tasks 1, 2, and 3 leave obvious gaps, do a targeted search:
    - Maximum 2 searches total — be specific, not broad
    - Good examples: "{team_name} injury update April 2026", "{team_name} depth chart spring 2026", "{team_name} 2026 football outlook"
-   - Do NOT search for things already covered by YouTube or written sources above
+   - Do NOT search for things already covered by YouTube, written sources, or Reddit above
 
-4. **Synthesis** — Based on everything you found, identify:
+5. **Synthesis** — Based on everything you found, identify:
    - The 3-5 most important current storylines
    - Any injury flags not already in the context
    - Overall fanbase/media sentiment
