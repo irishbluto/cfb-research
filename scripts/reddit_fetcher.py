@@ -366,7 +366,7 @@ def _clean_selftext(text, max_chars=400):
 # ---------------------------------------------------------------------------
 # Fetch team subreddit posts
 # ---------------------------------------------------------------------------
-def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
+def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=2,
                            auth_token=None):
     """
     Fetch football-relevant posts from a team subreddit for the past month.
