@@ -56,7 +56,7 @@ TEAM_SUBREDDITS = {
     "oklahoma":           "sooners",
     "ole-miss":           "OleMiss",
     "south-carolina":     "GamecockFB",
-    "tennessee":          None,   # r/VolNation API-restricted; r/CFB search still works
+    "tennessee":          "ockytop",  # manually verified by Jonathan; r/VolNation API-restricted
     "texas":              "LonghornNation",
     "texas-am":           "aggies",
     "vanderbilt":         "vanderbilt",
@@ -119,28 +119,28 @@ TEAM_SUBREDDITS = {
     "uconn":              "UCONN",
     # New PAC-12
     "boise-state":        "BoiseState",
-    "colorado-state":     "coloradostatefootball",
+    "colorado-state":     "CSURams",
     "fresno-state":       "FresnoState",
     "oregon-state":       "OregonState",
     "san-diego-state":    "SDSU",
-    "texas-state":        "TexasStateFootball",
+    "texas-state":        None,             # r/TexasStateFootball sidebar says "Buckeye Football" — wrong community
     "utah-state":         "USUAggies",
     "washington-state":   "WSUCougars",
     # AAC
     "army":               "ArmyWP",
-    "charlotte":          "CharlotteSports",
+    "charlotte":          "Charlotte49ers",
     "east-carolina":      "ECUPirates",
-    "florida-atlantic":   "FAUFootball",
+    "florida-atlantic":   None,            # r/FAUFootball empty
     "memphis":            "MemphisTigers",
     "navy":               "NavySports",
-    "north-texas":        "MeanGreenNation",
-    "rice":               "Rice",
-    "south-florida":      "USFBulls",
-    "temple":             "TempleOwls",
+    "north-texas":        None,            # r/MeanGreenNation = /r/emo crosspost; r/NorthTexasFootball = wrong school
+    "rice":               None,            # r/Rice is a food/cooking subreddit
+    "south-florida":      None,            # r/USFBulls HTTP 403 (private)
+    "temple":             None,            # r/TempleOwls empty
     "tulane":             "tulane",
-    "tulsa":              "TulsaHurricane",
-    "uab":                "UABBlazers",
-    "utsa":               "UTSA",
+    "tulsa":              None,            # r/TulsaHurricane score:0 sidebar; r/TulsaFootball = wrong school
+    "uab":                None,            # r/UABBlazers HTTP 403 (private)
+    "utsa":               "UTSAFootball",  # r/UTSA = parking/general; UTSAFootball has transfer news
     # Sun Belt
     "app-state":          "AppState",
     "arkansas-state":     "ArkansasState",
@@ -149,50 +149,49 @@ TEAM_SUBREDDITS = {
     "georgia-state":      "GeorgiaState",
     "james-madison":      "JMU",
     "louisiana":          "RaginCajuns",
-    "marshall":           "WeAreMarshall",
-    "old-dominion":       "ODUMonarchs",
-    "south-alabama":      "SouthAlabama",
-    "southern-miss":      "SouthernMiss",
+    "marshall":           "MarshallFootball",  # r/WeAreMarshall score:0 sidebar ("West Virginia")
+    "old-dominion":       None,            # r/ODUMonarchs empty
+    "south-alabama":      None,            # r/SouthAlabama empty; r/JaguarFB score:0 sidebar
+    "southern-miss":      None,            # r/SouthernMiss empty
     "troy":               "TroyTrojans",
     "ul-monroe":          None,
     # MWC
-    "air-force":          "AirForce",
-    "hawaii":             "HawaiiRainbows",
-    "nevada":             "Nevada",
-    "new-mexico":         "NewMexicoLobos",
+    "air-force":          None,            # r/AirForce = US military sub (wrong); r/AirForceFootball score:0
+    "hawaii":             None,            # r/HawaiiRainbows score:0 EarthPorn sidebar
+    "nevada":             None,            # r/Nevada = Nevada state sub (wrong)
+    "new-mexico":         None,            # r/NewMexicoLobos score:0 sidebar
     "north-dakota-state": "NDSU",
-    "northern-illinois":  "NIUHuskies",
+    "northern-illinois":  None,            # r/NIUHuskies empty
     "san-jose-state":     "SJSUSpartans",
     "unlv":               "UNLV",
-    "utep":               "UTEPMiners",
-    "wyoming":            "WyomingCowboys",
+    "utep":               None,            # r/UTEPMiners empty
+    "wyoming":            None,            # r/WyomingCowboys 1 post, non-football content
     # MAC
     "akron":              "AkronZips",
     "ball-state":         "BallState",
-    "bowling-green":      "bgsu",
-    "buffalo":            "UBuffalo",
-    "central-michigan":   "CentralMichigan",
-    "eastern-michigan":   "EasternMichigan",
-    "kent-state":         "KentState",
-    "massachusetts":      "UMassAmherst",
+    "bowling-green":      None,            # r/bgsu empty
+    "buffalo":            None,            # r/UBuffalo empty; r/BuffaloFootball = NFL Bills sub
+    "central-michigan":   None,            # r/CentralMichigan empty
+    "eastern-michigan":   None,            # r/EasternMichigan score:0 sidebar
+    "kent-state":         None,            # r/KentState score:0 sidebar
+    "massachusetts":      None,            # r/UMassAmherst HTTP 403 (private)
     "miami-oh":           "MiamiOH",
-    "ohio":               "OhioAthletics",
+    "ohio":               None,            # r/OhioAthletics score:0; description says "Buckeye Football" (wrong)
+    "sacramento-state":   None,            # r/SacStateHornets top post = NBA content (wrong)
     "toledo":             "ToledoRockets",
-    "western-michigan":   "WesternMichigan",
+    "western-michigan":   None,            # r/WesternMichigan score:0 sidebar
     # CUSA
-    "fiu":                "FIUSports",
-    "jacksonville-state": None,
-    "kennesaw-state":     None,
-    "liberty":            "Liberty",
+    "delaware":           None,            # r/DelawareBlueHens + r/DelawareFootball both score:0 sidebar
+    "fiu":                None,            # r/FIUSports score:0 sidebar
+    "jacksonville-state": None,            # no working sub found
+    "kennesaw-state":     None,            # r/KennesawState score:0 sidebar
+    "liberty":            None,            # r/Liberty + r/LibertyFootball both empty
     "louisiana-tech":     "LouisianaTech",
-    "middle-tennessee":   "MTSU",
-    "missouri-state":     None,
-    "new-mexico-state":   "NewMexicoState",
-    "sam-houston":        None,
+    "middle-tennessee":   None,            # r/MTSU score:0 sidebar
+    "missouri-state":     None,            # r/MissouriStateFootball = Missouri state sub (wrong)
+    "new-mexico-state":   None,            # r/AggiesFootball = Texas A&M fan site; r/NewMexicoState 404
+    "sam-houston":        None,            # r/SamHouston + r/SamHoustonState both score:0 sidebar
     "western-kentucky":   "WKU",
-    # Others in team_context that may appear
-    "sacramento-state":   None,
-    "delaware":           None,
 }
 
 # ---------------------------------------------------------------------------
