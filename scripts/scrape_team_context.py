@@ -948,8 +948,9 @@ def scrape_schedule_outlook(page, url_param, debug=False):
                 opp_name = block[j]; j += 1
             if j < len(block) and rank_pat.match(block[j]):
                 opp_rank = int(rank_pat.match(block[j]).group(1)); j += 1
+            conf_flag = False
             if j < len(block) and block[j] == 'CONF':
-                j += 1
+                conf_flag = True; j += 1
             if j < len(block) and rank_pat.match(block[j]):
                 off_rank = int(rank_pat.match(block[j]).group(1)); j += 1
             if j < len(block) and rank_pat.match(block[j]):
@@ -967,13 +968,14 @@ def scrape_schedule_outlook(page, url_param, debug=False):
                 pm = proj_pat.match(block[j])
                 if pm: proj_l = float(pm.group(1))
 
-            if opp_name:
+            if opp_name and location:
                 schedule.append({
                     'week': week, 'date': date, 'location': location,
                     'opponent': opp_name, 'opp_record': opp_record,
                     'opp_rank': opp_rank, 'off_rank': off_rank, 'def_rank': def_rank,
                     'favorite': favorite, 'line': line_val,
                     'win_pct': win_pct, 'proj_w': proj_w, 'proj_l': proj_l,
+                    'conference_game': conf_flag,
                 })
             i += j + 1
             continue
