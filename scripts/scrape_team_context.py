@@ -1070,11 +1070,19 @@ def main():
 
     # Determine which teams to scrape — list of (conf_key, (team_name, url_param, slug))
     if args.team:
+        needle = args.team.lower()
         teams = []
+        # Exact slug or exact short-name match first
         for conf_key, team_list in CONFERENCE_TEAMS.items():
             for t in team_list:
-                if args.team.lower() in t[0].lower() or args.team.lower() in t[2].lower():
+                if needle == t[2].lower() or needle == t[1].lower():
                     teams.append((conf_key, t))
+        # Fall back to substring only if nothing matched exactly
+        if not teams:
+            for conf_key, team_list in CONFERENCE_TEAMS.items():
+                for t in team_list:
+                    if needle in t[0].lower() or needle in t[2].lower():
+                        teams.append((conf_key, t))
         if not teams:
             print(f"ERROR: '{args.team}' not found in any configured conference")
             print(f"Known slugs: {sorted(t[2] for tl in CONFERENCE_TEAMS.values() for t in tl)}")
