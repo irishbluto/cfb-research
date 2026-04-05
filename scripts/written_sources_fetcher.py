@@ -26,18 +26,32 @@ Source types: beat_writer, fan_aggregator, recruiting_portal, official, podcast_
 Standalone usage:
     python3 scripts/written_sources_fetcher.py --team alabama
     python3 scripts/written_sources_fetcher.py --team alabama --days 14
+    python3 scripts/written_sources_fetcher.py --team alabama --no-prefetch
 
 Also importable:
     from written_sources_fetcher import fetch_team_articles
 """
 
 import os, sys, json, argparse, urllib.request, urllib.parse, html
+import concurrent.futures
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from email.utils import parsedate_to_datetime
 
 _here = os.path.dirname(os.path.abspath(__file__))
 SOURCES_DIR = Path("/cfb-research/config/written_sources")
+
+# ---------------------------------------------------------------------------
+# Domains that are paywalled or JS-rendered — skip body prefetch for these
+# ---------------------------------------------------------------------------
+SKIP_PREFETCH_DOMAINS = {
+    '247sports.com',
+    'rivals.com',
+    'on3.com',
+    'theathletic.com',
+    'si.com',
+    'the-athletic.com',
+}
 
 # ---------------------------------------------------------------------------
 # Config loader — globs all conference files
@@ -213,6 +227,86 @@ def _fetch_url(source, max_items=3):
     }]
 
 # ---------------------------------------------------------------------------
+# Article body prefetch — eliminates Claude URL fetching
+# ---------------------------------------------------------------------------
+
+def _should_prefetch(url):
+    """Return True if this URL is worth attempting a body prefetch."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        domain = parsed.netloc.lstrip('www.')
+        return not any(skip in domain for skip in SKIP_PREFETCH_DOMAINS)
+    except Exception:
+        return False
+
+
+def _fetch_article_body(url, max_chars=1000, timeout=8):
+    """
+    Fetch an article URL and extract plain-text body content.
+
+    Skips known paywalled/JS-heavy domains (see SKIP_PREFETCH_DOMAINS).
+    Returns a string of up to max_chars characters, or '' on failure/skip.
+
+    Strategy:
+      1. Prefer <article> or <main> tag content when present.
+      2. Strip non-content tags (script, style, nav, header, footer, etc.).
+      3. Strip remaining HTML tags and collapse whitespace.
+      4. Reject result if < 150 chars (likely a login wall or JS shell).
+    """
+    if not _should_prefetch(url):
+        return ''
+
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={
+                'User-Agent': (
+                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+                    '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                ),
+                'Accept': 'text/html,application/xhtml+xml',
+                'Accept-Language': 'en-US,en;q=0.9',
+            }
+        )
+        # Read up to 100 KB — enough for article content, avoids huge pages
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read(102400).decode('utf-8', errors='replace')
+    except Exception:
+        return ''
+
+    import re
+
+    # Prefer semantic content containers when available
+    article_match = re.search(r'<article[^>]*>(.*?)</article>', raw, re.DOTALL | re.IGNORECASE)
+    main_match    = re.search(r'<main[^>]*>(.*?)</main>',       raw, re.DOTALL | re.IGNORECASE)
+    content_raw   = (
+        article_match.group(1) if article_match else
+        main_match.group(1)    if main_match    else
+        raw
+    )
+
+    # Strip non-content elements before plain-text conversion
+    noise_tags = (
+        'script|style|nav|header|footer|aside|form|figure|figcaption|'
+        'iframe|button|input|select|textarea|noscript|svg|picture|video|audio'
+    )
+    content_raw = re.sub(
+        rf'<({noise_tags})[^>]*>.*?</\1>',
+        ' ', content_raw, flags=re.DOTALL | re.IGNORECASE
+    )
+
+    # Strip remaining HTML tags and clean up whitespace
+    text = re.sub(r'<[^>]+>', ' ', content_raw)
+    text = html.unescape(text)
+    text = re.sub(r'\s+', ' ', text).strip()
+
+    # Sanity check — too short means a login wall, JS shell, or error page
+    if len(text) < 150:
+        return ''
+
+    return text[:max_chars]
+
+# ---------------------------------------------------------------------------
 # Error article helper
 # ---------------------------------------------------------------------------
 
@@ -234,13 +328,15 @@ def _error_article(name, src_type, url, msg):
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def fetch_team_articles(slug, days=14, max_per_source=5):
+def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_prefetch=8):
     """
     Fetch recent articles for all written sources configured for a team slug.
-    Returns dict with articles list and a formatted summary for the agent prompt.
 
-    RSS sources are fetched and headlines returned directly.
-    Direct-URL sources are passed as URLs for Claude Code to fetch and read.
+    If prefetch=True (default), concurrently fetches article body text for
+    non-paywalled sources so the Claude agent can extract key points without
+    making any URL fetch calls itself. This is the primary token-reduction lever.
+
+    Returns dict with articles list and a formatted summary for the agent prompt.
     """
     all_sources = _load_all_sources()
 
@@ -272,38 +368,83 @@ def fetch_team_articles(slug, days=14, max_per_source=5):
 
         all_articles.extend(articles)
 
+    # ------------------------------------------------------------------
+    # Prefetch article body text concurrently
+    # Goal: Claude reads content inline — zero URL fetch calls needed.
+    # ------------------------------------------------------------------
+    if prefetch:
+        candidates = [
+            a for a in all_articles
+            if not a.get('error') and not a.get('no_recent') and a.get('url')
+        ][:max_prefetch]
+
+        def _do_prefetch(article):
+            body = _fetch_article_body(article['url'])
+            if body:
+                article['body_text'] = body
+
+        if candidates:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
+                futures = {ex.submit(_do_prefetch, a): a for a in candidates}
+                # 45-second wall-clock cap — never blocks the pipeline
+                concurrent.futures.wait(futures, timeout=45)
+
+    # ------------------------------------------------------------------
     # Build summary text for injection into agent prompt
+    # ------------------------------------------------------------------
     summary_lines = []
     for a in all_articles:
         if a.get('error'):
             summary_lines.append(f"  [{a['source']}] ERROR: {a['headline']}")
+
         elif a.get('no_recent'):
             summary_lines.append(f"  [{a['source']}] No articles in last {days} days")
+
         elif a.get('via') == 'direct':
-            summary_lines.append(
-                f"  [{a['source']} — {a['source_type']}]\n"
-                f"    Fetch and read recent articles from: {a['url']}\n"
-                f"    Notes: {a['summary']}"
-            )
+            # Paywalled / JS-heavy — pass URL for Claude only if no body was fetched
+            if a.get('body_text'):
+                summary_lines.append(
+                    f"  [{a['source']} — {a['source_type']}]\n"
+                    f"    Source: {a['url']}\n"
+                    f"    Content (pre-fetched): {a['body_text']}"
+                )
+            else:
+                summary_lines.append(
+                    f"  [{a['source']} — {a['source_type']}]\n"
+                    f"    Fetch and skim: {a['url']}\n"
+                    f"    Notes: {a['summary']}"
+                )
+
         else:
-            summary_lines.append(
+            # RSS article — prefer pre-fetched body, fall back to RSS summary
+            entry = (
                 f"  [{a['source']} — {a['source_type']}]\n"
                 f"    Headline: {a['headline']}\n"
                 f"    URL: {a['url']}\n"
                 f"    Published: {a['published']}\n"
-                f"    Summary: {a['summary'][:150]}..."
             )
+            if a.get('body_text'):
+                entry += f"    Content (pre-fetched): {a['body_text']}"
+            elif a.get('summary'):
+                entry += f"    Summary: {a['summary'][:200]}"
+            summary_lines.append(entry)
 
     real_articles = [a for a in all_articles if not a.get('no_recent') and not a.get('error') and a.get('via') != 'direct']
     direct_urls   = [a for a in all_articles if a.get('via') == 'direct']
 
+    # Count how many articles got body text vs not
+    prefetched_count = sum(1 for a in all_articles if a.get('body_text'))
+    unfetched_direct = [a for a in direct_urls if not a.get('body_text')]
+
     return {
-        'articles':     all_articles,
-        'summary_text': '\n'.join(summary_lines),
-        'count':        len(real_articles),
-        'rss_count':    rss_count,
-        'direct_count': direct_count,
-        'direct_urls':  [a['url'] for a in direct_urls],
+        'articles':         all_articles,
+        'summary_text':     '\n'.join(summary_lines),
+        'count':            len(real_articles),
+        'rss_count':        rss_count,
+        'direct_count':     direct_count,
+        'direct_urls':      [a['url'] for a in direct_urls],
+        'prefetched_count': prefetched_count,
+        'unfetched_direct': [a['url'] for a in unfetched_direct],
     }
 
 # ---------------------------------------------------------------------------
@@ -312,22 +453,29 @@ def fetch_team_articles(slug, days=14, max_per_source=5):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--team', required=True, help='Team slug e.g. "alabama"')
-    parser.add_argument('--days', type=int, default=14)
-    parser.add_argument('--max',  type=int, default=5)
+    parser.add_argument('--team',       required=True, help='Team slug e.g. "alabama"')
+    parser.add_argument('--days',       type=int, default=14)
+    parser.add_argument('--max',        type=int, default=3)
+    parser.add_argument('--no-prefetch', action='store_true', help='Skip article body prefetch')
     args = parser.parse_args()
 
-    result = fetch_team_articles(args.team, days=args.days, max_per_source=args.max)
+    prefetch = not args.no_prefetch
+    result = fetch_team_articles(args.team, days=args.days, max_per_source=args.max, prefetch=prefetch)
 
     if not result['articles']:
         print(f"No sources configured for: {args.team}")
         sys.exit(0)
 
-    print(f"Sources: {len(result['articles'])} items | RSS: {result['rss_count']} articles | Direct URLs: {result['direct_count']}")
+    print(
+        f"Sources: {len(result['articles'])} items | "
+        f"RSS: {result['rss_count']} articles | "
+        f"Direct URLs: {result['direct_count']} | "
+        f"Pre-fetched body text: {result['prefetched_count']}"
+    )
+    if result.get('unfetched_direct'):
+        print(f"  Unfetched (paywalled/direct): {result['unfetched_direct']}")
     print()
     print(result['summary_text'])
-    print("\nFull data:")
-    print(json.dumps(result['articles'], indent=2))
 
 if __name__ == '__main__':
     main()

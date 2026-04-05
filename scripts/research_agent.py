@@ -290,19 +290,28 @@ def build_prompt(slug, context, channels, no_youtube=False):
     try:
         sys.path.insert(0, str(BASE_DIR / "scripts"))
         from written_sources_fetcher import fetch_team_articles
-        ws_result = fetch_team_articles(slug, days=14, max_per_source=5)
+        ws_result = fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True)
         if ws_result['count'] > 0 or ws_result['direct_count'] > 0:
+            prefetched = ws_result.get('prefetched_count', 0)
+            unfetched  = ws_result.get('unfetched_direct', [])
             written_block = (
-                f"Written sources pre-fetched ({ws_result['count']} RSS articles"
-                f", {ws_result['direct_count']} direct URLs to fetch):\n"
+                f"Written sources ({ws_result['count']} RSS articles, "
+                f"{ws_result['direct_count']} direct URLs — "
+                f"{prefetched} with pre-fetched body text):\n"
             )
             written_block += ws_result['summary_text']
             written_block += (
-                "\n\nFor each RSS article above: fetch the URL and read enough to extract "
-                "2-4 specific key points, assess sentiment. Skip any article that is clearly "
-                "not about the 2026 football season (e.g. recruiting classes beyond 2026, "
-                "other sports). For direct URLs: fetch the page and skim for recent football news."
+                "\n\nFor each article that has 'Content (pre-fetched)' above: "
+                "read the provided text and extract 2-4 specific key points, assess sentiment. "
+                "Do NOT fetch those URLs — the content is already provided inline. "
+                "Skip any article not about the 2026 football season. "
             )
+            if unfetched:
+                written_block += (
+                    f"For these {len(unfetched)} paywalled/direct URL(s) without pre-fetched content, "
+                    "fetch the page and skim for recent football news: "
+                    + ", ".join(unfetched)
+                )
         else:
             written_block = "Written sources: No pre-configured sources available — rely on web search in Task 3."
     except Exception as e:
@@ -370,11 +379,11 @@ Current focus: {mode_focus}
 
 {youtube_block}
 
-2. **Written Sources** — Articles have been pre-fetched via RSS below. For each:
-   - Fetch the URL and read enough to extract 2-4 specific key points
+2. **Written Sources** — Article content has been pre-fetched and is provided inline below. For each:
+   - Read the 'Content (pre-fetched)' text and extract 2-4 specific key points — do NOT fetch RSS article URLs
    - Assess sentiment (optimistic / cautious / concerned / mixed / neutral)
    - Skip articles clearly not about {team_name} 2026 football (other sports, recruiting classes beyond 2026)
-   - For direct URLs (no RSS): fetch the page and skim for the most recent football news items
+   - Only fetch a URL if it is explicitly marked as a paywalled/direct source without pre-fetched content
 
 {written_block}
 
