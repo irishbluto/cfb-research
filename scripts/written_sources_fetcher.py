@@ -295,8 +295,10 @@ def _fetch_article_body(url, max_chars=1000, timeout=8):
         ' ', content_raw, flags=re.DOTALL | re.IGNORECASE
     )
 
-    # Strip remaining HTML tags and clean up whitespace
-    text = re.sub(r'<[^>]+>', ' ', content_raw)
+    # Strip remaining HTML tags (including self-closing like <img .../>)
+    text = re.sub(r'<[^>]+/?>', ' ', content_raw)
+    # Strip leftover HTML attribute fragments that survive tag removal
+    text = re.sub(r'\b(class|style|src|alt|href|data-\w+|loading|decoding|aria-\w+)=["\'][^"\']*["\']', ' ', text)
     text = html.unescape(text)
     text = re.sub(r'\s+', ' ', text).strip()
 
@@ -371,28 +373,48 @@ def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_pref
     # ------------------------------------------------------------------
     # Prefetch article body text concurrently
     # Goal: Claude reads content inline — zero URL fetch calls needed.
+    # Deduplicates by URL — category-page RSS feeds (e.g. SBNation) often
+    # emit the same link for every article; we fetch once and share the result.
     # ------------------------------------------------------------------
     if prefetch:
         candidates = [
             a for a in all_articles
             if not a.get('error') and not a.get('no_recent') and a.get('url')
-        ][:max_prefetch]
+        ]
 
-        def _do_prefetch(article):
-            body = _fetch_article_body(article['url'])
-            if body:
-                article['body_text'] = body
+        # Deduplicate: build a map of unique URL → list of articles sharing it
+        url_to_articles: dict = {}
+        for a in candidates:
+            url = a['url']
+            url_to_articles.setdefault(url, []).append(a)
 
-        if candidates:
+        unique_urls = list(url_to_articles.keys())[:max_prefetch]
+
+        def _do_prefetch(url):
+            return url, _fetch_article_body(url)
+
+        if unique_urls:
             with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
-                futures = {ex.submit(_do_prefetch, a): a for a in candidates}
-                # 45-second wall-clock cap — never blocks the pipeline
-                concurrent.futures.wait(futures, timeout=45)
+                futures = {ex.submit(_do_prefetch, url): url for url in unique_urls}
+                done, _ = concurrent.futures.wait(futures, timeout=45)
+
+            # Write body text to all articles that share this URL
+            for future in done:
+                try:
+                    url, body = future.result()
+                    if body:
+                        for article in url_to_articles.get(url, []):
+                            article['body_text'] = body
+                except Exception:
+                    pass
 
     # ------------------------------------------------------------------
     # Build summary text for injection into agent prompt
+    # Tracks which URLs have already had body text shown, so category-page
+    # RSS feeds (same URL repeated) don't dump the same content multiple times.
     # ------------------------------------------------------------------
     summary_lines = []
+    seen_body_urls: set = set()
     for a in all_articles:
         if a.get('error'):
             summary_lines.append(f"  [{a['source']}] ERROR: {a['headline']}")
@@ -423,8 +445,13 @@ def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_pref
                 f"    URL: {a['url']}\n"
                 f"    Published: {a['published']}\n"
             )
+            url = a.get('url', '')
             if a.get('body_text'):
-                entry += f"    Content (pre-fetched): {a['body_text']}"
+                if url not in seen_body_urls:
+                    entry += f"    Content (pre-fetched): {a['body_text']}"
+                    seen_body_urls.add(url)
+                else:
+                    entry += f"    Content: same source page as entry above — use RSS headline only"
             elif a.get('summary'):
                 entry += f"    Summary: {a['summary'][:200]}"
             summary_lines.append(entry)
