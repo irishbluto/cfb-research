@@ -483,7 +483,8 @@ The file must be valid JSON matching this exact structure:
   (1) Name players as leaders or standouts ONLY from the Key Players list — not from sources.
   (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position_group in the Roster block. If it doesn't match, remove the name entirely.
   (3) Use portal_in/portal_out to distinguish new additions from returning players. A player not on portal_in is a returner; a player not on portal_out is still on the team.
-  (4) If a source contradicts the roster on position, ignore the source — the roster is ground truth.
+  (4) If a source contradicts the roster on position for a player WHO IS listed in the roster, ignore the source — the roster is ground truth for listed players.
+  (5) The roster is capped and does not include every player on the team. If a source specifically calls out a player NOT found anywhere in the roster as a breakout or emerging performer (e.g. a freshman impressing in spring, a walk-on earning reps), you MAY include them in key_storylines only — use a qualifier like "not yet in depth rankings" or "emerging depth." Trust the position the source assigns them. Do NOT name uncapped players as starters, leaders, or key contributors in agent_summary.
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
