@@ -174,7 +174,8 @@ def build_prompt(slug, context, channels, no_youtube=False):
     dc_rank     = context.get('defensive_coordinator_rank')
     schedule    = context.get('schedule_2026', [])
     talent_rank = context.get('talent_rank')
-    bc_ratio = context.get('blue_chip_pct')
+    bc_ratio_raw = context.get('blue_chip_pct')
+    bc_ratio = f"{bc_ratio_raw}%" if isinstance(bc_ratio_raw, (int, float)) and 0 <= bc_ratio_raw <= 100 else "N/A"
     portal_net  = context.get('portal_net', 0)
     top_portals = context.get('top_portal_additions', [])
     top_recruits = context.get('top_recruits', [])
@@ -281,11 +282,11 @@ def build_prompt(slug, context, channels, no_youtube=False):
     # Format opening schedule
     schedule_block = ""
     if schedule:
-        schedule_block = "Opening 2026 schedule:\n"
+        schedule_block = "Opening 2026 schedule (CONF = conference game, NON-CONF = non-conference):\n"
         for g in schedule[:5]:
-            fav = "favored" if g.get('favorite') == team_name else "underdog"
+            conf_tag = "[CONF]" if g.get('conference_game') else "[NON-CONF]"
             schedule_block += (f"  Wk{g['week']} {g['date']} {g['location']} "
-                             f"{g['opponent']} (line: {g['line']}, "
+                             f"{g['opponent']} {conf_tag} (line: {g['line']}, "
                              f"win%: {g['win_pct']}%)\n")
 
     # Format best players — used to constrain player identification in the summary
@@ -463,34 +464,30 @@ The file must be valid JSON matching this exact structure:
   ],
   "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
-  "agent_summary": "4-5 dense, specific sentences a CFB analyst would write for a preseason team preview.  The audience is college football fans that are looking for up to date, in-depth knowledge about each of the 138 FBS teams.  In modes 'early_offseason', 'spring_offseason' and 'preseason' they are looking for how information on how good each team is, who are their top players, how is their coaching staff performing and how well they believe they will perform in the upcoming season.  In these modes you Must include: (1) the team's single most important current narrative with specific player names and/or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such as a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.'"
-  
-  In modes of 'in_season' and 'cfb_playoffs' the college football fan audience is looking for information on how the team is playing, how does the team and fans feel about their performance so far, the outlook on how they feel they will play going forward, and are extremely intersted in who is injured and unable to play in the upcoming game or games.  Gamblors will be looking for information on how is the team performing against the spread or over/unders, are they a team that has a good ATS record or covers a lot of overs or unders?  Do they have a poor ATS record and is a team that gamblors should avoid betting on or consider betting against?
-  Must include: (1) the team's single most important current narrative with specific player names and/or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter such involving a key to the next game on their schedule, their current ranking and their expected postseason outcome of whether or not they will make a bowl game or the college football playoffs.  Make note of their current ranking and prioritize their CFP Playoff rank first, AP Poll rank second and fall back on power rankings if neither are available.  Include any evidence of a player on the team mentioned for a postseason award like the Heisman trophy or a Butkus award candidate. Avoid generic phrases like 'win some, lose some' or 'hope to win their next game' without evidence from source material. These modes you can increase the sentence limits from 4-5 up to 7 sentences if the source material supports it."
+  "agent_summary": "Write 4-5 dense, analyst-quality sentences. Always include: (1) the single most important current narrative with specific player names or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter — a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.' OFFSEASON/PRESEASON modes: focus on roster construction, coaching staff quality, win projection, and where they stand in their conference pecking order. IN-SEASON/PLAYOFFS modes: expand to up to 7 sentences — cover current performance, key injuries affecting the next game, ATS record if notable (good or bad), bowl/CFP outlook, and any Heisman or major award candidates. Rank priority: CFP Playoff rank > AP Poll rank > power rating."
 }}
 
 ## Important Instructions
-- sentiment_score: 0.0 = extremely negative, 0.5 = neutral, 1.0 = extremely positive
-- If a YouTube channel returns no recent videos, include it in youtube_findings with an empty key_points array and a note in the video_title field
-- If you cannot access a URL, note it but don't leave the field empty — use "unavailable" as the URL
-- key_storylines should be concrete and specific, not generic (not "team has questions at QB" but "Austin Mack vs Keelon Russell QB battle unresolved after spring")
-- You have a strict time budget. Do not retry failed URL fetches — if a URL does not load in one attempt, mark it "unavailable" and move on immediately
-- Pre-fetched RSS articles in Task 2 are your primary written source — do not do broad web searches if those articles cover the topic
-- Maximum 2 web searches in Task 3 — only if there are clear gaps after Tasks 1 and 2
-- Write the output file as soon as you have enough data — do not wait until everything is perfect
-- Prefer beat writers and team-specific outlets over general aggregators like Heavy.com, Yardbarker, or Bleacher Report
-- When identifying standout players, unit leaders, or key contributors in key_storylines or agent_summary, ONLY use players from the Key Players list above — do not name players not on that list as leaders or standouts, as rankings are based on actual performance data
-- Context about a teams offensive philosophy can be found in offense_profile_db, but that applies to last year and teams can change offenses from year to year.
-- IMPORTANT: When naming player as team leaders, you MUST use ONLY players from the Key Players list. If a source names a player not on the list as a leader, note the source's claim but do not echo it as fact in key_storylines or agent_summary.
-- IMPORTANT: Coaching staff accuracy is critical. You MUST only use the Head Coach, OC, and DC names from the Team Context block above. Do NOT name any former/previous/ex head coach or coordinator under any circumstances unless they are explicitly named in the Team Context block — this includes do not infer, approximate, or echo a former coach's name from sources even if a source mentions them. If a source references a player leaving "to follow a coach" or "after a coaching change," describe it generically (e.g. "following the previous coaching staff departure") without naming the former coach. Incorrect former coach attributions are a disqualifying error in this output.
-- IMPORTANT — Player naming rules (strictly enforced):
-  (1) You may ONLY name players from the Key Players list in key_storylines, team_notes or agent_summary as leaders or standouts.
-  (2) Before placing ANY player in a positional context (e.g. "RB room", "QB battle", "OL depth"), look them up in the Full Roster by position group above. Their listed position group MUST match the context. If it does not match, remove the name entirely — do not guess or assume a source is correct.
-  (3) "And others" constructions are only permitted if every named player in that sentence has been verified against the roster. Do not add unverified names as filler.
-  (4) Refer to portal_in and portal_out for players added or left after last season.  A player not on this list should not be referred to as a new addition, rather a returning player.  Conversly a player not on the portal_out list should not be referred to in this teams context.  
-  (5) If a source names a player in a position context that contradicts the roster, ignore that reference entirely — the roster is ground truth.
-- Write the JSON file before finishing — do not just print it
-- The JSON must be valid — no trailing commas, no comments inside the JSON
+
+**Output:** Write the JSON file as soon as you have enough data — do not wait for perfection. No trailing commas, no comments inside the JSON. Failed URL fetches: mark as "unavailable" and move on immediately — no retries.
+
+**Sources:** Prefer beat writers and team-specific outlets over aggregators (Heavy.com, Yardbarker, Bleacher Report). Pre-fetched articles are your primary source — only search if clear gaps remain after Tasks 1 and 2.
+
+**Schedule accuracy:** The opening schedule tags each game [CONF] or [NON-CONF]. Never describe a non-conference game as a conference or MWC game. Only label a game as a conference matchup if it is tagged [CONF].
+
+**Data sanity:** If a context value is implausible (a percentage above 100, a rank of "None", an obviously wrong stat), do not use it in the output — omit it silently rather than echoing bad data.
+
+**Coaching staff (disqualifying error if wrong):** Use ONLY the Head Coach, OC, and DC named in Team Context. Never name a former coach under any circumstances — describe changes generically (e.g. "following the previous staff departure").
+
+**Player rules (strictly enforced):**
+  (1) Name players as leaders or standouts ONLY from the Key Players list — not from sources.
+  (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position_group in the Roster block. If it doesn't match, remove the name entirely.
+  (3) Use portal_in/portal_out to distinguish new additions from returning players. A player not on portal_in is a returner; a player not on portal_out is still on the team.
+  (4) If a source contradicts the roster on position, ignore the source — the roster is ground truth.
+
+**Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
+
+**sentiment_score:** 0.0 = extremely negative · 0.5 = neutral · 1.0 = extremely positive.
 """
     return prompt, mode
 
