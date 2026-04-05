@@ -148,7 +148,7 @@ SBC_TEAMS = [
 
 MWC_TEAMS = [
     ("Air Force Falcons",          "Air Force",        "air-force"),
-    ("Hawai'i Rainbow Warriors",   "Hawaii",           "hawaii"),
+    ("Hawai'i Rainbow Warriors",   "Hawai",            "hawaii"),
     ("Nevada Wolf Pack",           "Nevada",           "nevada"),
     ("New Mexico Lobos",           "New Mexico",       "new-mexico"),
     ("North Dakota State Bison",   "North Dakota State","north-dakota-state"),
@@ -177,7 +177,7 @@ MAC_TEAMS = [
 
 CUSA_TEAMS = [
     ("Delaware Blue Hens",             "Delaware",          "delaware"),
-    ("Florida International Golden Panthers", "FIU",        "fiu"),
+    ("Florida International Golden Panthers", "Florida International", "fiu"),
     ("Jacksonville State Gamecocks",   "Jacksonville State","jacksonville-state"),
     ("Kennesaw State Owls",            "Kennesaw State",    "kennesaw-state"),
     ("Liberty Flames",                 "Liberty",           "liberty"),
