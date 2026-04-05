@@ -190,6 +190,47 @@ def build_prompt(slug, context, channels, no_youtube=False):
     ppa_def     = context.get('defense_ppa_rank')
     off_profile = context.get('offense_profile_db', context.get('offense_profile', ''))
 
+    # ---------------------------------------------------------------------------
+    # Research mode — determined early so roster caps can reference it
+    # ---------------------------------------------------------------------------
+    month = datetime.now().month
+    if month == 1:
+        mode = "cfb_playoffs"
+        mode_focus = "college football playoffs, injury updates, weekly game prep, postseason news, portal activity, recruiting, coaching changes"
+    elif month in (2, 3):
+        mode = "early_offseason"
+        mode_focus = "portal activity, recruiting, coaching changes, spring practice previews"
+    elif month in (4, 5, 6):
+        mode = "spring_offseason"
+        mode_focus = "spring practice results, depth chart battles, transfer portal updates"
+    elif month in (7, 8):
+        mode = "preseason"
+        mode_focus = "fall camp, depth chart, injury news, expectations and predictions"
+    else:
+        mode = "in_season"
+        mode_focus = "injury updates, weekly game prep, performance analysis, fanbase pulse"
+
+    # ---------------------------------------------------------------------------
+    # Roster caps by mode — limits roster_block size without losing key players
+    # Preseason/offseason: wider caps to cover position battles
+    # In-season/playoffs: tighter caps, starters matter most
+    # Keys match position_group values in team_context full_roster.
+    # Fallback cap of 5 applies to any group not listed here.
+    # ---------------------------------------------------------------------------
+    _IN_SEASON_MODES = {'in_season', 'cfb_playoffs'}
+    ROSTER_CAPS = {
+        'Quarterbacks':    3 if mode in _IN_SEASON_MODES else 5,
+        'Running Backs':   5,
+        'Wide Receivers':  6 if mode in _IN_SEASON_MODES else 8,
+        'Tight Ends':      2 if mode in _IN_SEASON_MODES else 3,
+        'Offensive Line':  8 if mode in _IN_SEASON_MODES else 10,
+        'Defensive Line':  8 if mode in _IN_SEASON_MODES else 10,
+        'Linebackers':     6,
+        'Defensive Backs': 8,
+        'Kickers':         1,
+        'Punters':         1,
+    }
+
     # Format team notes for prompt
     notes_block = ""
     if team_notes:
@@ -206,7 +247,8 @@ def build_prompt(slug, context, channels, no_youtube=False):
     roster_block = ""
     full_roster = context.get('full_roster', [])
     if full_roster:
-        # Group by position_group
+        # Group by position_group — roster is pre-sorted by impact rating desc,
+        # so slicing to the cap keeps the highest-rated players at each position.
         from collections import defaultdict
         groups = defaultdict(list)
         for p in full_roster:
@@ -214,10 +256,11 @@ def build_prompt(slug, context, channels, no_youtube=False):
             name = p.get('name', '')
             if name:
                 groups[pg].append(name)
-        
-        roster_block = "Full roster by position group (use this to verify any player's position before naming them in a positional context):\n"
+
+        roster_block = "Roster by position group (capped by role importance — verify any player's position here before placing them in a positional context):\n"
         for group, names in sorted(groups.items()):
-            roster_block += f"  {group}: {', '.join(names)}\n"
+            cap = ROSTER_CAPS.get(group, 5)
+            roster_block += f"  {group}: {', '.join(names[:cap])}\n"
             
     # Format top portal additions
     portal_block = ""
@@ -316,24 +359,6 @@ def build_prompt(slug, context, channels, no_youtube=False):
             written_block = "Written sources: No pre-configured sources available — rely on web search in Task 3."
     except Exception as e:
         written_block = f"Written sources: Fetcher unavailable ({e}). Rely on web search in Task 3."
-
-    # Determine research mode based on time of year
-    month = datetime.now().month
-    if month == (1):
-        mode = "cfb_playoffs"
-        mode_focus = "college football playoffs, injury updates, weekly game prep, postseason news, portal activity, recruiting, coaching changes"
-    elif month in (2, 3):
-        mode = "early_offseason"
-        mode_focus = "portal activity, recruiting, coaching changes, spring practice previews"
-    elif month in (4, 5, 6):
-        mode = "spring_offseason"
-        mode_focus = "spring practice results, depth chart battles, transfer portal updates"
-    elif month in (7, 8):
-        mode = "preseason"
-        mode_focus = "fall camp, depth chart, injury news, expectations and predictions"
-    else:
-        mode = "in_season"
-        mode_focus = "injury updates, weekly game prep, performance analysis, fanbase pulse"
 
     output_path = str(OUTPUT_DIR / f"{slug}_latest.json")
 
