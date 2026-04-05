@@ -56,12 +56,12 @@ TEAM_SUBREDDITS = {
     "oklahoma":           "sooners",
     "ole-miss":           "OleMiss",
     "south-carolina":     "GamecockFB",
-    "tennessee":          "VolNation",
+    "tennessee":          None,   # r/VolNation API-restricted; r/CFB search still works
     "texas":              "LonghornNation",
     "texas-am":           "aggies",
     "vanderbilt":         "vanderbilt",
     # Big Ten
-    "illinois":           "Illini",
+    "illinois":           "FightingIllini",
     "indiana":            "IndianaHoosiers",
     "iowa":               "hawkeyes",
     "maryland":           "MarylandTerps",
@@ -72,7 +72,7 @@ TEAM_SUBREDDITS = {
     "northwestern":       "Northwestern",
     "ohio-state":         "OhioStateFootball",
     "oregon":             "oregonducks",
-    "penn-state":         "PennStateFootball",
+    "penn-state":         "PennState",
     "purdue":             "Purdue",
     "rutgers":            "Rutgers",
     "ucla":               "ucla",
@@ -115,7 +115,7 @@ TEAM_SUBREDDITS = {
     "utah":               "UtahAthletics",
     "west-virginia":      "westvirginia",
     # FBS Independents
-    "notre-dame":         "notredamefootball",
+    "notre-dame":         "FightingIrish",
     "uconn":              "UCONN",
     # New PAC-12
     "boise-state":        "BoiseState",
@@ -371,68 +371,71 @@ def _fetch_subreddit_posts(subreddit, days=30, limit=15, min_score=5,
     """
     Fetch football-relevant posts from a team subreddit for the past month.
 
-    Uses top.json rather than search — some subreddits disable Reddit's search
-    index, which makes search.json return empty results. top.json is always
-    available and reliable. When the mapping points to a football-specific
-    subreddit (e.g. r/OhioStateFootball), sport filtering is minimal since the
-    entire community is football-focused.
+    Tries top.json first (past month), then falls back to hot.json with a
+    date filter. Some subreddits restrict one endpoint but not the other —
+    the fallback ensures we get posts regardless of per-subreddit API settings.
 
     Returns (list_of_posts, error_string_or_None).
     """
     base = 'https://oauth.reddit.com' if auth_token else 'https://www.reddit.com'
-    url  = f"{base}/r/{subreddit}/top.json?t=month&limit={limit + 5}"
 
-    data, err = _reddit_get(url, auth_token=auth_token)
-    if err:
-        return [], err
-    if not data or 'data' not in data:
-        return [], f"Unexpected response from r/{subreddit}"
+    for endpoint_url in (
+        f"{base}/r/{subreddit}/top.json?t=month&limit={limit + 5}",
+        f"{base}/r/{subreddit}/hot.json?limit={limit + 10}",
+    ):
+        data, err = _reddit_get(endpoint_url, auth_token=auth_token)
+        if err or not data or 'data' not in data:
+            continue  # try next endpoint
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-    posts = []
+        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        posts  = []
 
-    for child in data['data'].get('children', []):
-        post = child.get('data', {})
-        if not post:
-            continue
+        for child in data['data'].get('children', []):
+            post = child.get('data', {})
+            if not post:
+                continue
 
-        score = post.get('score', 0)
-        if score < min_score:
-            continue
+            score = post.get('score', 0)
+            if score < min_score:
+                continue
 
-        # Skip pure image posts with no discussion text
-        post_hint = post.get('post_hint', '')
-        is_self   = post.get('is_self', False)
-        selftext  = _clean_selftext(post.get('selftext', ''))
-        if post_hint in ('image',) and not is_self and not selftext:
-            continue
+            # Skip pure image posts with no discussion text
+            post_hint = post.get('post_hint', '')
+            is_self   = post.get('is_self', False)
+            selftext  = _clean_selftext(post.get('selftext', ''))
+            if post_hint in ('image',) and not is_self and not selftext:
+                continue
 
-        # Date filter
-        created_utc = post.get('created_utc', 0)
-        created_dt  = datetime.fromtimestamp(created_utc, tz=timezone.utc)
-        if created_dt < cutoff:
-            continue
+            # Date filter — required for hot.json which has no time window
+            created_utc = post.get('created_utc', 0)
+            created_dt  = datetime.fromtimestamp(created_utc, tz=timezone.utc)
+            if created_dt < cutoff:
+                continue
 
-        permalink    = post.get('permalink', '')
-        title        = post.get('title', '')
-        flair        = post.get('link_flair_text', '') or ''
-        num_comments = post.get('num_comments', 0)
+            permalink    = post.get('permalink', '')
+            title        = post.get('title', '')
+            flair        = post.get('link_flair_text', '') or ''
+            num_comments = post.get('num_comments', 0)
 
-        if not title:
-            continue
+            if not title:
+                continue
 
-        posts.append({
-            'title':        title,
-            'score':        score,
-            'flair':        flair,
-            'selftext':     selftext,
-            'url':          f"https://reddit.com{permalink}" if permalink else '',
-            'published':    created_dt.strftime('%Y-%m-%d'),
-            'num_comments': num_comments,
-            'source':       f"r/{subreddit}",
-        })
+            posts.append({
+                'title':        title,
+                'score':        score,
+                'flair':        flair,
+                'selftext':     selftext,
+                'url':          f"https://reddit.com{permalink}" if permalink else '',
+                'published':    created_dt.strftime('%Y-%m-%d'),
+                'num_comments': num_comments,
+                'source':       f"r/{subreddit}",
+            })
 
-    return posts[:limit], None
+        if posts:
+            return posts[:limit], None
+        # else: try next endpoint
+
+    return [], f"r/{subreddit} returned 0 posts from all endpoints"
 
 
 # ---------------------------------------------------------------------------
