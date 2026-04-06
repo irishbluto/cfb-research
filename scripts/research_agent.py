@@ -459,8 +459,10 @@ Current focus: {mode_focus}
 
 4. **Web Search Fallback** — Only if Tasks 1, 2, and 3 leave obvious gaps, do a targeted search:
    - Maximum 2 searches total — be specific, not broad
-   - Good examples: "{team_name} injury update April 2026", "{team_name} depth chart spring 2026", "{team_name} 2026 football outlook"
+   - Every search query MUST include the word "football" — no exceptions. This prevents cross-sport contamination from basketball, baseball, or other programs at the same school.
+   - Good examples: "{team_name} football injury update April 2026", "{team_name} football depth chart spring 2026", "{team_name} 2026 football outlook"
    - Do NOT search for things already covered by YouTube, written sources, or Reddit above
+   - For any player found ONLY via web search (not in roster or pre-fetched sources): the source must explicitly mention "football" AND must not reference basketball or another sport in the same context. If you cannot confirm this, omit the player entirely.
 
 5. **Synthesis** — Based on everything you found, identify:
    - The 3-5 most important current storylines
@@ -526,7 +528,7 @@ The file must be valid JSON matching this exact structure:
 
 **Coaching staff (disqualifying error if wrong):** Use ONLY the Head Coach, OC, and DC named in Team Context. Never name a former coach under any circumstances — describe changes generically (e.g. "following the previous staff departure"). Do not label a head coach as "on the hot seat" unless that exact characterization appears in a cited source — this applies especially to coaches in their first or second year.
 
-**Football players only (disqualifying error if wrong):** Every player named in key_storylines or agent_summary must be a verified football player. Before naming any player, confirm they appear in the full_roster block OR that the source explicitly describes them in a football context (spring practice, depth chart, transfer portal, etc.). If a player appears in a source but competes in basketball, baseball, or any other sport, skip them entirely — even if they share a name with a known football player. When in doubt, omit.
+**Football players only (disqualifying error if wrong):** Every player named in key_storylines or agent_summary must be a verified football player. Before naming any player, confirm they appear in the full_roster block OR that the source explicitly describes them in a football context (spring practice, depth chart, football transfer portal, etc.) AND does not reference basketball, baseball, or another sport in the same context. If both conditions are not met, skip the player entirely. This applies even when a source uses football-sounding language (e.g., "DT," "chasing a recruit") — always verify the sport is football. When in doubt, omit.
 
 **Player rules (strictly enforced):**
   (1) Name players as leaders or standouts ONLY from the Key Players list — not from sources.
