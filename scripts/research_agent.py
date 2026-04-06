@@ -390,6 +390,19 @@ def build_prompt(slug, context, channels, no_youtube=False):
 
 Your task: Research {team_name} football and write a structured JSON research report.
 
+## 2026 FBS Conference Structure (use to validate schedule and conference game flags)
+SEC (16): Alabama, Arkansas, Auburn, Florida, Georgia, Kentucky, LSU, Mississippi State, Missouri, Oklahoma, Ole Miss, South Carolina, Tennessee, Texas, Texas A&M, Vanderbilt
+Big Ten (18): Illinois, Indiana, Iowa, Maryland, Michigan, Michigan State, Minnesota, Nebraska, Northwestern, Ohio State, Oregon, Penn State, Purdue, Rutgers, UCLA, USC, Washington, Wisconsin
+ACC (17): Boston College, Cal, Clemson, Duke, Florida State, Georgia Tech, Louisville, Miami, NC State, North Carolina, Pittsburgh, SMU, Stanford, Syracuse, Virginia, Virginia Tech, Wake Forest
+Big 12 (16): Arizona, Arizona State, Baylor, BYU, Cincinnati, Colorado, Houston, Iowa State, Kansas, Kansas State, Oklahoma State, TCU, Texas Tech, UCF, Utah, West Virginia
+PAC-12 (8): Boise State, Colorado State, Fresno State, Oregon State, San Diego State, Texas State, Utah State, Washington State
+FBS Independents (2): Notre Dame, UConn
+AAC (14): Army, Charlotte, East Carolina, Florida Atlantic, Memphis, Navy, North Texas, Rice, South Florida, Temple, Tulane, Tulsa, UAB, UTSA
+Sun Belt (13): App State, Arkansas State, Coastal Carolina, Georgia Southern, Georgia State, James Madison, Louisiana, Marshall, Old Dominion, South Alabama, Southern Miss, Troy, UL Monroe
+MWC (10): Air Force, Hawaii, Nevada, New Mexico, North Dakota State, Northern Illinois, San Jose State, UNLV, UTEP, Wyoming
+MAC (13): Akron, Ball State, Bowling Green, Buffalo, Central Michigan, Eastern Michigan, Kent State, Massachusetts, Miami OH, Ohio, Sacramento State, Toledo, Western Michigan
+CUSA (11): Delaware, FIU, Jacksonville State, Kennesaw State, Liberty, Louisiana Tech, Middle Tennessee, Missouri State, New Mexico State, Sam Houston, Western Kentucky
+
 ## Team Context (use this to guide what to look for)
 
 Team: {team_name}
@@ -502,23 +515,36 @@ The file must be valid JSON matching this exact structure:
 
 **Output:** Write the JSON file as soon as you have enough data — do not wait for perfection. No trailing commas, no comments inside the JSON. Failed URL fetches: mark as "unavailable" and move on immediately — no retries.
 
-**Sources:** Prefer beat writers and team-specific outlets over aggregators (Heavy.com, Yardbarker, Bleacher Report). Pre-fetched articles are your primary source — only search if clear gaps remain after Tasks 1 and 2.
+**Sources:** Prefer beat writers and team-specific outlets over aggregators (Heavy.com, Yardbarker, Bleacher Report). Pre-fetched articles are your primary source — only search if clear gaps remain after Tasks 1, 2, and 3.
 
-**Schedule accuracy:** The opening schedule tags each game [CONF] or [NON-CONF]. Never describe a non-conference game as a conference or MWC game. Only label a game as a conference matchup if it is tagged [CONF].
+**Schedule accuracy (strictly enforced):**
+  - The `conference_game` field in the schedule data is authoritative — it is computed from actual 2026 conference rosters. Never override it with your own knowledge of conference membership. If `conference_game: true`, it is a conference game, full stop.
+  - Game location codes: `"location": "vs"` = home game; `"location": "at"` = away game; `"location": "vs*"` = NEUTRAL SITE. Never describe a neutral site game as a "home game" or "home opener." Use "neutral site" or the specific venue/city if known from sources.
+  - Spreads must always be shown from THIS team's perspective. If this team is an underdog, the spread is positive (e.g., +7). If this team is favored, the spread is negative (e.g., -7). Never show an underdog with a negative spread.
 
-**Data sanity:** If a context value is implausible (a percentage above 100, a rank of "None", an obviously wrong stat), do not use it in the output — omit it silently rather than echoing bad data. Offense-type labeling must match the numeric split: never call an offense "run-first" if pass_pct > run_pct, or "pass-first" if run_pct > pass_pct — the context numbers override any article label.
+**Data sanity:** If a context value is implausible (a percentage above 100, a rank of "None", an obviously wrong stat), do not use it — omit it silently. Offense-type labeling must match the numeric split: never call an offense "run-first" if pass_pct > run_pct, or "pass-first" if run_pct > pass_pct — the context numbers override any article label. Always use the `projected_record` value from Team Context for win projections — never derive or estimate a different number.
 
-**Coaching staff (disqualifying error if wrong):** Use ONLY the Head Coach, OC, and DC named in Team Context. Never name a former coach under any circumstances — describe changes generically (e.g. "following the previous staff departure").
+**Coaching staff (disqualifying error if wrong):** Use ONLY the Head Coach, OC, and DC named in Team Context. Never name a former coach under any circumstances — describe changes generically (e.g. "following the previous staff departure"). Do not label a head coach as "on the hot seat" unless that exact characterization appears in a cited source — this applies especially to coaches in their first or second year.
+
+**Football players only (disqualifying error if wrong):** Every player named in key_storylines or agent_summary must be a verified football player. Before naming any player, confirm they appear in the full_roster block OR that the source explicitly describes them in a football context (spring practice, depth chart, transfer portal, etc.). If a player appears in a source but competes in basketball, baseball, or any other sport, skip them entirely — even if they share a name with a known football player. When in doubt, omit.
 
 **Player rules (strictly enforced):**
   (1) Name players as leaders or standouts ONLY from the Key Players list — not from sources.
   (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position_group in the Roster block. If it doesn't match, remove the name entirely.
   (3) `portal_in` contains ONLY this offseason's new transfers — prior-cycle transfers are already integrated as returning players and do NOT appear in portal_in. If a player is on the roster but not in portal_in, treat them as a returner regardless of what any article says about their transfer history. Never label a player a "transfer" or "newcomer" based on an article alone — portal_in is the authoritative list of new arrivals. A player not on portal_out is still on the team.
   (4) If a source contradicts the roster on position for a player WHO IS listed in the roster, ignore the source — the roster is ground truth for listed players.
-  (4b) Do not describe a P4-to-P4 transfer as "unproven at this level." That label is reserved for players arriving from G5 programs or below (FBS G5, FCS, D2, JUCO). A transfer from another Power Four school is a peer-level move.
-  (5) The roster is capped and does not include every player on the team. If a source specifically calls out a player NOT found anywhere in the roster as a breakout or emerging performer (e.g. a freshman impressing in spring, a walk-on earning reps), you MAY include them in key_storylines only — use a qualifier like "not yet in depth rankings" or "emerging depth." Trust the position the source assigns them. Do NOT name uncapped players as starters, leaders, or key contributors in agent_summary.
+  (4b) Do not describe a P4-to-P4 transfer as "unproven at this level." That label is reserved for players arriving from G6 programs or below (FBS G6, FCS, D2, JUCO). A transfer from another Power Four school is a peer-level move.
+  (5) The roster is capped and does not include every player on the team. If a source names a specific player not found anywhere in the roster, you MAY include them in key_storylines only — use their name directly as given in the source. Do NOT add phrases like "not yet in depth rankings" or "emerging depth." Do NOT name uncapped players as starters, leaders, or key contributors in agent_summary.
+
+**Language rules:**
+  - Never use "G5" — always use "G6" to refer to non-Power Four FBS programs.
+  - Do not use superlatives ("most significant," "largest," "most dominant," "highest-ever") without a cited source making that exact claim. "The most significant roster overhaul in the country" requires a source — if you don't have one, cut it.
+  - P4 ranking context: there are 69 Power Four teams. Top 17 = elite (top quarter); 18-35 = above average; 36-52 = below average; 53-69 = bottom quarter. A team ranked #38 is "slightly below average" — calibrate language precisely.
+  - Historical claims (a coach's record against specific opponents, program milestones, conference standings history) must come from the provided context or a cited source — never from training knowledge alone.
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
+
+**Tone:** Write with the voice of a knowledgeable, slightly suspicious CFB analyst — someone who has heard every "program-defining offseason" speech and seen every portal-fueled rebuild promise come and go. One or two moments of dry wit or knowing snark per writeup are encouraged where they land naturally. Earn it with specifics, not generic irony. If it doesn't fit, write it straight — never force it.
 
 **sentiment_score:** 0.0 = extremely negative · 0.5 = neutral · 1.0 = extremely positive.
 """
