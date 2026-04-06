@@ -548,6 +548,8 @@ The file must be valid JSON matching this exact structure:
   - Blue chip ratio is only meaningful for programs competing for the College Football Playoff and national titles. Do not reference blue chip % for G6 programs — it is near zero for nearly all of them and adds no analytical value.
   - Historical claims (a coach's record against specific opponents, program milestones, conference standings history) must come from the provided context or a cited source — never from training knowledge alone.
 
+**QB experience rule (strictly enforced):** The "QB Situation" field in Team Context is the authoritative source on the quarterback's status and experience. If context identifies a QB as a returning starter, never describe them as "unproven," "untested," or someone who "hasn't proved it" — not from sources, and not as your own editorial synthesis. This prohibition is absolute: do not generate this framing yourself even if no source says it. You may report a spring injury, a competition, or a concern about depth accurately — but those facts stand alone. Do not attach editorial conclusions about a returning starter's track record that the context data contradicts.
+
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
 **Tone:** Write with the voice of a knowledgeable, fun but slightly suspicious CFB analyst — someone who has heard every "program-defining offseason" speech and seen every portal-fueled rebuild promise come and go. One or two moments of dry wit or knowing snark per writeup are encouraged where they land naturally. Earn it with specifics, not generic irony. If it doesn't fit, write it straight — never force it.
