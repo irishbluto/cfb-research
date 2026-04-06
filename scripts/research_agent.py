@@ -176,6 +176,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
     talent_rank = context.get('talent_rank')
     bc_ratio_raw = context.get('blue_chip_pct')
     bc_ratio = f"{bc_ratio_raw}%" if isinstance(bc_ratio_raw, (int, float)) and 0 <= bc_ratio_raw <= 100 else "N/A"
+    is_g6 = str(conference).lower() in {'aac', 'sbc', 'mwc', 'mac', 'cusa', 'pac12'}
     portal_net  = context.get('portal_net', 0)
     top_portals = context.get('top_portal_additions', [])
     top_recruits = context.get('top_recruits', [])
@@ -415,7 +416,7 @@ Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('
 Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}
 PPA: Offense #{ppa_off} | Defense #{ppa_def}
 Offense Profile: {off_profile}
-Talent Rank: #{talent_rank} | Blue Chip %: {bc_ratio}
+Talent Rank: #{talent_rank}{f" | Blue Chip %: {bc_ratio}" if not is_g6 else ""}
 2026 Profile: {profile}
 OC: {oc} (#{oc_rank}) | DC: {dc} (#{dc_rank})
 Returning Starters: {ret_starters}
@@ -543,6 +544,8 @@ The file must be valid JSON matching this exact structure:
   - Do not use conference divisions, like SEC East or Big Ten West.  Conferences no longer split into divisions in 2026.
   - Do not use superlatives ("most significant," "largest," "most dominant," "highest-ever") without a cited source making that exact claim. "The most significant roster overhaul in the country" requires a source — if you don't have one, cut it.
   - P4 ranking context: there are 69 Power Four teams. Top 17 = elite (top quarter); 18-35 = above average; 36-52 = below average; 53-69 = bottom quarter. A team ranked #38 is "slightly below average" — calibrate language precisely.
+  - Never use "dead last," "last place," or "last" to describe a specific rank unless it equals the total number of teams in that pool. In FBS, #138 is last. In P4, #69 is last. A team ranked #100 has 38 teams below them — do not call it last.
+  - Blue chip ratio is only meaningful for programs competing for the College Football Playoff and national titles. Do not reference blue chip % for G6 programs — it is near zero for nearly all of them and adds no analytical value.
   - Historical claims (a coach's record against specific opponents, program milestones, conference standings history) must come from the provided context or a cited source — never from training knowledge alone.
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
