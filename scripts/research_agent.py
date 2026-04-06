@@ -540,6 +540,7 @@ The file must be valid JSON matching this exact structure:
 
 **Language rules:**
   - Never use "G5" — always use "G6" to refer to non-Power Four FBS programs.
+  - Do not use conference divisions, like SEC East or Big Ten West.  Conferences no longer split into divisions in 2026.
   - Do not use superlatives ("most significant," "largest," "most dominant," "highest-ever") without a cited source making that exact claim. "The most significant roster overhaul in the country" requires a source — if you don't have one, cut it.
   - P4 ranking context: there are 69 Power Four teams. Top 17 = elite (top quarter); 18-35 = above average; 36-52 = below average; 53-69 = bottom quarter. A team ranked #38 is "slightly below average" — calibrate language precisely.
   - Historical claims (a coach's record against specific opponents, program milestones, conference standings history) must come from the provided context or a cited source — never from training knowledge alone.

@@ -49,6 +49,42 @@ QUOTA_DAILY_LIMIT  = 10000  # free tier daily limit
 QUOTA_SAFE_LIMIT   = 9800   # stop at 98% to leave headroom for other uses
 
 # ---------------------------------------------------------------------------
+# Conference → team slug mapping (mirrors enrich_from_db.py — update on realignment)
+# ---------------------------------------------------------------------------
+CONF_TEAMS = {
+    "sec":    ["alabama", "arkansas", "auburn", "florida", "georgia", "kentucky",
+               "lsu", "mississippi-state", "missouri", "oklahoma", "ole-miss",
+               "south-carolina", "tennessee", "texas", "texas-am", "vanderbilt"],
+    "big10":  ["illinois", "indiana", "iowa", "maryland", "michigan", "michigan-state",
+               "minnesota", "nebraska", "northwestern", "ohio-state", "oregon",
+               "penn-state", "purdue", "rutgers", "ucla", "usc", "washington", "wisconsin"],
+    "acc":    ["boston-college", "california", "clemson", "duke", "florida-state",
+               "georgia-tech", "louisville", "miami", "nc-state", "north-carolina",
+               "pittsburgh", "smu", "stanford", "syracuse", "virginia", "virginia-tech",
+               "wake-forest"],
+    "big12":  ["arizona", "arizona-state", "baylor", "byu", "cincinnati", "colorado",
+               "houston", "iowa-state", "kansas", "kansas-state", "oklahoma-state",
+               "tcu", "texas-tech", "ucf", "utah", "west-virginia"],
+    "pac12":  ["boise-state", "colorado-state", "fresno-state", "oregon-state",
+               "san-diego-state", "texas-state", "utah-state", "washington-state"],
+    "fbsind": ["notre-dame", "uconn"],
+    "aac":    ["army", "charlotte", "east-carolina", "florida-atlantic", "memphis",
+               "navy", "north-texas", "rice", "south-florida", "temple", "tulane",
+               "tulsa", "uab", "utsa"],
+    "sbc":    ["app-state", "arkansas-state", "coastal-carolina", "georgia-southern",
+               "georgia-state", "james-madison", "louisiana", "marshall", "old-dominion",
+               "south-alabama", "southern-miss", "troy", "ul-monroe"],
+    "mwc":    ["air-force", "hawaii", "nevada", "new-mexico", "north-dakota-state",
+               "northern-illinois", "san-jose-state", "unlv", "utep", "wyoming"],
+    "mac":    ["akron", "ball-state", "bowling-green", "buffalo", "central-michigan",
+               "eastern-michigan", "kent-state", "massachusetts", "miami-oh", "ohio",
+               "sacramento-state", "toledo", "western-michigan"],
+    "cusa":   ["delaware", "fiu", "jacksonville-state", "kennesaw-state", "liberty",
+               "louisiana-tech", "middle-tennessee", "missouri-state", "new-mexico-state",
+               "sam-houston", "western-kentucky"],
+}
+
+# ---------------------------------------------------------------------------
 # Daily cache — one JSON file per day, keyed by team slug
 # ---------------------------------------------------------------------------
 
@@ -620,6 +656,8 @@ def fetch_team_videos(slug, days=14, max_results=5, no_ytdlp=False):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--team',        default=None, help='Team slug e.g. "alabama"')
+    parser.add_argument('--conf',        default=None, dest='conf', help='Conference slug e.g. "sec", "big10"')
+    parser.add_argument('--conference',  default=None, dest='conf', help='Alias for --conf')
     parser.add_argument('--channel',     default=None, help='Single channel ID for testing')
     parser.add_argument('--days',        type=int, default=14)
     parser.add_argument('--max',         type=int, default=5)
@@ -669,6 +707,33 @@ def main():
         videos = fetch_channel_videos(args.channel, "Test Channel", "test", args.days, args.max)
         print(json.dumps(videos, indent=2))
 
+    elif args.conf:
+        conf = args.conf.lower()
+        if conf not in CONF_TEAMS:
+            print(f"ERROR: Unknown conference '{conf}'")
+            print(f"Known conferences: {sorted(CONF_TEAMS.keys())}")
+            sys.exit(1)
+        slugs = CONF_TEAMS[conf]
+        print(f"Conference: {conf.upper()} — {len(slugs)} teams\n")
+        fetched = cached = errors = 0
+        for slug in slugs:
+            print(f"[{slug}]", flush=True)
+            result = fetch_team_videos(slug, args.days, args.max, no_ytdlp=args.no_ytdlp)
+            if 'error' in result:
+                print(f"  ERROR: {result['error']}")
+                errors += 1
+            elif result.get('from_cache'):
+                print(f"  ✓ cached ({result['count']} videos)")
+                cached += 1
+            else:
+                label = ' [yt-dlp]' if result.get('ytdlp') else ''
+                print(f"  ✓ {result['count']} videos fetched{label}")
+                fetched += 1
+        status = get_quota_status()
+        print(f"\nDone — fetched: {fetched}  cached: {cached}  errors: {errors}")
+        print(f"Quota after run: {status['units_used']:,}/{QUOTA_DAILY_LIMIT:,} units used "
+              f"({status['searches_remaining']} searches remaining)")
+
     elif args.team:
         result = fetch_team_videos(args.team, args.days, args.max, no_ytdlp=args.no_ytdlp)
         if 'error' in result:
@@ -681,6 +746,7 @@ def main():
             print(json.dumps(result['videos'], indent=2))
     else:
         print("Usage: python3 youtube_fetcher.py --team alabama")
+        print("       python3 youtube_fetcher.py --conf sec")
         print("       python3 youtube_fetcher.py --team alabama --no-ytdlp")
         print("       python3 youtube_fetcher.py --channel UCxxx")
         print("       python3 youtube_fetcher.py --quota")
