@@ -24,6 +24,21 @@ Usage:
   python3 scripts/run_pipeline.py --conf mwc --no-research
   python3 scripts/run_pipeline.py --conf sec --skip-fetch
   python3 scripts/run_pipeline.py --conf acc --fetch-only
+
+# Full pipeline — all 5 steps
+    python3 scripts/run_pipeline.py --conf mwc
+
+    # Steps 1–4 only, review output before running agent
+    python3 scripts/run_pipeline.py --conf acc --no-research
+
+    # Re-run agent only (scrape/enrich/fetch already done today)
+    python3 scripts/run_pipeline.py --conf sec --skip-fetch
+
+    # Just refresh YouTube + articles without touching context or running agent
+    python3 scripts/run_pipeline.py --conf big10 --fetch-only
+
+    # Single team, full pipeline
+    python3 scripts/run_pipeline.py --team alabama
 """
 
 import os, sys, subprocess, argparse, json
