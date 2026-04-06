@@ -1,0 +1,1945 @@
+{
+  "team": "Central Michigan Chippewas",
+  "slug": "central-michigan",
+  "url_param": "Central Michigan",
+  "conference": "mac",
+  "source_url": "https://www.puntandrally.com/teamprofile.php?team=Central%20Michigan",
+  "last_scraped": "2026-04-06",
+  "agent_notes": "",
+  "known_injuries": [],
+  "position_battles": [],
+  "search_keywords": [
+    "Central Michigan Chippewas",
+    "Matt Drinkall",
+    "Justin Taylor",
+    "Nic DiSanto",
+    "Langston Lewis",
+    "Brock Townsend",
+    "Korver Demma",
+    "Tommy McIntosh",
+    "Jaion Jackson",
+    "Donavan Philord",
+    "Jayden Clerveaux",
+    "Brady Ploucha"
+  ],
+  "youtube_channels": [],
+  "beat_writers": [],
+  "team_subreddit": "",
+  "sentiment": "",
+  "sentiment_score": null,
+  "last_research_run": null,
+  "twitter_handle": "@CMU_Football",
+  "team_display_name": "Central Michigan Chippewas",
+  "head_coach": "Matt Drinkall",
+  "coach_years": "2nd year",
+  "coach_record": "7-6",
+  "vegas_win_total": "",
+  "projected_record": "7-5",
+  "projected_record_rank": 53,
+  "sos_rank": 124,
+  "power_rank": 99,
+  "sp_plus_rank": 113,
+  "record_prediction": "7-5",
+  "record_prediction_rank": 53,
+  "coaching_staff_rank": 96,
+  "last_season_record": "7-6",
+  "last_season_conf_record": "5-3",
+  "last_season_ats": "8-5-0",
+  "last_season_totals": "7-6",
+  "momentum_control_rank": 123,
+  "game_control_rank": 91,
+  "one_score_games": "1-2",
+  "one_score_games_under_coach": "1-2",
+  "performance_rank": 73,
+  "special_teams_rank": 126,
+  "returning_production_pct": 60,
+  "returning_production_rank": 87,
+  "starting_qb_note": "",
+  "returning_offense_pct": 86,
+  "returning_offense_rank": 23,
+  "returning_defense_pct": 42,
+  "returning_defense_rank": 129,
+  "returning_starters": 9,
+  "returning_starters_off": 6,
+  "returning_starters_def": 3,
+  "five_year_profile": "Consistent Below Avg G5",
+  "profile_2026": "Remains Below Avg G5",
+  "talent_rank": 110,
+  "blue_chip_pct": 0,
+  "blue_chip_rank": 103,
+  "offense_talent_rank": 108,
+  "defense_talent_rank": 112,
+  "portal_class_rank": 133,
+  "portal_class_count": 15,
+  "portal_class_avg": 83,
+  "recruiting_class_rank": 95,
+  "four_yr_class_rank": 113,
+  "talent_profile": "Improving Below Avg G5",
+  "offensive_coordinator": "Jim Chapin",
+  "offensive_coordinator_rank": 110,
+  "defensive_coordinator": "Sean Cronin",
+  "defensive_coordinator_rank": 98,
+  "four_yr_record": "16-21",
+  "eight_yr_record": "40-42",
+  "avg_wins_under_coach": 7.0,
+  "schedule_tiers": {
+    "elite": 1,
+    "good": 0,
+    "avg": 1,
+    "bad": 2,
+    "poor": 7
+  },
+  "top_portal_additions": [
+    {
+      "name": "Justin Taylor",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.84
+    },
+    {
+      "name": "Nic DiSanto",
+      "position": "OT",
+      "stars": 3,
+      "rating": 0.83
+    },
+    {
+      "name": "Shawn Foster",
+      "position": "WR",
+      "stars": 2,
+      "rating": 0.79
+    },
+    {
+      "name": "Donavan Philord",
+      "position": "CB",
+      "stars": 3,
+      "rating": 0.0
+    },
+    {
+      "name": "Jaden Allen",
+      "position": "TE",
+      "stars": 2,
+      "rating": 0.0
+    },
+    {
+      "name": "Vaughn Blue",
+      "position": "RB",
+      "stars": 0,
+      "rating": 0.0
+    },
+    {
+      "name": "Dontae Robinson",
+      "position": "TE",
+      "stars": 0,
+      "rating": 0.0
+    }
+  ],
+  "top_performers": [
+    {
+      "name": "Langston Lewis",
+      "position": "WR",
+      "stat": "596 Yds, 3 TD"
+    },
+    {
+      "name": "Brock Townsend",
+      "position": "RB",
+      "stat": "418 Yds, 4 TD"
+    },
+    {
+      "name": "Korver Demma",
+      "position": "DE",
+      "stat": "28 Tac, 9 TFL"
+    },
+    {
+      "name": "Tommy McIntosh",
+      "position": "WR",
+      "stat": "422 Yds, 3 TD"
+    },
+    {
+      "name": "Jaion Jackson",
+      "position": "CB",
+      "stat": "1 Int, 7 Pd"
+    },
+    {
+      "name": "Donavan Philord",
+      "position": "CB",
+      "stat": "1 Int, 1 Pd (*FCS TR)"
+    },
+    {
+      "name": "Jayden Clerveaux",
+      "position": "RB",
+      "stat": "762 Yds, 5 TD (*FCS TR)"
+    },
+    {
+      "name": "Brady Ploucha",
+      "position": "G",
+      "stat": "C+ Block Grade"
+    }
+  ],
+  "top_recruits": [
+    {
+      "name": "Wyatt Graffin",
+      "position": "IOL",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Colton Benaitis",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Lucas Hoffmeyer",
+      "position": "ATH",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Trav Moore",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "JaJuan Jones",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Drew Esper",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Laaren Cornwall",
+      "position": "ATH",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Zack Wagner",
+      "position": "TE",
+      "stars": 3,
+      "rating": 0.85
+    }
+  ],
+  "offense_power_rank": 74,
+  "defense_power_rank": 111,
+  "off_momentum_control_rank": 134,
+  "off_game_control_rank": 116,
+  "def_momentum_control_rank": null,
+  "def_game_control_rank": 53,
+  "offense_profile": "",
+  "scoring_overall_margin": null,
+  "scoring_home_margin": 15.2,
+  "scoring_road_margin": null,
+  "net_efficiency_rank": 77,
+  "offense_ppd_rank": 85,
+  "defense_ppd_rank": 51,
+  "offense_ppp_rank": 79,
+  "defense_ppp_rank": 72,
+  "record_2025": "7-6",
+  "record_2024": "4-8",
+  "team_notes": [
+    "(3/4) QB Flores (PT LY) can scoot, but didn't throw much",
+    "(3/4) RB good unit, Townsend back, 2 prod portals",
+    "(3/4) WRs Lewis & McIntosh decent duo, have depth",
+    "(3/4) OL has more prod than 1/2 MAC combined. Wow",
+    "(3/4) F7 is ?, DL only 3 with exp, LB only has 2.",
+    "(3/4) DB best Def unit by far, CB really good, S has 1"
+  ],
+  "injury_notes": [],
+  "staff_schedule_notes": [
+    "(3/4) Vibes: Strong, Off could be really good, Def is ?"
+  ],
+  "recruiting_class_2026_points": "178",
+  "recruiting_class_2026_rank": 95,
+  "avg_recruiting_rank": 107,
+  "four_year_class_rank": 113,
+  "recruiting_profile": "Improving Below Avg G5",
+  "full_roster": [
+    {
+      "name": "Angel Flores",
+      "jersey": "7",
+      "class": "SR",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'1\"/210",
+      "snaps": 28,
+      "snap_pct": 68.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Marcus Beamon",
+      "jersey": "10",
+      "class": "SR",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'0\"/195",
+      "snaps": 4,
+      "snap_pct": 50.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Jadyn Glasser",
+      "jersey": "5",
+      "class": "FR",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'2\"/230",
+      "snaps": 9,
+      "snap_pct": 78.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Daniel Gomez",
+      "jersey": "14",
+      "class": "FR",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'1\"/205",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Jayden Clerveaux",
+      "jersey": "31",
+      "class": "SR",
+      "position_group": "Running Backs",
+      "height_weight": "5'11\"/220",
+      "snaps": 332,
+      "snap_pct": 27.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Brock Townsend",
+      "jersey": "2",
+      "class": "SO",
+      "position_group": "Running Backs",
+      "height_weight": "6'0\"/220",
+      "snaps": 317,
+      "snap_pct": 26.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Vaughn Blue",
+      "jersey": "24",
+      "class": "JR",
+      "position_group": "Running Backs",
+      "height_weight": "5'11\"/195",
+      "snaps": 223,
+      "snap_pct": 18.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Kadenn Rose",
+      "jersey": "32",
+      "class": "SO",
+      "position_group": "Running Backs",
+      "height_weight": "5'8\"/190",
+      "snaps": 11,
+      "snap_pct": 1.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Jakivion Calip",
+      "jersey": "4",
+      "class": "SO",
+      "position_group": "Running Backs",
+      "height_weight": "5'11\"/200",
+      "snaps": 9,
+      "snap_pct": 1.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Jason Philpot-Dixon",
+      "jersey": "49",
+      "class": "SR",
+      "position_group": "Running Backs",
+      "height_weight": "6'0\"/200",
+      "snaps": 5,
+      "snap_pct": 0.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Trav Moore",
+      "jersey": "22",
+      "class": "FR",
+      "position_group": "Running Backs",
+      "height_weight": "5'11\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Jayel Harris",
+      "jersey": "47",
+      "class": "FR",
+      "position_group": "Running Backs",
+      "height_weight": "6'0\"/180",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Rusty VanWetzinga IV",
+      "jersey": "41",
+      "class": "JR",
+      "position_group": "Running Backs",
+      "height_weight": "6'0\"/230",
+      "snaps": 249,
+      "snap_pct": 21.0,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Langston Lewis",
+      "jersey": "20",
+      "class": "SR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'0\"/195",
+      "snaps": 646,
+      "snap_pct": 70.0,
+      "rating": 0.79,
+      "origin": ""
+    },
+    {
+      "name": "Tommy McIntosh",
+      "jersey": "15",
+      "class": "SR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'5\"/210",
+      "snaps": 570,
+      "snap_pct": 61.0,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Collin Payne",
+      "jersey": "86",
+      "class": "SR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'2\"/205",
+      "snaps": 87,
+      "snap_pct": 9.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Justin Ruffin Jr",
+      "jersey": "9",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'9\"/160",
+      "snaps": 80,
+      "snap_pct": 9.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Nasir Williams",
+      "jersey": "3",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'1\"/195",
+      "snaps": 78,
+      "snap_pct": 8.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Tayte Vanderleest",
+      "jersey": "81",
+      "class": "JR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'3\"/210",
+      "snaps": 54,
+      "snap_pct": 6.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Camden Kruisenga",
+      "jersey": "12",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'2\"/175",
+      "snaps": 26,
+      "snap_pct": 3.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Kendall Jones",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'2\"/175",
+      "snaps": 8,
+      "snap_pct": 1.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Avin Robinson",
+      "jersey": "80",
+      "class": "FR",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'11\"/185",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Braylen Naves",
+      "jersey": "17",
+      "class": "FR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'2\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Geno Seets",
+      "jersey": "18",
+      "class": "FR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'5\"/205",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Shawn Foster",
+      "jersey": "16",
+      "class": "JR",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'11\"/180",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.79,
+      "origin": ""
+    },
+    {
+      "name": "Dontae Robinson",
+      "jersey": "84",
+      "class": "JR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'5\"/215",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Jaden Allen",
+      "jersey": "88",
+      "class": "SR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'3\"/240",
+      "snaps": 503,
+      "snap_pct": 37.0,
+      "rating": 0.79,
+      "origin": ""
+    },
+    {
+      "name": "Jacob Kaminski",
+      "jersey": "87",
+      "class": "SR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'6\"/255",
+      "snaps": 46,
+      "snap_pct": 3.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Lucas Hoffmeyer",
+      "jersey": "44",
+      "class": "FR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'3\"/215",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Zack Wagner",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'4\"/235",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Zander Barth",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'6\"/225",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Gavin Spillers",
+      "jersey": "89",
+      "class": "SO",
+      "position_group": "Tight Ends",
+      "height_weight": "6'3\"/240",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Landon Swanson",
+      "jersey": "42",
+      "class": "SO",
+      "position_group": "Tight Ends",
+      "height_weight": "6'3\"/220",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Trevor Swan",
+      "jersey": "72",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/300",
+      "snaps": 819,
+      "snap_pct": 89.1,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Martin Koivisto",
+      "jersey": "76",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'7\"/305",
+      "snaps": 731,
+      "snap_pct": 88.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Nic DiSanto",
+      "jersey": "75",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/330",
+      "snaps": 693,
+      "snap_pct": 74.7,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Jacob Russell",
+      "jersey": "70",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/295",
+      "snaps": 508,
+      "snap_pct": 61.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Jacob Booth",
+      "jersey": "69",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/295",
+      "snaps": 387,
+      "snap_pct": 47.0,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Triston Pierre",
+      "jersey": "54",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/260",
+      "snaps": 14,
+      "snap_pct": 2.0,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Jack Nolan",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/230",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Jacob Timmer",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'7\"/270",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Brady Ploucha",
+      "jersey": "59",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/305",
+      "snaps": 529,
+      "snap_pct": 64.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Dasan Smith",
+      "jersey": "73",
+      "class": "SO",
+      "position_group": "Offensive Line",
+      "height_weight": "6'6\"/290",
+      "snaps": 518,
+      "snap_pct": 62.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Matthew Nehf",
+      "jersey": "66",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'3\"/295",
+      "snaps": 352,
+      "snap_pct": 42.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "John Iannuzzi",
+      "jersey": "60",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/315",
+      "snaps": 56,
+      "snap_pct": 7.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Talon Smith",
+      "jersey": "78",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'6\"/280",
+      "snaps": 4,
+      "snap_pct": 0.0,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Losini Maka",
+      "jersey": "55",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'2\"/310",
+      "snaps": 763,
+      "snap_pct": 82.8,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Wyatt Graffin",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/270",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Rory Callahan",
+      "jersey": "64",
+      "class": "SO",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/245",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": null,
+      "origin": ""
+    },
+    {
+      "name": "Charlie Mandabach",
+      "jersey": "67",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/250",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Korver Demma",
+      "jersey": "5",
+      "class": "JR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'3\"/245",
+      "snaps": 468,
+      "snap_pct": 51.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "JJ Douglas",
+      "jersey": "1",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'5\"/220",
+      "snaps": 228,
+      "snap_pct": 25.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Matthew Sexton",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'4\"/235",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Evan Walker",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'4\"/220",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Daniel Bennett",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'5\"/250",
+      "snaps": 283,
+      "snap_pct": 30.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Quavion Bird",
+      "jersey": "96",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'1\"/310",
+      "snaps": 223,
+      "snap_pct": 24.0,
+      "rating": 0.79,
+      "origin": ""
+    },
+    {
+      "name": "Joey VanWetzinga",
+      "jersey": "95",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'2\"/260",
+      "snaps": 169,
+      "snap_pct": 18.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Nathan VanTimmeren",
+      "jersey": "48",
+      "class": "JR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'4\"/230",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Collin Stare",
+      "jersey": "53",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'2\"/250",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Leon Howard Jr",
+      "jersey": "45",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'2\"/235",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Matthew Plumb",
+      "jersey": "99",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'4\"/235",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Isaac Hutchinson",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'4\"/278",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Logan Borodychuk",
+      "jersey": "82",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'5\"/215",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Xavier White",
+      "jersey": "11",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/235",
+      "snaps": 182,
+      "snap_pct": 25.0,
+      "rating": null,
+      "origin": ""
+    },
+    {
+      "name": "Victor Earl",
+      "jersey": "8",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/215",
+      "snaps": 80,
+      "snap_pct": 11.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Jeremiah Alston",
+      "jersey": "10",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/210",
+      "snaps": 2,
+      "snap_pct": 0.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Drew Esper",
+      "jersey": "34",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'1\"/210",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Jeremiah McKenzie",
+      "jersey": "36",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/195",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Jaion Jackson",
+      "jersey": "4",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'10\"/160",
+      "snaps": 610,
+      "snap_pct": 68.0,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Donavan Philord",
+      "jersey": "12",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/190",
+      "snaps": 524,
+      "snap_pct": 58.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Matthew McKenzie",
+      "jersey": "26",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'3\"/190",
+      "snaps": 229,
+      "snap_pct": 26.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Kyle Krebs",
+      "jersey": "23",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/195",
+      "snaps": 70,
+      "snap_pct": 8.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Jamari Allen",
+      "jersey": "21",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/170",
+      "snaps": 56,
+      "snap_pct": 6.0,
+      "rating": null,
+      "origin": ""
+    },
+    {
+      "name": "Trey Liebhardt",
+      "jersey": "25",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/185",
+      "snaps": 25,
+      "snap_pct": 3.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Keyton Jones",
+      "jersey": "41",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "5'9\"/185",
+      "snaps": 22,
+      "snap_pct": 2.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Darrell Bryant Jr",
+      "jersey": "19",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/200",
+      "snaps": 719,
+      "snap_pct": 50.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Justin Taylor",
+      "jersey": "14",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/200",
+      "snaps": 276,
+      "snap_pct": 19.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Ed Conoran",
+      "jersey": "7",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "5'10\"/185",
+      "snaps": 51,
+      "snap_pct": 4.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Nolan Anderson",
+      "jersey": "22",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "5'10\"/195",
+      "snaps": 15,
+      "snap_pct": 1.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Tysen Campbell",
+      "jersey": "27",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/180",
+      "snaps": 2,
+      "snap_pct": 0.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "J. Alston-Jackson",
+      "jersey": "37",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/210",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Colton Benaitis",
+      "jersey": "37",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/185",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Laaren Cornwall",
+      "jersey": "28",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/170",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "JaJuan Jones",
+      "jersey": "20",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'1\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Josiah Booker",
+      "jersey": "16",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "5'10\"/150",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "David Williams",
+      "jersey": "29",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/180",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Max Macklem",
+      "jersey": "39",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.81,
+      "origin": ""
+    },
+    {
+      "name": "Caden VanHuis",
+      "jersey": "38",
+      "class": "FR",
+      "position_group": "Kickers",
+      "height_weight": "6'0\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Declan Duley",
+      "jersey": "18",
+      "class": "JR",
+      "position_group": "Punters",
+      "height_weight": "6'1\"/215",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Zac Chapeau",
+      "jersey": "15",
+      "class": "SO",
+      "position_group": "Punters",
+      "height_weight": "6'2\"/215",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": null,
+      "origin": "NA"
+    }
+  ],
+  "portal_in": [
+    {
+      "name": "Justin Taylor",
+      "position": "S",
+      "school": "Wyoming",
+      "stars": 3,
+      "rating": 84,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Nic DiSanto",
+      "position": "OT",
+      "school": "Eastern Illinois",
+      "stars": 3,
+      "rating": 83,
+      "date": "01-07-26"
+    },
+    {
+      "name": "Darrell Bryant Jr.",
+      "position": "S",
+      "school": "Northern Colorado",
+      "stars": 3,
+      "rating": 82,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Shawn Foster",
+      "position": "WR",
+      "school": "Michigan State",
+      "stars": 2,
+      "rating": 79,
+      "date": "01-11-26"
+    },
+    {
+      "name": "Vaughn Blue",
+      "position": "RB",
+      "school": "Liberty",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Dontae Robinson",
+      "position": "TE",
+      "school": "Sacramento State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-15-26"
+    },
+    {
+      "name": "Jayden Clerveaux",
+      "position": "RB",
+      "school": "Holy Cross",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Losini Maka",
+      "position": "IOL",
+      "school": "Georgetown",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Trevor Swan",
+      "position": "OT",
+      "school": "Georgetown",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Donavan Philord",
+      "position": "CB",
+      "school": "Campbell",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Gavin Spillers",
+      "position": "TE",
+      "school": "Mars Hill",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-08-26"
+    },
+    {
+      "name": "Jaden Allen",
+      "position": "TE",
+      "school": "Fordham",
+      "stars": 2,
+      "rating": 0,
+      "date": "01-09-26"
+    }
+  ],
+  "portal_out": [
+    {
+      "name": "Brenden Deasfernandes",
+      "position": "CB",
+      "school": "Northwestern",
+      "stars": 3,
+      "rating": 87,
+      "date": "01-05-26"
+    },
+    {
+      "name": "Tyson Davis",
+      "position": "WR",
+      "school": "Virginia",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-18-26"
+    },
+    {
+      "name": "Kalen Carroll",
+      "position": "CB",
+      "school": "TCU",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Kade Kostus",
+      "position": "DL",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-09-25"
+    },
+    {
+      "name": "Jordan Kelly",
+      "position": "WR",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Andre Thomas",
+      "position": "LB",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-28-25"
+    },
+    {
+      "name": "Apisa Poumele",
+      "position": "IOL",
+      "school": "Coastal Carolina",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Jacob Booth",
+      "position": "OT",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-28-25"
+    },
+    {
+      "name": "Oumar Conde",
+      "position": "EDGE",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-27-25"
+    },
+    {
+      "name": "DeCorion Temple",
+      "position": "TE",
+      "school": "Oregon State",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-05-26"
+    },
+    {
+      "name": "Trey Cornist",
+      "position": "RB",
+      "school": "UConn",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-10-26"
+    },
+    {
+      "name": "Jacob Saurbeck",
+      "position": "OT",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-27-25"
+    },
+    {
+      "name": "Bryce Rowe",
+      "position": "CB",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-01-26"
+    },
+    {
+      "name": "Keshawn Hayden",
+      "position": "EDGE",
+      "school": "Eastern Kentucky",
+      "stars": 2,
+      "rating": 0,
+      "date": "01-19-26"
+    },
+    {
+      "name": "Ryan Blum",
+      "position": "IOL",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-29-25"
+    }
+  ],
+  "portal_net": -3,
+  "recruiting_class_2026": [
+    {
+      "name": "Wyatt Graffin",
+      "position": "IOL",
+      "stars": 3,
+      "rating": 86.0,
+      "ranking": 1500,
+      "height_weight": "6' 4/270",
+      "location": "Columbus, WI"
+    },
+    {
+      "name": "Colton Benaitis",
+      "position": "S",
+      "stars": 3,
+      "rating": 85.5,
+      "ranking": 1750,
+      "height_weight": "6' 1/185",
+      "location": "Lockport, IL"
+    },
+    {
+      "name": "Lucas Hoffmeyer",
+      "position": "ATH",
+      "stars": 3,
+      "rating": 85.5,
+      "ranking": 1750,
+      "height_weight": "6' 3/215",
+      "location": "Walled Lake, MI"
+    },
+    {
+      "name": "Trav Moore",
+      "position": "S",
+      "stars": 3,
+      "rating": 85.5,
+      "ranking": 1750,
+      "height_weight": "6' 0/175",
+      "location": "DeWitt, MI"
+    },
+    {
+      "name": "JaJuan Jones",
+      "position": "S",
+      "stars": 3,
+      "rating": 85.0,
+      "ranking": 1924,
+      "height_weight": "6' 1/195",
+      "location": "Harper Woods, MI"
+    },
+    {
+      "name": "Drew Esper",
+      "position": "S",
+      "stars": 3,
+      "rating": 84.5,
+      "ranking": 2176,
+      "height_weight": "6' 1/205",
+      "location": "Traverse City, MI"
+    },
+    {
+      "name": "Laaren Cornwall",
+      "position": "ATH",
+      "stars": 3,
+      "rating": 84.5,
+      "ranking": 2176,
+      "height_weight": "6' 0/165",
+      "location": "Middletown, OH"
+    },
+    {
+      "name": "Zack Wagner",
+      "position": "TE",
+      "stars": 3,
+      "rating": 84.5,
+      "ranking": 2176,
+      "height_weight": "6' 4/235",
+      "location": "Warren, MI"
+    },
+    {
+      "name": "Jack Nolan",
+      "position": "OT",
+      "stars": 3,
+      "rating": 84.5,
+      "ranking": 2176,
+      "height_weight": "6' 4/230",
+      "location": "Arlington Heights, IL"
+    },
+    {
+      "name": "David Williams",
+      "position": "CB",
+      "stars": 3,
+      "rating": 84.0,
+      "ranking": 2313,
+      "height_weight": "6' 0/180",
+      "location": "Warren, MI"
+    },
+    {
+      "name": "Collin Stare",
+      "position": "DL",
+      "stars": 3,
+      "rating": 84.0,
+      "ranking": 2313,
+      "height_weight": "6' 2/245",
+      "location": "Mechanicsburg, PA"
+    },
+    {
+      "name": "Jacob Timmer",
+      "position": "OT",
+      "stars": 3,
+      "rating": 84.0,
+      "ranking": 2313,
+      "height_weight": "6' 7/270",
+      "location": "Grand Rapids, MI"
+    },
+    {
+      "name": "Matthew Sexton",
+      "position": "EDGE",
+      "stars": 3,
+      "rating": 83.5,
+      "ranking": 2524,
+      "height_weight": "6' 4/235",
+      "location": "Grand Rapids, MI"
+    },
+    {
+      "name": "Avin Robinson",
+      "position": "WR",
+      "stars": 3,
+      "rating": 83.5,
+      "ranking": 2524,
+      "height_weight": "6' 1/185",
+      "location": "Brownsburg, IN"
+    },
+    {
+      "name": "Charlie Mandabach",
+      "position": "OT",
+      "stars": 3,
+      "rating": 83.0,
+      "ranking": 2620,
+      "height_weight": "6' 6/250",
+      "location": "Greenwood, IN"
+    },
+    {
+      "name": "Zander Barth",
+      "position": "TE",
+      "stars": 3,
+      "rating": 83.0,
+      "ranking": 2620,
+      "height_weight": "6' 6/225",
+      "location": "Three Rivers, MI"
+    },
+    {
+      "name": "Leon Howard",
+      "position": "LB",
+      "stars": 3,
+      "rating": 83.0,
+      "ranking": 2620,
+      "height_weight": "6' 3/220",
+      "location": "East St. Louis, IL"
+    },
+    {
+      "name": "Matthew Plumb",
+      "position": "EDGE",
+      "stars": 3,
+      "rating": 82.5,
+      "ranking": 2815,
+      "height_weight": "6' 4/230",
+      "location": "St. Charles, IL"
+    },
+    {
+      "name": "Geno Seets",
+      "position": "ATH",
+      "stars": 3,
+      "rating": 82.5,
+      "ranking": 2815,
+      "height_weight": "6' 4/205",
+      "location": "Waterford, MI"
+    },
+    {
+      "name": "Isaac Hutchinson",
+      "position": "DL",
+      "stars": 3,
+      "rating": 82.0,
+      "ranking": 2850,
+      "height_weight": "6' 4/278",
+      "location": "Brownstown, IN"
+    },
+    {
+      "name": "Evan Walker",
+      "position": "EDGE",
+      "stars": 3,
+      "rating": 82.0,
+      "ranking": 2850,
+      "height_weight": "6' 4/220",
+      "location": "Gainesville, FL"
+    }
+  ],
+  "schedule_2026": [
+    {
+      "week": 1,
+      "date": "Sat, 9/5",
+      "location": "at",
+      "opponent": "New Mexico Lobos",
+      "opp_record": "0-0",
+      "opp_rank": 60,
+      "off_rank": 48,
+      "def_rank": 74,
+      "favorite": "New Mexico",
+      "line": 9.5,
+      "win_pct": 21,
+      "proj_w": 0.2,
+      "proj_l": 0.8,
+      "conference_game": false
+    },
+    {
+      "week": 2,
+      "date": "Sat, 9/12",
+      "location": "vs",
+      "opponent": "Colgate Raiders",
+      "opp_record": "0-0",
+      "opp_rank": 136,
+      "off_rank": 136,
+      "def_rank": 136,
+      "favorite": "Central Michigan",
+      "line": -16.5,
+      "win_pct": 90,
+      "proj_w": 1.1,
+      "proj_l": 0.9,
+      "conference_game": false
+    },
+    {
+      "week": 3,
+      "date": "Sat, 9/19",
+      "location": "vs",
+      "opponent": "Wyoming Cowboys",
+      "opp_record": "0-0",
+      "opp_rank": 115,
+      "off_rank": 97,
+      "def_rank": 127,
+      "favorite": "Central Michigan",
+      "line": -5.5,
+      "win_pct": 67,
+      "proj_w": 1.8,
+      "proj_l": 1.2,
+      "conference_game": false
+    },
+    {
+      "week": 4,
+      "date": "Sat, 9/26",
+      "location": "at",
+      "opponent": "Miami Hurricanes",
+      "opp_record": "0-0",
+      "opp_rank": 7,
+      "off_rank": 7,
+      "def_rank": 8,
+      "favorite": "Miami",
+      "line": 29.5,
+      "win_pct": 1,
+      "proj_w": 1.8,
+      "proj_l": 2.2,
+      "conference_game": false
+    },
+    {
+      "week": 5,
+      "date": "Sat, 10/3",
+      "location": "vs",
+      "opponent": "Akron Zips",
+      "opp_record": "0-0",
+      "opp_rank": 117,
+      "off_rank": 112,
+      "def_rank": 117,
+      "favorite": "Central Michigan",
+      "line": -9.0,
+      "win_pct": 74,
+      "proj_w": 2.5,
+      "proj_l": 2.5,
+      "conference_game": true
+    },
+    {
+      "week": 6,
+      "date": "Sat, 10/10",
+      "location": "at",
+      "opponent": "Ohio Bobcats",
+      "opp_record": "0-0",
+      "opp_rank": 114,
+      "off_rank": 126,
+      "def_rank": 95,
+      "favorite": "Central Michigan",
+      "line": -3.0,
+      "win_pct": 56,
+      "proj_w": 3.1,
+      "proj_l": 2.9,
+      "conference_game": true
+    },
+    {
+      "week": 7,
+      "date": "Sat, 10/17",
+      "location": "vs",
+      "opponent": "Western Michigan Broncos",
+      "opp_record": "0-0",
+      "opp_rank": 101,
+      "off_rank": 83,
+      "def_rank": 112,
+      "favorite": "Central Michigan",
+      "line": -1.0,
+      "win_pct": 48,
+      "proj_w": 3.6,
+      "proj_l": 3.4,
+      "conference_game": true
+    },
+    {
+      "week": 8,
+      "date": "Sat, 10/24",
+      "location": "vs",
+      "opponent": "Miami (OH) RedHawks",
+      "opp_record": "0-0",
+      "opp_rank": 65,
+      "off_rank": 82,
+      "def_rank": 55,
+      "favorite": "Miami (OH)",
+      "line": 4.5,
+      "win_pct": 36,
+      "proj_w": 4.0,
+      "proj_l": 4.0,
+      "conference_game": true
+    },
+    {
+      "week": 10,
+      "date": "Wed, 11/4",
+      "location": "at",
+      "opponent": "Eastern Michigan Eagles",
+      "opp_record": "0-0",
+      "opp_rank": 109,
+      "off_rank": 110,
+      "def_rank": 106,
+      "favorite": "Central Michigan",
+      "line": -2.0,
+      "win_pct": 55,
+      "proj_w": 4.6,
+      "proj_l": 4.4,
+      "conference_game": true
+    },
+    {
+      "week": 11,
+      "date": "Wed, 11/11",
+      "location": "vs",
+      "opponent": "Sacramento State Hornets",
+      "opp_record": "0-0",
+      "opp_rank": 118,
+      "off_rank": 118,
+      "def_rank": 114,
+      "favorite": "Central Michigan",
+      "line": -10.5,
+      "win_pct": 76,
+      "proj_w": 5.4,
+      "proj_l": 4.6,
+      "conference_game": true
+    },
+    {
+      "week": 12,
+      "date": "Wed, 11/18",
+      "location": "at",
+      "opponent": "Buffalo Bulls",
+      "opp_record": "0-0",
+      "opp_rank": 116,
+      "off_rank": 124,
+      "def_rank": 103,
+      "favorite": "Central Michigan",
+      "line": -2.5,
+      "win_pct": 55,
+      "proj_w": 6.0,
+      "proj_l": 5.0,
+      "conference_game": true
+    },
+    {
+      "week": 13,
+      "date": "Sat, 11/28",
+      "location": "at",
+      "opponent": "Ball State Cardinals",
+      "opp_record": "0-0",
+      "opp_rank": 137,
+      "off_rank": 132,
+      "def_rank": 136,
+      "favorite": "Central Michigan",
+      "line": -14.5,
+      "win_pct": 85,
+      "proj_w": 6.9,
+      "proj_l": 5.1,
+      "conference_game": true
+    }
+  ],
+  "schedule_summary": {
+    "total_opp_power": null,
+    "sos_rank": null,
+    "expected_record": null,
+    "expected_conf_record": null,
+    "p4_g6_opponents": "1 / 10\n",
+    "vs_bowl_teams": "0 – 0\n"
+  },
+  "power_rating_value": -4.67,
+  "offense_rating": 15.22,
+  "defense_rating": 19.89,
+  "power_rank_db": 99,
+  "composite_rank": 106,
+  "gc_net_raw": -17.78,
+  "mc_net_raw": -2.03,
+  "composite_score": 41.13,
+  "offense_ppa_rank": 71,
+  "defense_ppa_rank": 36,
+  "offense_success_rank": 89,
+  "defense_success_rank": 47,
+  "offense_explosiveness_rank": 109,
+  "defense_explosiveness_rank": 55,
+  "offense_havoc_rank": 70,
+  "defense_havoc_rank": 42,
+  "offense_ppo_rank": 80,
+  "defense_ppo_rank": 26,
+  "offense_profile_db": "Balanced (53% pass, 47% run)",
+  "scoring_home_ppg": 30.4,
+  "scoring_home_games": 5,
+  "scoring_road_ppg": 19.1,
+  "scoring_road_games": 7,
+  "best_players": [
+    {
+      "player_name": "Langston Lewis",
+      "position": "WR",
+      "points": 77,
+      "statsline": "596 Yds, 3 TD"
+    },
+    {
+      "player_name": "Brock Townsend",
+      "position": "RB",
+      "points": 76,
+      "statsline": "418 Yds, 4 TD"
+    },
+    {
+      "player_name": "Korver Demma",
+      "position": "DE",
+      "points": 69,
+      "statsline": "28 Tac, 9 TFL"
+    },
+    {
+      "player_name": "Tommy McIntosh",
+      "position": "WR",
+      "points": 68,
+      "statsline": "422 Yds, 3 TD"
+    },
+    {
+      "player_name": "Jaion Jackson",
+      "position": "CB",
+      "points": 66,
+      "statsline": "1 Int, 7 Pd"
+    },
+    {
+      "player_name": "Donavan Philord",
+      "position": "CB",
+      "points": 64,
+      "statsline": "1 Int, 1 Pd (*FCS TR)"
+    },
+    {
+      "player_name": "Jayden Clerveaux",
+      "position": "RB",
+      "points": 62,
+      "statsline": "762 Yds, 5 TD (*FCS TR)"
+    },
+    {
+      "player_name": "Brady Ploucha",
+      "position": "G",
+      "points": 58,
+      "statsline": "C+ Block Grade"
+    }
+  ],
+  "previous_head_coach": "Matt Drinkall",
+  "previous_oc": "Jim Chapin",
+  "previous_dc": "Sean Cronin",
+  "db_enriched_at": "2026-04-06"
+}
