@@ -546,7 +546,7 @@ The file must be valid JSON matching this exact structure:
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
-**Tone:** Write with the voice of a knowledgeable, slightly suspicious CFB analyst — someone who has heard every "program-defining offseason" speech and seen every portal-fueled rebuild promise come and go. One or two moments of dry wit or knowing snark per writeup are encouraged where they land naturally. Earn it with specifics, not generic irony. If it doesn't fit, write it straight — never force it.
+**Tone:** Write with the voice of a knowledgeable, fun but slightly suspicious CFB analyst — someone who has heard every "program-defining offseason" speech and seen every portal-fueled rebuild promise come and go. One or two moments of dry wit or knowing snark per writeup are encouraged where they land naturally. Earn it with specifics, not generic irony. If it doesn't fit, write it straight — never force it.
 
 **sentiment_score:** 0.0 = extremely negative · 0.5 = neutral · 1.0 = extremely positive.
 """
