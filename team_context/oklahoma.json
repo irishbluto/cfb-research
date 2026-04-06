@@ -2,9 +2,9 @@
   "team": "Oklahoma Sooners",
   "slug": "oklahoma",
   "url_param": "Oklahoma",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Oklahoma",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,14 @@
     "Oklahoma Sooners",
     "Brent Venables",
     "Trell Harris",
-    "Parker Livingstone"
+    "Parker Livingstone",
+    "Taylor Wein",
+    "Peyton Bowen",
+    "David Stone",
+    "Bishop Thomas",
+    "Tate Sandell",
+    "Courtland Guillory",
+    "Lloyd Avant"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +34,12 @@
   "coach_record": "32-20",
   "vegas_win_total": "7.5",
   "projected_record": "8-4",
-  "projected_record_rank": 26,
+  "projected_record_rank": 31,
   "sos_rank": 3,
   "power_rank": 9,
   "sp_plus_rank": 12,
   "record_prediction": "8-4",
-  "record_prediction_rank": 26,
+  "record_prediction_rank": 31,
   "coaching_staff_rank": 21,
   "last_season_record": "10-3",
   "last_season_conf_record": "6-3",
@@ -75,10 +82,10 @@
   "eight_yr_record": "64-26",
   "avg_wins_under_coach": 8.0,
   "schedule_tiers": {
-    "elite": 5,
-    "good": 3,
-    "avg": 0,
-    "bad": 3,
+    "elite": 7,
+    "good": 1,
+    "avg": 3,
+    "bad": 0,
     "poor": 1
   },
   "top_portal_additions": [
@@ -246,6 +253,7 @@
   "injury_notes": [],
   "staff_schedule_notes": [
     "(2/17) Vibes: Cautious, CFP run saved BV, must fix Off",
+    "(4/2) 7 Def starters LY were at NFL combine, depth must hit",
     "(2/2) DBs coach Jay Valai left for NFL (big loss)",
     "(1/29) Lost 25 portals that went to P4 schools"
   ],
@@ -1855,12 +1863,13 @@
       "opp_record": "0-0",
       "opp_rank": 125,
       "off_rank": 137,
-      "def_rank": 115,
+      "def_rank": 119,
       "favorite": "Oklahoma",
-      "line": -32.0,
+      "line": -32.5,
       "win_pct": 99,
       "proj_w": 1.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -1872,10 +1881,11 @@
       "off_rank": 14,
       "def_rank": 12,
       "favorite": "Michigan",
-      "line": 0.5,
-      "win_pct": 47,
-      "proj_w": 1.5,
-      "proj_l": 0.5
+      "line": null,
+      "win_pct": null,
+      "proj_w": null,
+      "proj_l": null,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -1883,14 +1893,15 @@
       "location": "vs",
       "opponent": "New Mexico Lobos",
       "opp_record": "0-0",
-      "opp_rank": 61,
-      "off_rank": 49,
-      "def_rank": 76,
+      "opp_rank": 60,
+      "off_rank": 48,
+      "def_rank": 74,
       "favorite": "Oklahoma",
-      "line": -20.5,
-      "win_pct": 94,
+      "line": -20.0,
+      "win_pct": 93,
       "proj_w": 2.4,
-      "proj_l": 0.6
+      "proj_l": 0.6,
+      "conference_game": false
     },
     {
       "week": 4,
@@ -1905,7 +1916,8 @@
       "line": 10.5,
       "win_pct": 24,
       "proj_w": 2.6,
-      "proj_l": 1.4
+      "proj_l": 1.4,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -1913,14 +1925,15 @@
       "location": "vs",
       "opponent": "Texas Longhorns",
       "opp_record": "0-0",
-      "opp_rank": 4,
+      "opp_rank": 5,
       "off_rank": 2,
-      "def_rank": 6,
+      "def_rank": 7,
       "favorite": "Texas",
       "line": 5.0,
       "win_pct": 37,
       "proj_w": 3.0,
-      "proj_l": 2.0
+      "proj_l": 2.0,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -1928,14 +1941,15 @@
       "location": "vs",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "Oklahoma",
-      "line": -19.5,
-      "win_pct": 88,
+      "line": -20.0,
+      "win_pct": 93,
       "proj_w": 3.9,
-      "proj_l": 2.1
+      "proj_l": 2.1,
+      "conference_game": true
     },
     {
       "week": 8,
@@ -1943,14 +1957,15 @@
       "location": "at",
       "opponent": "Mississippi State Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 83,
-      "off_rank": 86,
-      "def_rank": 78,
+      "opp_rank": 85,
+      "off_rank": 87,
+      "def_rank": 80,
       "favorite": "Oklahoma",
       "line": -17.5,
       "win_pct": 89,
       "proj_w": 4.8,
-      "proj_l": 2.2
+      "proj_l": 2.2,
+      "conference_game": true
     },
     {
       "week": 9,
@@ -1960,12 +1975,13 @@
       "opp_record": "0-0",
       "opp_rank": 41,
       "off_rank": 36,
-      "def_rank": 46,
+      "def_rank": 48,
       "favorite": "Oklahoma",
       "line": -13.5,
       "win_pct": 84,
       "proj_w": 5.6,
-      "proj_l": 2.4
+      "proj_l": 2.4,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -1974,13 +1990,14 @@
       "opponent": "Florida Gators",
       "opp_record": "0-0",
       "opp_rank": 23,
-      "off_rank": 29,
+      "off_rank": 30,
       "def_rank": 19,
       "favorite": "Oklahoma",
-      "line": -5.0,
-      "win_pct": 63,
-      "proj_w": 6.2,
-      "proj_l": 2.8
+      "line": -5.5,
+      "win_pct": 67,
+      "proj_w": 6.3,
+      "proj_l": 2.7,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -1992,10 +2009,11 @@
       "off_rank": 16,
       "def_rank": 11,
       "favorite": "Oklahoma",
-      "line": -4.5,
-      "win_pct": 64,
-      "proj_w": 6.8,
-      "proj_l": 3.2
+      "line": -5.0,
+      "win_pct": 63,
+      "proj_w": 6.9,
+      "proj_l": 3.1,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2005,12 +2023,13 @@
       "opp_record": "0-0",
       "opp_rank": 18,
       "off_rank": 15,
-      "def_rank": 17,
+      "def_rank": 16,
       "favorite": "Oklahoma",
-      "line": -4.5,
-      "win_pct": 64,
-      "proj_w": 7.4,
-      "proj_l": 3.6
+      "line": -5.0,
+      "win_pct": 63,
+      "proj_w": 7.5,
+      "proj_l": 3.5,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2024,36 +2043,22 @@
       "favorite": "Oklahoma",
       "line": -4.0,
       "win_pct": 62,
-      "proj_w": 8.0,
-      "proj_l": 4.0
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "7.5 – 4.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_w": 8.1,
+      "proj_l": 3.9,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "127",
+    "total_opp_power": "125",
     "sos_rank": "3",
-    "expected_record": "8 – 4",
+    "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 2\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 19.05,
-  "offense_rating": 24.59,
-  "defense_rating": 5.53,
+  "power_rating_value": 19.04,
+  "offense_rating": 24.6,
+  "defense_rating": 5.56,
   "power_rank_db": 9,
   "composite_rank": 20,
   "gc_net_raw": 25.61,
@@ -2074,5 +2079,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 26.0,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Taylor Wein",
+      "position": "DE",
+      "points": 82,
+      "statsline": "39 Tac, 15 TFL"
+    },
+    {
+      "player_name": "Peyton Bowen",
+      "position": "S",
+      "points": 81,
+      "statsline": "2 Int, 7 Pd"
+    },
+    {
+      "player_name": "Trell Harris",
+      "position": "WR",
+      "points": 80,
+      "statsline": "847 Yds, 5 TD (* TR)"
+    },
+    {
+      "player_name": "David Stone",
+      "position": "DT",
+      "points": 79,
+      "statsline": "43 Tac, 8 TFL"
+    },
+    {
+      "player_name": "Bishop Thomas",
+      "position": "DT",
+      "points": 79,
+      "statsline": "48 Tac, 4 TFL (* TR)"
+    },
+    {
+      "player_name": "Tate Sandell",
+      "position": "K",
+      "points": 77,
+      "statsline": "24/27 (88.9%)"
+    },
+    {
+      "player_name": "Courtland Guillory",
+      "position": "CB",
+      "points": 77,
+      "statsline": "0 Int, 7 Pd"
+    },
+    {
+      "player_name": "Lloyd Avant",
+      "position": "RB",
+      "points": 76,
+      "statsline": "417 Yds, 5 TD (* TR)"
+    }
+  ],
+  "previous_head_coach": "Brent Venables",
+  "previous_oc": "Ben Arbuckle",
+  "previous_dc": "Zac Alley",
+  "db_enriched_at": "2026-04-05"
 }

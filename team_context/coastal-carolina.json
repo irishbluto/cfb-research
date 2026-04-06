@@ -1,0 +1,1890 @@
+{
+  "team": "Coastal Carolina Chanticleers",
+  "slug": "coastal-carolina",
+  "url_param": "Coastal Carolina",
+  "conference": "sbc",
+  "source_url": "https://www.puntandrally.com/teamprofile.php?team=Coastal%20Carolina",
+  "last_scraped": "2026-04-05",
+  "agent_notes": "",
+  "known_injuries": [],
+  "position_battles": [],
+  "search_keywords": [
+    "Coastal Carolina Chanticleers",
+    "Ryan Beard",
+    "Donovan Grayson",
+    "Tristian Gardner",
+    "Clayton Coppock",
+    "Myles Woods",
+    "Ibrahim Diawara",
+    "Ja'Marion Wayne",
+    "Tray Brown",
+    "Dominic Knicely",
+    "Mitchell Toney"
+  ],
+  "youtube_channels": [],
+  "beat_writers": [],
+  "team_subreddit": "",
+  "sentiment": "",
+  "sentiment_score": null,
+  "last_research_run": null,
+  "twitter_handle": "@CoastalFootball",
+  "team_display_name": "Coastal Carolina Chanticleers",
+  "head_coach": "Ryan Beard",
+  "coach_years": "1st year",
+  "coach_record": "0-0",
+  "vegas_win_total": "",
+  "projected_record": "0-12",
+  "projected_record_rank": 134,
+  "sos_rank": 78,
+  "power_rank": 122,
+  "sp_plus_rank": 119,
+  "record_prediction": "",
+  "record_prediction_rank": null,
+  "coaching_staff_rank": 73,
+  "last_season_record": "6-7",
+  "last_season_conf_record": "5-3",
+  "last_season_ats": "6-7-0",
+  "last_season_totals": "8-5",
+  "momentum_control_rank": 130,
+  "game_control_rank": 127,
+  "one_score_games": "1-1",
+  "one_score_games_under_coach": "0-0",
+  "performance_rank": 122,
+  "special_teams_rank": 115,
+  "returning_production_pct": 61,
+  "returning_production_rank": 81,
+  "starting_qb_note": "",
+  "returning_offense_pct": 65,
+  "returning_offense_rank": 87,
+  "returning_defense_pct": 58,
+  "returning_defense_rank": 85,
+  "returning_starters": 5,
+  "returning_starters_off": 2,
+  "returning_starters_def": 3,
+  "five_year_profile": "Declining Below Avg G5",
+  "profile_2026": "Remains Below Avg G5",
+  "talent_rank": 114,
+  "blue_chip_pct": 1,
+  "blue_chip_rank": 84,
+  "offense_talent_rank": 112,
+  "defense_talent_rank": 113,
+  "portal_class_rank": 79,
+  "portal_class_count": 39,
+  "portal_class_avg": 85,
+  "recruiting_class_rank": 117,
+  "four_yr_class_rank": 104,
+  "talent_profile": "Declining Below Avg G5",
+  "offensive_coordinator": "Nick Petrino",
+  "offensive_coordinator_rank": 112,
+  "defensive_coordinator": "LD Scott",
+  "defensive_coordinator_rank": 115,
+  "four_yr_record": "20-19",
+  "eight_yr_record": "56-33",
+  "avg_wins_under_coach": null,
+  "schedule_tiers": {
+    "elite": 0,
+    "good": 0,
+    "avg": 1,
+    "bad": 0,
+    "poor": 0
+  },
+  "top_portal_additions": [
+    {
+      "name": "Donovan Grayson",
+      "position": "EDGE",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Tristian Gardner",
+      "position": "WR",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Jalen Lee",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Trever Jackson",
+      "position": "QB",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Tyler Woodard",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Mason Barton",
+      "position": "OT",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Azarel Juste",
+      "position": "S",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Daelen Alexander",
+      "position": "RB",
+      "stars": 3,
+      "rating": 0.85
+    }
+  ],
+  "top_performers": [
+    {
+      "name": "Clayton Coppock",
+      "position": "WR",
+      "stat": "311 Yds, 5 TD (* TR)"
+    },
+    {
+      "name": "Myles Woods",
+      "position": "S",
+      "stat": "3 Int, 6 Pd"
+    },
+    {
+      "name": "Ibrahim Diawara",
+      "position": "DE",
+      "stat": "16 Tac, 6 TFL"
+    },
+    {
+      "name": "Ja'Marion Wayne",
+      "position": "CB",
+      "stat": "1 Int, 6 Pd"
+    },
+    {
+      "name": "Tristian Gardner",
+      "position": "WR",
+      "stat": "465 Yds, 6 TD (* TR)"
+    },
+    {
+      "name": "Tray Brown",
+      "position": "LB",
+      "stat": "53 Tac, 12 TFL"
+    },
+    {
+      "name": "Mitchell Toney",
+      "position": "DE",
+      "stat": "23 Tac, 5 TFL (* TR)"
+    },
+    {
+      "name": "Dominic Knicely",
+      "position": "RB",
+      "stat": "384 Yds, 3 TD"
+    }
+  ],
+  "top_recruits": [
+    {
+      "name": "Osiris Lopez",
+      "position": "QB",
+      "stars": 3,
+      "rating": 0.86
+    },
+    {
+      "name": "Michael Knight",
+      "position": "CB",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Romello Patterson",
+      "position": "LB",
+      "stars": 3,
+      "rating": 0.85
+    },
+    {
+      "name": "Stephan Aristil",
+      "position": "IOL",
+      "stars": 3,
+      "rating": 0.84
+    },
+    {
+      "name": "Gabe Jones",
+      "position": "DL",
+      "stars": 3,
+      "rating": 0.84
+    },
+    {
+      "name": "Jayden Johnson",
+      "position": "WR",
+      "stars": 3,
+      "rating": 0.84
+    },
+    {
+      "name": "Nasir Jones",
+      "position": "IOL",
+      "stars": 3,
+      "rating": 0.84
+    }
+  ],
+  "offense_power_rank": 123,
+  "defense_power_rank": 123,
+  "off_momentum_control_rank": 119,
+  "off_game_control_rank": 131,
+  "def_momentum_control_rank": null,
+  "def_game_control_rank": 118,
+  "offense_profile": "",
+  "scoring_overall_margin": null,
+  "scoring_home_margin": null,
+  "scoring_road_margin": null,
+  "net_efficiency_rank": 117,
+  "offense_ppd_rank": 115,
+  "defense_ppd_rank": 71,
+  "offense_ppp_rank": 93,
+  "defense_ppp_rank": 119,
+  "record_2025": "6-7",
+  "record_2024": "6-7",
+  "team_notes": [
+    "(2/24) WR some parts, 4 portals, should be good",
+    "(2/24) OL 5 w stater exp, could be solid unit",
+    "(2/24) Def 19 portals should improve a bad unit",
+    "(2/24) QB Jackson (Ark) or Bailey (w/ Beard @ Miz St)",
+    "(2/24) RB stable of 4 with good exp & decent prod"
+  ],
+  "injury_notes": [],
+  "staff_schedule_notes": [
+    "(2/24) HC Beard did a good job a Missouri St"
+  ],
+  "recruiting_class_2026_points": "165",
+  "recruiting_class_2026_rank": 117,
+  "avg_recruiting_rank": 98,
+  "four_year_class_rank": 104,
+  "recruiting_profile": "Declining Below Avg G5",
+  "full_roster": [
+    {
+      "name": "Deuce Bailey",
+      "jersey": "16",
+      "class": "FR",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'1\"/190",
+      "snaps": 47,
+      "snap_pct": 49.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Trever Jackson",
+      "jersey": "13",
+      "class": "SO",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'3\"/202",
+      "snaps": 1,
+      "snap_pct": 0.0,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Osiris Lopez",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Quarterbacks",
+      "height_weight": "6'2\"/185",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Dominic Knicely",
+      "jersey": "27",
+      "class": "SO",
+      "position_group": "Running Backs",
+      "height_weight": "5'10\"/193",
+      "snaps": 259,
+      "snap_pct": 33.0,
+      "rating": 0.87,
+      "origin": ""
+    },
+    {
+      "name": "Jevon Edwards",
+      "jersey": "20",
+      "class": "SO",
+      "position_group": "Running Backs",
+      "height_weight": "5'10\"/197",
+      "snaps": 195,
+      "snap_pct": 25.0,
+      "rating": 0.87,
+      "origin": ""
+    },
+    {
+      "name": "Daelen Alexander",
+      "jersey": "20",
+      "class": "JR",
+      "position_group": "Running Backs",
+      "height_weight": "5'10\"/221",
+      "snaps": 163,
+      "snap_pct": 21.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Rodney Hill",
+      "jersey": "1",
+      "class": "SR",
+      "position_group": "Running Backs",
+      "height_weight": "5'10\"/195",
+      "snaps": 27,
+      "snap_pct": 3.0,
+      "rating": 0.89,
+      "origin": ""
+    },
+    {
+      "name": "Breyahn Townsend",
+      "jersey": "22",
+      "class": "JR",
+      "position_group": "Running Backs",
+      "height_weight": "5'10\"/185",
+      "snaps": 22,
+      "snap_pct": 3.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Jaden Allen-Hendrix",
+      "jersey": "28",
+      "class": "SO",
+      "position_group": "Running Backs",
+      "height_weight": "6'2\"/225",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Karmello English",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'0\"/190",
+      "snaps": 471,
+      "snap_pct": 27.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Clayton Coppock",
+      "jersey": "18",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'1\"/165",
+      "snaps": 441,
+      "snap_pct": 25.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Goldie Lawrence",
+      "jersey": "00",
+      "class": "JR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'1\"/190",
+      "snaps": 388,
+      "snap_pct": 22.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Robby Washington",
+      "jersey": "16",
+      "class": "JR",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'11\"/180",
+      "snaps": 273,
+      "snap_pct": 16.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Tristian Gardner",
+      "jersey": "15",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'2\"/180",
+      "snaps": 258,
+      "snap_pct": 15.0,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Colton Hinton",
+      "jersey": "14",
+      "class": "SR",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'11\"/180",
+      "snaps": 63,
+      "snap_pct": 4.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Krosse Johnson",
+      "jersey": "18",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'10\"/180",
+      "snaps": 16,
+      "snap_pct": 1.0,
+      "rating": 0.87,
+      "origin": ""
+    },
+    {
+      "name": "Nathan Schuessler",
+      "jersey": "82",
+      "class": "JR",
+      "position_group": "Wide Receivers",
+      "height_weight": "5'11\"/185",
+      "snaps": 9,
+      "snap_pct": 1.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Trishstin Glass",
+      "jersey": "80",
+      "class": "SO",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'5\"/205",
+      "snaps": 4,
+      "snap_pct": 0.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Jayden Johnson",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Wide Receivers",
+      "height_weight": "6'2\"/165",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Cyrus Ellison",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'4\"/240",
+      "snaps": 556,
+      "snap_pct": 137.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Zach Courtney",
+      "jersey": "33",
+      "class": "SR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'6\"/253",
+      "snaps": 294,
+      "snap_pct": 73.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Brown Reaves",
+      "jersey": "44",
+      "class": "SO",
+      "position_group": "Tight Ends",
+      "height_weight": "6'4\"/235",
+      "snaps": 25,
+      "snap_pct": 6.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Ben Verges",
+      "jersey": "00",
+      "class": "SO",
+      "position_group": "Tight Ends",
+      "height_weight": "6'5\"/249",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Jackson Kohl",
+      "jersey": "89",
+      "class": "FR",
+      "position_group": "Tight Ends",
+      "height_weight": "6'6\"/250",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Mason Barton",
+      "jersey": "00",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'7\"/335",
+      "snaps": 673,
+      "snap_pct": 59.4,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Daughtry Richardson",
+      "jersey": "78",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'6\"/328",
+      "snaps": 650,
+      "snap_pct": 57.6,
+      "rating": 0.88,
+      "origin": ""
+    },
+    {
+      "name": "Daniel Jones",
+      "jersey": "70",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'6\"/298",
+      "snaps": 303,
+      "snap_pct": 30.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Tray Franklin",
+      "jersey": "56",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/315",
+      "snaps": 229,
+      "snap_pct": 22.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Cristian Loaiza",
+      "jersey": "76",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/330",
+      "snaps": 177,
+      "snap_pct": 17.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Gavin McLaughlin",
+      "jersey": "55",
+      "class": "SO",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/315",
+      "snaps": 90,
+      "snap_pct": 9.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Kain McDonald",
+      "jersey": "66",
+      "class": "SO",
+      "position_group": "Offensive Line",
+      "height_weight": "6'2\"/305",
+      "snaps": 196,
+      "snap_pct": 19.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Apisa Poumele",
+      "jersey": "58",
+      "class": "SR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'0\"/290",
+      "snaps": 491,
+      "snap_pct": 43.2,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Stephan Aristil",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'5\"/330",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Dominic Rijos",
+      "jersey": "72",
+      "class": "SO",
+      "position_group": "Offensive Line",
+      "height_weight": "6'2\"/320",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Nasir Jones",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/300",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Gabe Jones",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'3\"/300",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Joshua Daniel",
+      "jersey": "00",
+      "class": "JR",
+      "position_group": "Offensive Line",
+      "height_weight": "6'4\"/320",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Donovan Grayson",
+      "jersey": "88",
+      "class": "JR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'3\"/240",
+      "snaps": 489,
+      "snap_pct": 34.2,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Ibrahim Diawara",
+      "jersey": "52",
+      "class": "SR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'4\"/260",
+      "snaps": 306,
+      "snap_pct": 24.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Mitchell Toney",
+      "jersey": "50",
+      "class": "JR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'2\"/275",
+      "snaps": 291,
+      "snap_pct": 20.7,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Chandavian Bradley",
+      "jersey": "16",
+      "class": "JR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'6\"/240",
+      "snaps": 33,
+      "snap_pct": 2.7,
+      "rating": 0.94,
+      "origin": ""
+    },
+    {
+      "name": "Obinna Onwuka",
+      "jersey": "56",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'5\"/245",
+      "snaps": 1,
+      "snap_pct": 0.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Aiden Parker",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'3\"/225",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Shaikh Thompson",
+      "jersey": "49",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'5\"/250",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Ahmad Poole",
+      "jersey": "55",
+      "class": "SR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'0\"/305",
+      "snaps": 412,
+      "snap_pct": 44.1,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Xzavier Booker",
+      "jersey": "00",
+      "class": "JR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'2\"/315",
+      "snaps": 403,
+      "snap_pct": 43.2,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Reggie Jean",
+      "jersey": "90",
+      "class": "SR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'3\"/299",
+      "snaps": 194,
+      "snap_pct": 20.7,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Dezmond Barnes",
+      "jersey": "98",
+      "class": "SO",
+      "position_group": "Defensive Line",
+      "height_weight": "6'1\"/305",
+      "snaps": 125,
+      "snap_pct": 15.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Cam Williams",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Defensive Line",
+      "height_weight": "6'3\"/252",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Jordan Thompson",
+      "jersey": "36",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/220",
+      "snaps": 715,
+      "snap_pct": 99.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Tray Brown",
+      "jersey": "55",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "6'1\"/232",
+      "snaps": 555,
+      "snap_pct": 77.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Se'Von McDowell",
+      "jersey": "19",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'1\"/220",
+      "snaps": 551,
+      "snap_pct": 76.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Wyatt Gedeon",
+      "jersey": "34",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "6'1\"/225",
+      "snaps": 113,
+      "snap_pct": 16.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Marcellius Pulliam",
+      "jersey": "4",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'3\"/240",
+      "snaps": 51,
+      "snap_pct": 7.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Braxton Starnes",
+      "jersey": "11",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'3\"/225",
+      "snaps": 16,
+      "snap_pct": 2.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Kadon Crawford",
+      "jersey": "45",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/208",
+      "snaps": 9,
+      "snap_pct": 1.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Cameron Avery",
+      "jersey": "37",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/215",
+      "snaps": 8,
+      "snap_pct": 1.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Romello Patterson",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/224",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Ja'Marion Wayne",
+      "jersey": "2",
+      "class": "GR",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/207",
+      "snaps": 538,
+      "snap_pct": 50.0,
+      "rating": 0.82,
+      "origin": ""
+    },
+    {
+      "name": "Damill Bostic Jr",
+      "jersey": "00",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/185",
+      "snaps": 536,
+      "snap_pct": 50.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Gabe White",
+      "jersey": "00",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/210",
+      "snaps": 406,
+      "snap_pct": 38.0,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Chase Jackson",
+      "jersey": "26",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/186",
+      "snaps": 29,
+      "snap_pct": 3.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Ryan Grayson",
+      "jersey": "33",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/165",
+      "snaps": 1,
+      "snap_pct": 0.0,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Michael Knight",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'3\"/170",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Myles Woods",
+      "jersey": "14",
+      "class": "JR",
+      "position_group": "Linebackers",
+      "height_weight": "5'10\"/180",
+      "snaps": 679,
+      "snap_pct": 28.0,
+      "rating": 0.84,
+      "origin": ""
+    },
+    {
+      "name": "Dre Pinckney",
+      "jersey": "9",
+      "class": "GR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/193",
+      "snaps": 316,
+      "snap_pct": 13.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Chris Henry",
+      "jersey": "17",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/196",
+      "snaps": 95,
+      "snap_pct": 4.0,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Tyler Woodard",
+      "jersey": "12",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "6'2\"/201",
+      "snaps": 42,
+      "snap_pct": 2.0,
+      "rating": 0.85,
+      "origin": ""
+    },
+    {
+      "name": "Brandon Rose",
+      "jersey": "25",
+      "class": "SO",
+      "position_group": "Linebackers",
+      "height_weight": "5'11\"/188",
+      "snaps": 1,
+      "snap_pct": 0.0,
+      "rating": 0.87,
+      "origin": ""
+    },
+    {
+      "name": "Jayden Jackson",
+      "jersey": "43",
+      "class": "GR",
+      "position_group": "Linebackers",
+      "height_weight": "6'0\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Zeke Marshall",
+      "jersey": "00",
+      "class": "FR",
+      "position_group": "Linebackers",
+      "height_weight": "6'5\"/190",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.87,
+      "origin": ""
+    },
+    {
+      "name": "Jalen Lee",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Linebackers",
+      "height_weight": "6'1\"/200",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.86,
+      "origin": ""
+    },
+    {
+      "name": "Daniel Porto",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Kickers",
+      "height_weight": "6'0\"/202",
+      "snaps": 16,
+      "snap_pct": 93.8,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Nico Cavanillas Alti",
+      "jersey": "00",
+      "class": "SR",
+      "position_group": "Kickers",
+      "height_weight": "6'0\"/200",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.74,
+      "origin": ""
+    },
+    {
+      "name": "Emile Sebafundi",
+      "jersey": "97",
+      "class": "GR",
+      "position_group": "Punters",
+      "height_weight": "6'0\"/205",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": null,
+      "origin": "NA"
+    },
+    {
+      "name": "Roland Podesta",
+      "jersey": "48",
+      "class": "FR",
+      "position_group": "Punters",
+      "height_weight": "6'3\"/210",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.83,
+      "origin": ""
+    },
+    {
+      "name": "Azarel Juste",
+      "jersey": "00",
+      "class": "JR",
+      "position_group": "Punters",
+      "height_weight": "6'3\"/195",
+      "snaps": null,
+      "snap_pct": null,
+      "rating": 0.85,
+      "origin": ""
+    }
+  ],
+  "portal_in": [
+    {
+      "name": "Donovan Grayson",
+      "position": "EDGE",
+      "school": "Samford",
+      "stars": 3,
+      "rating": 86,
+      "date": "01-12-26"
+    },
+    {
+      "name": "Tristian Gardner",
+      "position": "WR",
+      "school": "Missouri State",
+      "stars": 3,
+      "rating": 86,
+      "date": "01-10-26"
+    },
+    {
+      "name": "Jalen Lee",
+      "position": "S",
+      "school": "South Dakota State",
+      "stars": 3,
+      "rating": 86,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Trever Jackson",
+      "position": "QB",
+      "school": "Arkansas",
+      "stars": 3,
+      "rating": 86,
+      "date": "01-14-26"
+    },
+    {
+      "name": "Tyler Woodard",
+      "position": "S",
+      "school": "Mississippi State",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-18-26"
+    },
+    {
+      "name": "Mason Barton",
+      "position": "OT",
+      "school": "Jackson State",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-12-26"
+    },
+    {
+      "name": "Azarel Juste",
+      "position": "S",
+      "school": "Bryant",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-10-26"
+    },
+    {
+      "name": "Daelen Alexander",
+      "position": "RB",
+      "school": "Rice",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Azarel Juste",
+      "position": "LB",
+      "school": "Bryant",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-10-26"
+    },
+    {
+      "name": "Marcellius Pulliam",
+      "position": "LB",
+      "school": "Michigan State",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Jesse Powell II",
+      "position": "S",
+      "school": "Elon",
+      "stars": 3,
+      "rating": 84,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Jesse Powell II",
+      "position": "LB",
+      "school": "Elon",
+      "stars": 3,
+      "rating": 84,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Jaden Allen-Hendrix",
+      "position": "RB",
+      "school": "Oklahoma State",
+      "stars": 3,
+      "rating": 83,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Cam Williams",
+      "position": "DL",
+      "school": "Clark Atlanta",
+      "stars": 3,
+      "rating": 82,
+      "date": "01-19-26"
+    },
+    {
+      "name": "Reggie Jean",
+      "position": "DL",
+      "school": "Northern Illinois",
+      "stars": 3,
+      "rating": 82,
+      "date": "01-21-26"
+    },
+    {
+      "name": "Cameron Williams",
+      "position": "DL",
+      "school": "Clark Atlanta",
+      "stars": 3,
+      "rating": 82,
+      "date": "01-19-26"
+    },
+    {
+      "name": "Nico Cavanillas Alti",
+      "position": "K",
+      "school": "South Carolina State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-20-26"
+    },
+    {
+      "name": "Xzavier Booker",
+      "position": "DL",
+      "school": "Alabama A&M",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Krosse Johnson",
+      "position": "WR",
+      "school": "Arkansas",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Apisa Poumele",
+      "position": "IOL",
+      "school": "Central Michigan",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Chandavian Bradley",
+      "position": "EDGE",
+      "school": "Oklahoma State",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Ahmad Poole",
+      "position": "DL",
+      "school": "Missouri State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-11-26"
+    },
+    {
+      "name": "Goldie Lawrence",
+      "position": "WR",
+      "school": "Florida A&M",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-19-26"
+    },
+    {
+      "name": "Cyrus Ellison",
+      "position": "TE",
+      "school": "South Carolina State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Jordan Thompson",
+      "position": "LB",
+      "school": "Western Carolina",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Roland Podesta",
+      "position": "K",
+      "school": "Boise State",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Damill Bostic Jr",
+      "position": "CB",
+      "school": "Villanova",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-12-26"
+    },
+    {
+      "name": "Rodney Hill",
+      "position": "RB",
+      "school": "Arkansas",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Daughtry Richardson",
+      "position": "OT",
+      "school": "Florida Atlantic",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-18-26"
+    },
+    {
+      "name": "Gabe White",
+      "position": "CB",
+      "school": "Bethune-Cookman",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Mitchell Toney",
+      "position": "DL",
+      "school": "Missouri State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Daniel Porto",
+      "position": "K",
+      "school": "Florida A&M",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-10-26"
+    },
+    {
+      "name": "Damill Bostic Jr.",
+      "position": "CB",
+      "school": "Villanova",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-12-26"
+    },
+    {
+      "name": "Clayton Coppock",
+      "position": "WR",
+      "school": "Kennesaw State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-14-26"
+    },
+    {
+      "name": "Roland Podesta",
+      "position": "P",
+      "school": "Boise State",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-16-26"
+    }
+  ],
+  "portal_out": [
+    {
+      "name": "Ezekiel Durham-Campbell",
+      "position": "EDGE",
+      "school": "West Virginia",
+      "stars": 3,
+      "rating": 87,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Zeke Campbell",
+      "position": "EDGE",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 87,
+      "date": "01-06-26"
+    },
+    {
+      "name": "Jordan Mack",
+      "position": "DL",
+      "school": "Baylor",
+      "stars": 3,
+      "rating": 86,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Darrion Henry-Young",
+      "position": "DL",
+      "school": "Virginia",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-17-26"
+    },
+    {
+      "name": "Nick Del Grande",
+      "position": "OT",
+      "school": "Duke",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-05-26"
+    },
+    {
+      "name": "Jayden Bryant",
+      "position": "EDGE",
+      "school": "Kansas State",
+      "stars": 3,
+      "rating": 85,
+      "date": "01-07-26"
+    },
+    {
+      "name": "Nate Gregory",
+      "position": "LB",
+      "school": "Kent State",
+      "stars": 3,
+      "rating": 84,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Joseph Hanson",
+      "position": "OT",
+      "school": "Oklahoma State",
+      "stars": 3,
+      "rating": 84,
+      "date": "01-08-26"
+    },
+    {
+      "name": "Larell Howling",
+      "position": "CB",
+      "school": "UL Monroe",
+      "stars": 3,
+      "rating": 84,
+      "date": "01-22-26"
+    },
+    {
+      "name": "Zach Cody",
+      "position": "CB",
+      "school": "Rice",
+      "stars": 3,
+      "rating": 83,
+      "date": "01-05-26"
+    },
+    {
+      "name": "Philippe LaForge",
+      "position": "K",
+      "school": "Memphis",
+      "stars": 3,
+      "rating": 80,
+      "date": "01-13-26"
+    },
+    {
+      "name": "Josh Humes",
+      "position": "TE",
+      "school": "Delaware",
+      "stars": 2,
+      "rating": 79,
+      "date": "01-22-26"
+    },
+    {
+      "name": "Kian Afrookhteh",
+      "position": "K",
+      "school": "Utah State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-12-26"
+    },
+    {
+      "name": "Xakery Wiedner",
+      "position": "WR",
+      "school": "West Florida",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Brooks Johnson",
+      "position": "TE",
+      "school": "Florida Atlantic",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-09-26"
+    },
+    {
+      "name": "Malaki Te'o",
+      "position": "LB",
+      "school": "TBD",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-05-26"
+    },
+    {
+      "name": "Avyonne Jones",
+      "position": "S",
+      "school": "Stephen F. Austin",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Luke Murphy",
+      "position": "LB",
+      "school": "UConn",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-24-26"
+    },
+    {
+      "name": "Zach Courtney",
+      "position": "TE",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-01-26"
+    },
+    {
+      "name": "Geajorm Akpaloo",
+      "position": "LB",
+      "school": "Western Kentucky",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-11-26"
+    },
+    {
+      "name": "Tyler Moore",
+      "position": "DL",
+      "school": "Colorado",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-05-26"
+    },
+    {
+      "name": "Dante Thomas",
+      "position": "S",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Eli Aragon",
+      "position": "WR",
+      "school": "Idaho State",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Haden Tessier",
+      "position": "P",
+      "school": "TBD",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-03-26"
+    },
+    {
+      "name": "Emmett Brown",
+      "position": "QB",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-06-26"
+    },
+    {
+      "name": "Cameron Wright",
+      "position": "WR",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-16-26"
+    },
+    {
+      "name": "Javen Augustus",
+      "position": "EDGE",
+      "school": "Idaho",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Javen Johnson",
+      "position": "DL",
+      "school": "TBD",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-06-26"
+    },
+    {
+      "name": "Tad Hudson",
+      "position": "QB",
+      "school": "NC State",
+      "stars": 4,
+      "rating": 0,
+      "date": "02-15-26"
+    },
+    {
+      "name": "Kareem Williams",
+      "position": "S",
+      "school": "Campbell",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Samari Collier",
+      "position": "QB",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-08-26"
+    },
+    {
+      "name": "Larell Howling",
+      "position": "S",
+      "school": "UL Monroe",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-22-26"
+    },
+    {
+      "name": "Fredd Adams",
+      "position": "CB",
+      "school": "Tarleton State",
+      "stars": 2,
+      "rating": 0,
+      "date": "01-12-26"
+    },
+    {
+      "name": "Bryson Graves",
+      "position": "WR",
+      "school": "Delaware",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-20-26"
+    },
+    {
+      "name": "Noah Gibson",
+      "position": "CB",
+      "school": "TBD",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-08-26"
+    },
+    {
+      "name": "Jon Hunt",
+      "position": "QB",
+      "school": "TBD",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-01-26"
+    },
+    {
+      "name": "Ja'Vin Simpkins",
+      "position": "RB",
+      "school": "UAB",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-18-26"
+    },
+    {
+      "name": "Brooks Johnson",
+      "position": "WR",
+      "school": "TBD",
+      "stars": 3,
+      "rating": 0,
+      "date": "12-21-25"
+    },
+    {
+      "name": "Michael Cogoni",
+      "position": "IOL",
+      "school": "Austin Peay",
+      "stars": 0,
+      "rating": 0,
+      "date": "01-24-26"
+    },
+    {
+      "name": "Walt Gray",
+      "position": "EDGE",
+      "school": "Incarnate Word",
+      "stars": 2,
+      "rating": 0,
+      "date": "01-27-26"
+    },
+    {
+      "name": "Julius Tate",
+      "position": "IOL",
+      "school": "South Florida",
+      "stars": 3,
+      "rating": 0,
+      "date": "01-08-26"
+    }
+  ],
+  "portal_net": -6,
+  "recruiting_class_2026": [
+    {
+      "name": "Osiris Lopez",
+      "position": "QB",
+      "stars": 3,
+      "rating": 86.11,
+      "ranking": 1465,
+      "height_weight": "6' 1/185",
+      "location": "Leominster, MA"
+    },
+    {
+      "name": "Michael Knight",
+      "position": "CB",
+      "stars": 3,
+      "rating": 84.5,
+      "ranking": 2176,
+      "height_weight": "6' 3/165",
+      "location": "McDonough, GA"
+    },
+    {
+      "name": "Romello Patterson",
+      "position": "LB",
+      "stars": 3,
+      "rating": 84.5,
+      "ranking": 2176,
+      "height_weight": "6' 2/224",
+      "location": "Florence, SC"
+    },
+    {
+      "name": "Stephan Aristil",
+      "position": "IOL",
+      "stars": 3,
+      "rating": 84.0,
+      "ranking": 2313,
+      "height_weight": "6' 5/330",
+      "location": "Palmetto, FL"
+    },
+    {
+      "name": "Gabe Jones",
+      "position": "DL",
+      "stars": 3,
+      "rating": 83.5,
+      "ranking": 2524,
+      "height_weight": "6' 3/300",
+      "location": "Locust Grove, GA"
+    },
+    {
+      "name": "Jayden Johnson",
+      "position": "WR",
+      "stars": 3,
+      "rating": 83.5,
+      "ranking": 2524,
+      "height_weight": "6' 1/165",
+      "location": "Texas City, TX"
+    },
+    {
+      "name": "Nasir Jones",
+      "position": "IOL",
+      "stars": 3,
+      "rating": 83.5,
+      "ranking": 2524,
+      "height_weight": "6' 3/300",
+      "location": "Rome, GA"
+    }
+  ],
+  "schedule_2026": [
+    {
+      "week": 1,
+      "date": "Sat, 9/5",
+      "location": "at",
+      "opponent": "West Virginia Mountaineers",
+      "opp_record": "0-0",
+      "opp_rank": 62,
+      "off_rank": 46,
+      "def_rank": 84,
+      "favorite": "West Virginia",
+      "line": 16.0,
+      "win_pct": 12,
+      "proj_w": 0.1,
+      "proj_l": 0.9,
+      "conference_game": false
+    }
+  ],
+  "schedule_summary": {
+    "total_opp_power": "2",
+    "sos_rank": "78",
+    "expected_record": null,
+    "expected_conf_record": "0 – 0",
+    "p4_g6_opponents": "1 / 0\n",
+    "vs_bowl_teams": "0 – 0\n"
+  },
+  "power_rating_value": -13.98,
+  "offense_rating": 7.94,
+  "defense_rating": 21.92,
+  "power_rank_db": 122,
+  "composite_rank": 130,
+  "gc_net_raw": -45.01,
+  "mc_net_raw": -2.46,
+  "composite_score": 27.16,
+  "offense_ppa_rank": 113,
+  "defense_ppa_rank": 90,
+  "offense_success_rank": 119,
+  "defense_success_rank": 85,
+  "offense_explosiveness_rank": 48,
+  "defense_explosiveness_rank": 99,
+  "offense_havoc_rank": 121,
+  "defense_havoc_rank": 75,
+  "offense_ppo_rank": 58,
+  "defense_ppo_rank": 63,
+  "offense_profile_db": "Run Heavy (58% run, 42% pass)",
+  "scoring_home_ppg": 21.7,
+  "scoring_home_games": 6,
+  "scoring_road_ppg": 24.0,
+  "scoring_road_games": 6,
+  "best_players": [
+    {
+      "player_name": "Clayton Coppock",
+      "position": "WR",
+      "points": 71,
+      "statsline": "311 Yds, 5 TD (* TR)"
+    },
+    {
+      "player_name": "Myles Woods",
+      "position": "S",
+      "points": 70,
+      "statsline": "3 Int, 6 Pd"
+    },
+    {
+      "player_name": "Ibrahim Diawara",
+      "position": "DE",
+      "points": 69,
+      "statsline": "16 Tac, 6 TFL"
+    },
+    {
+      "player_name": "Tristian Gardner",
+      "position": "WR",
+      "points": 67,
+      "statsline": "465 Yds, 6 TD (* TR)"
+    },
+    {
+      "player_name": "Ja'Marion Wayne",
+      "position": "CB",
+      "points": 67,
+      "statsline": "1 Int, 6 Pd"
+    },
+    {
+      "player_name": "Tray Brown",
+      "position": "LB",
+      "points": 65,
+      "statsline": "53 Tac, 12 TFL"
+    },
+    {
+      "player_name": "Dominic Knicely",
+      "position": "RB",
+      "points": 64,
+      "statsline": "384 Yds, 3 TD"
+    },
+    {
+      "player_name": "Mitchell Toney",
+      "position": "DE",
+      "points": 64,
+      "statsline": "23 Tac, 5 TFL (* TR)"
+    }
+  ],
+  "previous_head_coach": "Tim Beck*",
+  "previous_oc": "Tim Beck*",
+  "previous_dc": "Craig Naivar",
+  "db_enriched_at": "2026-04-05"
+}

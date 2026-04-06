@@ -2,9 +2,9 @@
   "team": "Arkansas Razorbacks",
   "slug": "arkansas",
   "url_param": "Arkansas",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Arkansas",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,15 @@
     "Arkansas Razorbacks",
     "Ryan Silverfield",
     "Bryant Williams",
-    "Khmori House"
+    "Khmori House",
+    "Jahiem Johnson",
+    "Davion Weatherspoon",
+    "Sutton Smith",
+    "Donovan Faupel",
+    "Quincy Rhodes Jr.",
+    "Jamari Hawkins",
+    "Malachi Breland",
+    "Carter Stoutmire"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +35,12 @@
   "coach_record": "0-0",
   "vegas_win_total": "4.5",
   "projected_record": "4-8",
-  "projected_record_rank": 103,
+  "projected_record_rank": 104,
   "sos_rank": 2,
-  "power_rank": 79,
+  "power_rank": 81,
   "sp_plus_rank": 47,
   "record_prediction": "4-8",
-  "record_prediction_rank": 103,
+  "record_prediction_rank": 104,
   "coaching_staff_rank": 18,
   "last_season_record": "2-10",
   "last_season_conf_record": "0-8",
@@ -45,12 +53,12 @@
   "performance_rank": 77,
   "special_teams_rank": 116,
   "returning_production_pct": 61,
-  "returning_production_rank": 80,
+  "returning_production_rank": 79,
   "starting_qb_note": "ARK lost their 25 starting QB",
   "returning_offense_pct": 75,
   "returning_offense_rank": 53,
   "returning_defense_pct": 55,
-  "returning_defense_rank": 99,
+  "returning_defense_rank": 100,
   "returning_starters": 6,
   "returning_starters_off": 4,
   "returning_starters_def": 2,
@@ -75,8 +83,8 @@
   "eight_yr_record": "34-51",
   "avg_wins_under_coach": null,
   "schedule_tiers": {
-    "elite": 5,
-    "good": 5,
+    "elite": 6,
+    "good": 4,
     "avg": 0,
     "bad": 1,
     "poor": 0
@@ -206,8 +214,8 @@
       "rating": 0.88
     }
   ],
-  "offense_power_rank": 63,
-  "defense_power_rank": 91,
+  "offense_power_rank": 64,
+  "defense_power_rank": 93,
   "off_momentum_control_rank": 68,
   "off_game_control_rank": 34,
   "def_momentum_control_rank": null,
@@ -2162,10 +2170,11 @@
       "off_rank": 136,
       "def_rank": 136,
       "favorite": "Arkansas",
-      "line": -24.5,
-      "win_pct": 95,
+      "line": -24.0,
+      "win_pct": 96,
       "proj_w": 1.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -2174,13 +2183,14 @@
       "opponent": "Utah Utes",
       "opp_record": "0-0",
       "opp_rank": 30,
-      "off_rank": 39,
+      "off_rank": 35,
       "def_rank": 27,
       "favorite": "Utah",
       "line": 9.5,
       "win_pct": 21,
       "proj_w": 1.2,
-      "proj_l": 0.8
+      "proj_l": 0.8,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -2195,7 +2205,8 @@
       "line": 24.5,
       "win_pct": 5,
       "proj_w": 1.3,
-      "proj_l": 1.7
+      "proj_l": 1.7,
+      "conference_game": true
     },
     {
       "week": 4,
@@ -2204,13 +2215,14 @@
       "opponent": "Tulsa Golden Hurricane",
       "opp_record": "0-0",
       "opp_rank": 63,
-      "off_rank": 53,
+      "off_rank": 51,
       "def_rank": 75,
       "favorite": "Arkansas",
-      "line": -5.5,
-      "win_pct": 67,
-      "proj_w": 2.0,
-      "proj_l": 2.0
+      "line": -5.0,
+      "win_pct": 63,
+      "proj_w": 1.9,
+      "proj_l": 2.1,
+      "conference_game": false
     },
     {
       "week": 5,
@@ -2220,12 +2232,13 @@
       "opp_record": "0-0",
       "opp_rank": 18,
       "off_rank": 15,
-      "def_rank": 17,
+      "def_rank": 16,
       "favorite": "Texas A&M",
       "line": 17.0,
       "win_pct": 10,
-      "proj_w": 2.1,
-      "proj_l": 2.9
+      "proj_w": 2.0,
+      "proj_l": 3.0,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -2239,8 +2252,9 @@
       "favorite": "Tennessee",
       "line": 11.0,
       "win_pct": 22,
-      "proj_w": 2.3,
-      "proj_l": 3.7
+      "proj_w": 2.2,
+      "proj_l": 3.8,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -2249,13 +2263,14 @@
       "opponent": "Vanderbilt Commodores",
       "opp_record": "0-0",
       "opp_rank": 48,
-      "off_rank": 58,
-      "def_rank": 43,
+      "off_rank": 56,
+      "def_rank": 42,
       "favorite": "Vanderbilt",
       "line": 6.5,
       "win_pct": 32,
-      "proj_w": 2.6,
-      "proj_l": 4.4
+      "proj_w": 2.5,
+      "proj_l": 4.5,
+      "conference_game": true
     },
     {
       "week": 9,
@@ -2269,8 +2284,9 @@
       "favorite": "Missouri",
       "line": 10.0,
       "win_pct": 23,
-      "proj_w": 2.8,
-      "proj_l": 5.2
+      "proj_w": 2.7,
+      "proj_l": 5.3,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2278,14 +2294,15 @@
       "location": "at",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "Auburn",
       "line": 8.0,
       "win_pct": 26,
-      "proj_w": 3.1,
-      "proj_l": 5.9
+      "proj_w": 3.0,
+      "proj_l": 6.0,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2295,12 +2312,13 @@
       "opp_record": "0-0",
       "opp_rank": 41,
       "off_rank": 36,
-      "def_rank": 46,
+      "def_rank": 48,
       "favorite": "South Carolina",
-      "line": 4.5,
-      "win_pct": 36,
-      "proj_w": 3.5,
-      "proj_l": 6.5
+      "line": 4.0,
+      "win_pct": 38,
+      "proj_w": 3.4,
+      "proj_l": 6.6,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2308,14 +2326,15 @@
       "location": "at",
       "opponent": "Texas Longhorns",
       "opp_record": "0-0",
-      "opp_rank": 4,
+      "opp_rank": 5,
       "off_rank": 2,
-      "def_rank": 6,
+      "def_rank": 7,
       "favorite": "Texas",
       "line": 26.5,
       "win_pct": 3,
-      "proj_w": 3.5,
-      "proj_l": 7.5
+      "proj_w": 3.4,
+      "proj_l": 7.6,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2325,42 +2344,13 @@
       "opp_record": "0-0",
       "opp_rank": 14,
       "off_rank": 11,
-      "def_rank": 16,
+      "def_rank": 17,
       "favorite": "LSU",
       "line": 14.5,
       "win_pct": 15,
-      "proj_w": 3.7,
-      "proj_l": 8.3
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "4.5 – 7.5↓ Under",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_w": 3.6,
+      "proj_l": 8.4,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
@@ -2371,10 +2361,10 @@
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": -1.3,
-  "offense_rating": 15.89,
-  "defense_rating": 17.19,
-  "power_rank_db": 79,
+  "power_rating_value": -1.53,
+  "offense_rating": 15.83,
+  "defense_rating": 17.36,
+  "power_rank_db": 81,
   "composite_rank": 77,
   "gc_net_raw": -2.69,
   "mc_net_raw": -1.15,
@@ -2394,5 +2384,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 31.2,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Jahiem Johnson",
+      "position": "CB",
+      "points": 79,
+      "statsline": "4 Int, 9 Pd (* TR)"
+    },
+    {
+      "player_name": "Davion Weatherspoon",
+      "position": "G",
+      "points": 78,
+      "statsline": "B Block Grade (* TR)"
+    },
+    {
+      "player_name": "Sutton Smith",
+      "position": "RB",
+      "points": 75,
+      "statsline": "669 Yds, 7 TD (* TR)"
+    },
+    {
+      "player_name": "Donovan Faupel",
+      "position": "WR",
+      "points": 74,
+      "statsline": "661 Yds, 7 TD (* TR)"
+    },
+    {
+      "player_name": "Quincy Rhodes Jr.",
+      "position": "DE",
+      "points": 74,
+      "statsline": "43 Tac, 16 TFL"
+    },
+    {
+      "player_name": "Jamari Hawkins",
+      "position": "WR",
+      "points": 72,
+      "statsline": "623 Yds, 2 TD (* TR)"
+    },
+    {
+      "player_name": "Malachi Breland",
+      "position": "G",
+      "points": 72,
+      "statsline": "C+ Block Grade (* TR)"
+    },
+    {
+      "player_name": "Carter Stoutmire",
+      "position": "S",
+      "points": 70,
+      "statsline": "0 Int, 5 Pd (* TR)"
+    }
+  ],
+  "previous_head_coach": "Sam Pittman",
+  "previous_oc": "Bobby Petrino",
+  "previous_dc": "Travis Williams",
+  "db_enriched_at": "2026-04-05"
 }

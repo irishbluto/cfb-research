@@ -2,9 +2,9 @@
   "team": "LSU Tigers",
   "slug": "lsu",
   "url_param": "LSU",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=LSU",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,14 @@
     "LSU Tigers",
     "Lane Kiffin",
     "Princewill Umanmielen",
-    "Jordan Seaton"
+    "Jordan Seaton",
+    "Jackson Harris",
+    "DJ Pickett",
+    "Jayce Brown",
+    "Trey'Dez Green",
+    "Caden Durham",
+    "PJ Woodland",
+    "Tre' Brown III"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +34,12 @@
   "coach_record": "0-0",
   "vegas_win_total": "8.5",
   "projected_record": "9-3",
-  "projected_record_rank": 17,
+  "projected_record_rank": 14,
   "sos_rank": 17,
   "power_rank": 14,
   "sp_plus_rank": 10,
   "record_prediction": "9-3",
-  "record_prediction_rank": 17,
+  "record_prediction_rank": 14,
   "coaching_staff_rank": 8,
   "last_season_record": "7-6",
   "last_season_conf_record": "3-5",
@@ -77,8 +84,8 @@
   "schedule_tiers": {
     "elite": 5,
     "good": 2,
-    "avg": 1,
-    "bad": 3,
+    "avg": 3,
+    "bad": 1,
     "poor": 0
   },
   "top_portal_additions": [
@@ -224,7 +231,7 @@
     }
   ],
   "offense_power_rank": 11,
-  "defense_power_rank": 16,
+  "defense_power_rank": 17,
   "off_momentum_control_rank": 92,
   "off_game_control_rank": 74,
   "def_momentum_control_rank": null,
@@ -241,6 +248,9 @@
   "record_2025": "7-6",
   "record_2024": "9-4",
   "team_notes": [
+    "(4/2) TE Trey'Dez Green rated top TE in CFB via PFF",
+    "(4/2) OT J Seaton, OC Braelin Moore top 10 via PFF",
+    "(4/2) DE Umanmielen ranked top 10 Edge by PFF",
     "(1/28) QB Leavitt has 6 proven WR weapons + great TE",
     "(1/28) OL is portal mix of avg grades but good exp",
     "(1/28) DL is talented, DE's good but DT ? production",
@@ -251,6 +261,7 @@
   "injury_notes": [],
   "staff_schedule_notes": [
     "(2/14) Vibes: Eager, Kiffin era + roster upgrades.",
+    "(4/2) Portal adds include 12 FBS starters, 8 on Off",
     "(2/2) Great new staff w/ Kiffin, Weis & Baker still DC"
   ],
   "recruiting_class_2026_points": "270",
@@ -2043,34 +2054,20 @@
   ],
   "schedule_2026": [
     {
-      "week": 8,
-      "date": "",
-      "location": "",
-      "opponent": "WK",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "DATE",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
       "week": 1,
       "date": "Sat, 9/5",
       "location": "vs",
       "opponent": "Clemson Tigers",
       "opp_record": "0-0",
       "opp_rank": 28,
-      "off_rank": 42,
-      "def_rank": 22,
+      "off_rank": 44,
+      "def_rank": 23,
       "favorite": "LSU",
       "line": -11.5,
       "win_pct": null,
       "proj_w": null,
-      "proj_l": null
+      "proj_l": null,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -2078,14 +2075,15 @@
       "location": "vs",
       "opponent": "Louisiana Tech Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 99,
-      "off_rank": 95,
-      "def_rank": 104,
+      "opp_rank": 98,
+      "off_rank": 94,
+      "def_rank": 102,
       "favorite": "LSU",
-      "line": -26.5,
-      "win_pct": 97,
+      "line": -26.0,
+      "win_pct": 95,
       "proj_w": 1.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -2100,7 +2098,8 @@
       "line": -0.5,
       "win_pct": 53,
       "proj_w": 2.3,
-      "proj_l": 0.7
+      "proj_l": 0.7,
+      "conference_game": true
     },
     {
       "week": 4,
@@ -2110,12 +2109,13 @@
       "opp_record": "0-0",
       "opp_rank": 18,
       "off_rank": 15,
-      "def_rank": 17,
+      "def_rank": 16,
       "favorite": "LSU",
       "line": -4.0,
       "win_pct": 62,
       "proj_w": 2.9,
-      "proj_l": 1.1
+      "proj_l": 1.1,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -2127,10 +2127,11 @@
       "off_rank": 136,
       "def_rank": 136,
       "favorite": "LSU",
-      "line": -33.5,
+      "line": -33.0,
       "win_pct": 99,
       "proj_w": 3.9,
-      "proj_l": 1.1
+      "proj_l": 1.1,
+      "conference_game": false
     },
     {
       "week": 6,
@@ -2138,14 +2139,15 @@
       "location": "at",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "LSU",
       "line": -15.5,
       "win_pct": 86,
       "proj_w": 4.8,
-      "proj_l": 1.2
+      "proj_l": 1.2,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -2153,14 +2155,15 @@
       "location": "vs",
       "opponent": "Mississippi State Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 83,
-      "off_rank": 86,
-      "def_rank": 78,
+      "opp_rank": 85,
+      "off_rank": 87,
+      "def_rank": 80,
       "favorite": "LSU",
       "line": -20.5,
       "win_pct": 94,
       "proj_w": 5.7,
-      "proj_l": 1.3
+      "proj_l": 1.3,
+      "conference_game": true
     },
     {
       "week": 8,
@@ -2168,14 +2171,15 @@
       "location": "at",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "LSU",
       "line": -9.0,
       "win_pct": 74,
       "proj_w": 6.4,
-      "proj_l": 1.6
+      "proj_l": 1.6,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2184,13 +2188,14 @@
       "opponent": "Alabama Crimson Tide",
       "opp_record": "0-0",
       "opp_rank": 12,
-      "off_rank": 19,
+      "off_rank": 20,
       "def_rank": 9,
       "favorite": "LSU",
-      "line": -3.0,
-      "win_pct": 56,
+      "line": -2.5,
+      "win_pct": 55,
       "proj_w": 7.0,
-      "proj_l": 2.0
+      "proj_l": 2.0,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2198,14 +2203,15 @@
       "location": "vs",
       "opponent": "Texas Longhorns",
       "opp_record": "0-0",
-      "opp_rank": 4,
+      "opp_rank": 5,
       "off_rank": 2,
-      "def_rank": 6,
+      "def_rank": 7,
       "favorite": "Texas",
       "line": 5.5,
       "win_pct": 33,
       "proj_w": 7.3,
-      "proj_l": 2.7
+      "proj_l": 2.7,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2217,10 +2223,11 @@
       "off_rank": 17,
       "def_rank": 18,
       "favorite": "LSU",
-      "line": -2.5,
+      "line": -2.0,
       "win_pct": 55,
       "proj_w": 7.9,
-      "proj_l": 3.1
+      "proj_l": 3.1,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2228,57 +2235,28 @@
       "location": "at",
       "opponent": "Arkansas Razorbacks",
       "opp_record": "0-0",
-      "opp_rank": 79,
-      "off_rank": 63,
-      "def_rank": 91,
+      "opp_rank": 81,
+      "off_rank": 64,
+      "def_rank": 93,
       "favorite": "LSU",
       "line": -16.0,
       "win_pct": 88,
       "proj_w": 8.8,
-      "proj_l": 3.2
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "8.5 – 3.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_l": 3.2,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "89",
+    "total_opp_power": "88",
     "sos_rank": "17",
     "expected_record": null,
     "expected_conf_record": "6 – 3",
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 16.87,
-  "offense_rating": 24.89,
-  "defense_rating": 8.02,
+  "power_rating_value": 16.39,
+  "offense_rating": 24.69,
+  "defense_rating": 8.3,
   "power_rank_db": 14,
   "composite_rank": 53,
   "gc_net_raw": -6.88,
@@ -2299,5 +2277,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 16.4,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Jackson Harris",
+      "position": "WR",
+      "points": 87,
+      "statsline": "963 Yds, 12 TD (* TR)"
+    },
+    {
+      "player_name": "DJ Pickett",
+      "position": "CB",
+      "points": 80,
+      "statsline": "3 Int, 3 Pd"
+    },
+    {
+      "player_name": "Jayce Brown",
+      "position": "WR",
+      "points": 78,
+      "statsline": "712 Yds, 5 TD (* TR)"
+    },
+    {
+      "player_name": "Trey'Dez Green",
+      "position": "TE",
+      "points": 78,
+      "statsline": "433 Yds, 7 TD"
+    },
+    {
+      "player_name": "Caden Durham",
+      "position": "RB",
+      "points": 77,
+      "statsline": "505 Yds, 3 TD"
+    },
+    {
+      "player_name": "PJ Woodland",
+      "position": "CB",
+      "points": 77,
+      "statsline": "2 Int, 8 Pd"
+    },
+    {
+      "player_name": "Princewill Umanmielen",
+      "position": "DE",
+      "points": 77,
+      "statsline": "45 Tac, 13 TFL (* TR)"
+    },
+    {
+      "player_name": "Tre' Brown III",
+      "position": "WR",
+      "points": 74,
+      "statsline": "762 Yds, 4 TD (* TR)"
+    }
+  ],
+  "previous_head_coach": "Brian Kelly",
+  "previous_oc": "Joe Sloan",
+  "previous_dc": "Blake Baker",
+  "db_enriched_at": "2026-04-05"
 }

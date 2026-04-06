@@ -2,9 +2,9 @@
   "team": "Vanderbilt Commodores",
   "slug": "vanderbilt",
   "url_param": "Vanderbilt",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Vanderbilt",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,14 @@
     "Vanderbilt Commodores",
     "Clark Lea",
     "Brian Allen",
-    "Jayvontay Conner"
+    "Jayvontay Conner",
+    "Talan Carter",
+    "Ja'Cory Thomas",
+    "Sedrick Alexander",
+    "Junior Sherrill",
+    "CJ Heard",
+    "Miles Capers",
+    "Makhilyn Young"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +34,12 @@
   "coach_record": "26-36",
   "vegas_win_total": "6.5",
   "projected_record": "6-6",
-  "projected_record_rank": 71,
-  "sos_rank": 26,
+  "projected_record_rank": 70,
+  "sos_rank": 25,
   "power_rank": 48,
   "sp_plus_rank": 31,
   "record_prediction": "6-6",
-  "record_prediction_rank": 71,
+  "record_prediction_rank": 70,
   "coaching_staff_rank": 39,
   "last_season_record": "10-3",
   "last_season_conf_record": "6-2",
@@ -75,10 +82,10 @@
   "eight_yr_record": "29-54",
   "avg_wins_under_coach": 5.2,
   "schedule_tiers": {
-    "elite": 4,
+    "elite": 5,
     "good": 2,
-    "avg": 2,
-    "bad": 3,
+    "avg": 3,
+    "bad": 1,
     "poor": 0
   },
   "top_portal_additions": [
@@ -223,8 +230,8 @@
       "rating": 0.88
     }
   ],
-  "offense_power_rank": 58,
-  "defense_power_rank": 43,
+  "offense_power_rank": 56,
+  "defense_power_rank": 42,
   "off_momentum_control_rank": 12,
   "off_game_control_rank": 32,
   "def_momentum_control_rank": null,
@@ -241,8 +248,8 @@
   "record_2025": "10-3",
   "record_2024": "7-6",
   "team_notes": [
+    "(3/31) LY QB Deigo Pavia gone. Fr Jared Curtis now QB1?",
     "(2/6) OL allowed pressure on 50% of drop backs LY",
-    "(2/2) QB a huge ? Could be Fr Curtis, will be downgrade",
     "(2/2) RB top 2 are back, good duo. Depth is a ?",
     "(2/2) WR good duo Thomas/Sherrill + good TEs. Depth?",
     "(2/2) OL has 1 starter back 2 via portal. Can't call yet",
@@ -1891,7 +1898,8 @@
       "line": -28.5,
       "win_pct": 99,
       "proj_w": 1.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -1899,14 +1907,15 @@
       "location": "vs",
       "opponent": "Delaware Blue Hens",
       "opp_record": "0-0",
-      "opp_rank": 97,
-      "off_rank": 93,
-      "def_rank": 105,
+      "opp_rank": 95,
+      "off_rank": 92,
+      "def_rank": 104,
       "favorite": "Vanderbilt",
-      "line": -16.0,
-      "win_pct": 88,
+      "line": -15.5,
+      "win_pct": 86,
       "proj_w": 1.9,
-      "proj_l": 0.1
+      "proj_l": 0.1,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -1914,14 +1923,15 @@
       "location": "vs",
       "opponent": "NC State Wolfpack",
       "opp_record": "0-0",
-      "opp_rank": 34,
-      "off_rank": 37,
+      "opp_rank": 35,
+      "off_rank": 38,
       "def_rank": 34,
       "favorite": "Vanderbilt",
       "line": -2.5,
       "win_pct": 55,
       "proj_w": 2.5,
-      "proj_l": 0.5
+      "proj_l": 0.5,
+      "conference_game": false
     },
     {
       "week": 4,
@@ -1929,14 +1939,15 @@
       "location": "at",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "Auburn",
-      "line": 3.0,
-      "win_pct": 44,
-      "proj_w": 2.9,
-      "proj_l": 1.1
+      "line": 2.5,
+      "win_pct": 45,
+      "proj_w": 3.0,
+      "proj_l": 1.0,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -1950,8 +1961,9 @@
       "favorite": "Georgia",
       "line": 23.0,
       "win_pct": 5,
-      "proj_w": 3.0,
-      "proj_l": 2.0
+      "proj_w": 3.1,
+      "proj_l": 1.9,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -1963,10 +1975,11 @@
       "off_rank": 16,
       "def_rank": 11,
       "favorite": "Ole Miss",
-      "line": 8.0,
-      "win_pct": 26,
-      "proj_w": 3.3,
-      "proj_l": 2.7
+      "line": 7.5,
+      "win_pct": 27,
+      "proj_w": 3.4,
+      "proj_l": 2.6,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -1974,14 +1987,15 @@
       "location": "vs",
       "opponent": "Arkansas Razorbacks",
       "opp_record": "0-0",
-      "opp_rank": 79,
-      "off_rank": 63,
-      "def_rank": 91,
+      "opp_rank": 81,
+      "off_rank": 64,
+      "def_rank": 93,
       "favorite": "Vanderbilt",
-      "line": -7.5,
-      "win_pct": 73,
-      "proj_w": 4.0,
-      "proj_l": 3.0
+      "line": -8.0,
+      "win_pct": 74,
+      "proj_w": 4.1,
+      "proj_l": 2.9,
+      "conference_game": true
     },
     {
       "week": 8,
@@ -1989,14 +2003,15 @@
       "location": "at",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "Vanderbilt",
-      "line": -3.0,
-      "win_pct": 56,
-      "proj_w": 4.6,
-      "proj_l": 3.4
+      "line": -3.5,
+      "win_pct": 62,
+      "proj_w": 4.7,
+      "proj_l": 3.3,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2004,14 +2019,15 @@
       "location": "at",
       "opponent": "Mississippi State Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 83,
-      "off_rank": 86,
-      "def_rank": 78,
+      "opp_rank": 85,
+      "off_rank": 87,
+      "def_rank": 80,
       "favorite": "Vanderbilt",
-      "line": -4.5,
-      "win_pct": 64,
-      "proj_w": 5.2,
-      "proj_l": 3.8
+      "line": -5.0,
+      "win_pct": 63,
+      "proj_w": 5.3,
+      "proj_l": 3.7,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2020,13 +2036,14 @@
       "opponent": "Alabama Crimson Tide",
       "opp_record": "0-0",
       "opp_rank": 12,
-      "off_rank": 19,
+      "off_rank": 20,
       "def_rank": 9,
       "favorite": "Alabama",
-      "line": 9.5,
-      "win_pct": 21,
-      "proj_w": 5.4,
-      "proj_l": 4.6
+      "line": 9.0,
+      "win_pct": 26,
+      "proj_w": 5.6,
+      "proj_l": 4.4,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2035,13 +2052,14 @@
       "opponent": "Florida Gators",
       "opp_record": "0-0",
       "opp_rank": 23,
-      "off_rank": 29,
+      "off_rank": 30,
       "def_rank": 19,
       "favorite": "Florida",
-      "line": 7.5,
-      "win_pct": 27,
-      "proj_w": 5.7,
-      "proj_l": 5.3
+      "line": 7.0,
+      "win_pct": 30,
+      "proj_w": 5.9,
+      "proj_l": 5.1,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2055,51 +2073,22 @@
       "favorite": "Tennessee",
       "line": 6.0,
       "win_pct": 34,
-      "proj_w": 6.0,
-      "proj_l": 6.0
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "6.5 – 5.5↓ Under",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_w": 6.2,
+      "proj_l": 5.8,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "81",
-    "sos_rank": "26",
-    "expected_record": "6 – 6",
+    "total_opp_power": "80",
+    "sos_rank": "25",
+    "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 3.73,
-  "offense_rating": 16.55,
-  "defense_rating": 12.82,
+  "power_rating_value": 3.87,
+  "offense_rating": 16.6,
+  "defense_rating": 12.73,
   "power_rank_db": 48,
   "composite_rank": 27,
   "gc_net_raw": 13.18,
@@ -2120,5 +2109,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 33.0,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Talan Carter",
+      "position": "DT",
+      "points": 79,
+      "statsline": "55 Tac, 7 TFL (* TR)"
+    },
+    {
+      "player_name": "Ja'Cory Thomas",
+      "position": "WR",
+      "points": 78,
+      "statsline": "714 Yds, 5 TD (* TR)"
+    },
+    {
+      "player_name": "Sedrick Alexander",
+      "position": "RB",
+      "points": 77,
+      "statsline": "570 Yds, 11 TD"
+    },
+    {
+      "player_name": "Junior Sherrill",
+      "position": "WR",
+      "points": 76,
+      "statsline": "784 Yds, 7 TD"
+    },
+    {
+      "player_name": "CJ Heard",
+      "position": "S",
+      "points": 73,
+      "statsline": "1 Int, 3 Pd"
+    },
+    {
+      "player_name": "Jayvontay Conner",
+      "position": "TE",
+      "points": 72,
+      "statsline": "333 Yds, 3 TD(* TR)"
+    },
+    {
+      "player_name": "Miles Capers",
+      "position": "DE",
+      "points": 71,
+      "statsline": "37 Tac, 9 TFL"
+    },
+    {
+      "player_name": "Makhilyn Young",
+      "position": "RB",
+      "points": 71,
+      "statsline": "411 Yds, 6 TD"
+    }
+  ],
+  "previous_head_coach": "Clark Lea",
+  "previous_oc": "Tim Beck",
+  "previous_dc": "Steve Gregory",
+  "db_enriched_at": "2026-04-05"
 }

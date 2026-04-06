@@ -2,9 +2,9 @@
   "team": "Florida Gators",
   "slug": "florida",
   "url_param": "Florida",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Florida",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,14 @@
     "Florida Gators",
     "Jon Sumrall",
     "Eric Singleton Jr.",
-    "London Montgomery"
+    "London Montgomery",
+    "Jadan Baugh",
+    "Emmanuel Oyebadejo",
+    "Bryce Thornton",
+    "Myles Graham",
+    "Lacota Dippre",
+    "DJ Coleman",
+    "Evan Pryor"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -26,13 +33,13 @@
   "coach_years": "1st year",
   "coach_record": "0-0",
   "vegas_win_total": "6.5",
-  "projected_record": "6-6",
-  "projected_record_rank": 76,
-  "sos_rank": 7,
+  "projected_record": "7-5",
+  "projected_record_rank": 53,
+  "sos_rank": 5,
   "power_rank": 23,
   "sp_plus_rank": 19,
-  "record_prediction": "6-6",
-  "record_prediction_rank": 76,
+  "record_prediction": "7-5",
+  "record_prediction_rank": 53,
   "coaching_staff_rank": 23,
   "last_season_record": "4-8",
   "last_season_conf_record": "2-6",
@@ -75,11 +82,11 @@
   "eight_yr_record": "48-40",
   "avg_wins_under_coach": null,
   "schedule_tiers": {
-    "elite": 4,
-    "good": 5,
-    "avg": 0,
+    "elite": 5,
+    "good": 4,
+    "avg": 1,
     "bad": 1,
-    "poor": 1
+    "poor": 0
   },
   "top_portal_additions": [
     {
@@ -211,7 +218,7 @@
       "rating": 0.92
     }
   ],
-  "offense_power_rank": 29,
+  "offense_power_rank": 30,
   "defense_power_rank": 19,
   "off_momentum_control_rank": 61,
   "off_game_control_rank": 36,
@@ -229,7 +236,7 @@
   "record_2025": "4-8",
   "record_2024": "8-5",
   "team_notes": [
-    "(1/29) Added 15 portals on Offense, 8 on Defense",
+    "(4/2) Added 23 portals (15 Off/8 Def), 10 were FBS starters LY",
     "(1/29) QB Philo worked w OC Faulkner at GT. Very green",
     "(1/29) RB Baugh one of CFBs best. Great depth w portals",
     "(1/29) WR good w Singleton (GT). Some real talent here",
@@ -1896,14 +1903,15 @@
       "location": "vs",
       "opponent": "Florida Atlantic Owls",
       "opp_record": "0-0",
-      "opp_rank": 105,
+      "opp_rank": 104,
       "off_rank": 105,
       "def_rank": 100,
       "favorite": "Florida",
       "line": -21.0,
       "win_pct": 92,
       "proj_w": 0.9,
-      "proj_l": 0.1
+      "proj_l": 0.1,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -1918,7 +1926,8 @@
       "line": -31.0,
       "win_pct": 99,
       "proj_w": 1.9,
-      "proj_l": 0.1
+      "proj_l": 0.1,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -1926,14 +1935,15 @@
       "location": "at",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "Florida",
       "line": -3.0,
       "win_pct": 56,
       "proj_w": 2.5,
-      "proj_l": 0.5
+      "proj_l": 0.5,
+      "conference_game": true
     },
     {
       "week": 4,
@@ -1945,10 +1955,11 @@
       "off_rank": 16,
       "def_rank": 11,
       "favorite": "Ole Miss",
-      "line": 1.5,
-      "win_pct": 50,
+      "line": 2.0,
+      "win_pct": 45,
       "proj_w": 3.0,
-      "proj_l": 1.0
+      "proj_l": 1.0,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -1963,7 +1974,8 @@
       "line": 2.5,
       "win_pct": 45,
       "proj_w": 3.5,
-      "proj_l": 1.5
+      "proj_l": 1.5,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -1973,12 +1985,13 @@
       "opp_record": "0-0",
       "opp_rank": 41,
       "off_rank": 36,
-      "def_rank": 46,
+      "def_rank": 48,
       "favorite": "Florida",
       "line": -7.0,
       "win_pct": 70,
       "proj_w": 4.2,
-      "proj_l": 1.8
+      "proj_l": 1.8,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -1986,14 +1999,15 @@
       "location": "at",
       "opponent": "Texas Longhorns",
       "opp_record": "0-0",
-      "opp_rank": 4,
+      "opp_rank": 5,
       "off_rank": 2,
-      "def_rank": 6,
+      "def_rank": 7,
       "favorite": "Texas",
-      "line": 15.0,
-      "win_pct": 15,
-      "proj_w": 4.4,
-      "proj_l": 2.6
+      "line": 15.5,
+      "win_pct": 14,
+      "proj_w": 4.3,
+      "proj_l": 2.7,
+      "conference_game": true
     },
     {
       "week": 9,
@@ -2007,8 +2021,9 @@
       "favorite": "Georgia",
       "line": 17.0,
       "win_pct": 10,
-      "proj_w": 4.5,
-      "proj_l": 3.5
+      "proj_w": 4.4,
+      "proj_l": 3.6,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2022,8 +2037,9 @@
       "favorite": "Oklahoma",
       "line": 4.0,
       "win_pct": 38,
-      "proj_w": 4.9,
-      "proj_l": 4.1
+      "proj_w": 4.8,
+      "proj_l": 4.2,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2031,14 +2047,15 @@
       "location": "at",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "Florida",
       "line": -9.5,
       "win_pct": 79,
-      "proj_w": 5.7,
-      "proj_l": 4.3
+      "proj_w": 5.6,
+      "proj_l": 4.4,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2047,13 +2064,14 @@
       "opponent": "Vanderbilt Commodores",
       "opp_record": "0-0",
       "opp_rank": 48,
-      "off_rank": 58,
-      "def_rank": 43,
+      "off_rank": 56,
+      "def_rank": 42,
       "favorite": "Florida",
       "line": -8.5,
       "win_pct": 71,
-      "proj_w": 6.4,
-      "proj_l": 4.6
+      "proj_w": 6.3,
+      "proj_l": 4.7,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2062,56 +2080,27 @@
       "opponent": "Florida State Seminoles",
       "opp_record": "0-0",
       "opp_rank": 33,
-      "off_rank": 54,
+      "off_rank": 55,
       "def_rank": 24,
       "favorite": "Florida",
       "line": -3.0,
       "win_pct": 56,
-      "proj_w": 7.0,
-      "proj_l": 5.0
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "6.5 – 5.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_w": 6.9,
+      "proj_l": 5.1,
+      "conference_game": false
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "111",
-    "sos_rank": "7",
-    "expected_record": "7 – 5",
+    "total_opp_power": "110",
+    "sos_rank": "5",
+    "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 10.53,
-  "offense_rating": 19.06,
-  "defense_rating": 8.52,
+  "power_rating_value": 10.24,
+  "offense_rating": 18.89,
+  "defense_rating": 8.65,
   "power_rank_db": 23,
   "composite_rank": 56,
   "gc_net_raw": -1.48,
@@ -2132,5 +2121,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 13.0,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Jadan Baugh",
+      "position": "RB",
+      "points": 91,
+      "statsline": "1170 Yds, 8 TD"
+    },
+    {
+      "player_name": "Emmanuel Oyebadejo",
+      "position": "DE",
+      "points": 83,
+      "statsline": "41 Tac, 7 TFL (* TR)"
+    },
+    {
+      "player_name": "Bryce Thornton",
+      "position": "S",
+      "points": 81,
+      "statsline": "1 Int, 6 Pd"
+    },
+    {
+      "player_name": "London Montgomery",
+      "position": "RB",
+      "points": 76,
+      "statsline": "742 Yds, 7 TD (* TR)"
+    },
+    {
+      "player_name": "Myles Graham",
+      "position": "LB",
+      "points": 75,
+      "statsline": "76 Tac, 7 TFL"
+    },
+    {
+      "player_name": "Lacota Dippre",
+      "position": "TE",
+      "points": 74,
+      "statsline": "192 Yds, 3 TD(* TR)"
+    },
+    {
+      "player_name": "DJ Coleman",
+      "position": "S",
+      "points": 73,
+      "statsline": "2 Int, 4 Pd (* TR)"
+    },
+    {
+      "player_name": "Evan Pryor",
+      "position": "RB",
+      "points": 73,
+      "statsline": "522 Yds, 3 TD (* TR)"
+    }
+  ],
+  "previous_head_coach": "Billy Napier",
+  "previous_oc": "Rob Sale",
+  "previous_dc": "Ron Roberts",
+  "db_enriched_at": "2026-04-05"
 }

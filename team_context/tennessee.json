@@ -2,9 +2,9 @@
   "team": "Tennessee Volunteers",
   "slug": "tennessee",
   "url_param": "Tennessee",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Tennessee",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,15 @@
     "Tennessee Volunteers",
     "Josh Heupel",
     "Chaz Coleman",
-    "Xavier Gilliam"
+    "Xavier Gilliam",
+    "DeSean Bishop",
+    "Ty Redmond",
+    "Edwin Spillman",
+    "Javin Gordon",
+    "Amare Campbell",
+    "Braylon Staley",
+    "Wendell Moe Jr.",
+    "Jordan Norman"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +35,12 @@
   "coach_record": "45-20",
   "vegas_win_total": "7.5",
   "projected_record": "8-4",
-  "projected_record_rank": 28,
+  "projected_record_rank": 19,
   "sos_rank": 22,
   "power_rank": 19,
   "sp_plus_rank": 15,
   "record_prediction": "8-4",
-  "record_prediction_rank": 28,
+  "record_prediction_rank": 19,
   "coaching_staff_rank": 2,
   "last_season_record": "8-5",
   "last_season_conf_record": "4-4",
@@ -77,8 +85,8 @@
   "schedule_tiers": {
     "elite": 4,
     "good": 3,
-    "avg": 2,
-    "bad": 2,
+    "avg": 3,
+    "bad": 1,
     "poor": 0
   },
   "top_portal_additions": [
@@ -236,8 +244,8 @@
   "record_2025": "8-5",
   "record_2024": "10-3",
   "team_notes": [
+    "(4/2) QB likely R-Fr MacIntyre vs true FR Brandon for QB1",
     "(2/6) OL allowed pressure on 49% of drop backs LY",
-    "(2/4) QB set if Aguilar is back, depth is talented/no exp",
     "(1/28) Def loaded, F7 looks great, best LB's in CFB?",
     "(1/28) WR loaded w/ Matthews & Staley. David solid TE",
     "(1/28) OL looks really good, Vols lines look tough",
@@ -2053,21 +2061,6 @@
   ],
   "schedule_2026": [
     {
-      "week": 22,
-      "date": "",
-      "location": "",
-      "opponent": "DEFENSE",
-      "opp_record": "",
-      "opp_rank": 18,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "8.4",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
       "week": 1,
       "date": "Sat, 9/5",
       "location": "vs",
@@ -2080,7 +2073,8 @@
       "line": -32.0,
       "win_pct": 99,
       "proj_w": 1.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -2088,14 +2082,15 @@
       "location": "at",
       "opponent": "Georgia Tech Yellow Jackets",
       "opp_record": "0-0",
-      "opp_rank": 62,
-      "off_rank": 87,
-      "def_rank": 48,
+      "opp_rank": 64,
+      "off_rank": 90,
+      "def_rank": 46,
       "favorite": "Tennessee",
       "line": -10.5,
       "win_pct": 76,
       "proj_w": 1.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -2103,14 +2098,15 @@
       "location": "vs",
       "opponent": "Kennesaw State Owls",
       "opp_record": "0-0",
-      "opp_rank": 95,
-      "off_rank": 103,
-      "def_rank": 72,
+      "opp_rank": 91,
+      "off_rank": 101,
+      "def_rank": 73,
       "favorite": "Tennessee",
       "line": -22.5,
       "win_pct": 95,
       "proj_w": 2.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": false
     },
     {
       "week": 4,
@@ -2118,14 +2114,15 @@
       "location": "vs",
       "opponent": "Texas Longhorns",
       "opp_record": "0-0",
-      "opp_rank": 4,
+      "opp_rank": 5,
       "off_rank": 2,
-      "def_rank": 6,
+      "def_rank": 7,
       "favorite": "Texas",
       "line": 9.0,
       "win_pct": 26,
       "proj_w": 3.1,
-      "proj_l": 0.9
+      "proj_l": 0.9,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -2133,14 +2130,15 @@
       "location": "vs",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "Tennessee",
       "line": -9.5,
       "win_pct": 79,
       "proj_w": 3.9,
-      "proj_l": 1.1
+      "proj_l": 1.1,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -2148,14 +2146,15 @@
       "location": "at",
       "opponent": "Arkansas Razorbacks",
       "opp_record": "0-0",
-      "opp_rank": 79,
-      "off_rank": 63,
-      "def_rank": 91,
+      "opp_rank": 81,
+      "off_rank": 64,
+      "def_rank": 93,
       "favorite": "Tennessee",
       "line": -12.5,
       "win_pct": 81,
       "proj_w": 4.7,
-      "proj_l": 1.3
+      "proj_l": 1.3,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -2164,13 +2163,14 @@
       "opponent": "Alabama Crimson Tide",
       "opp_record": "0-0",
       "opp_rank": 12,
-      "off_rank": 19,
+      "off_rank": 20,
       "def_rank": 9,
       "favorite": "Alabama",
-      "line": 1.0,
-      "win_pct": 52,
+      "line": 0.5,
+      "win_pct": 47,
       "proj_w": 5.2,
-      "proj_l": 1.8
+      "proj_l": 1.8,
+      "conference_game": true
     },
     {
       "week": 8,
@@ -2180,12 +2180,13 @@
       "opp_record": "0-0",
       "opp_rank": 41,
       "off_rank": 36,
-      "def_rank": 46,
+      "def_rank": 48,
       "favorite": "Tennessee",
       "line": -5.5,
       "win_pct": 67,
       "proj_w": 5.9,
-      "proj_l": 2.1
+      "proj_l": 2.1,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2193,14 +2194,15 @@
       "location": "vs",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "Tennessee",
       "line": -15.5,
       "win_pct": 86,
       "proj_w": 6.8,
-      "proj_l": 2.2
+      "proj_l": 2.2,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2210,12 +2212,13 @@
       "opp_record": "0-0",
       "opp_rank": 18,
       "off_rank": 15,
-      "def_rank": 17,
+      "def_rank": 16,
       "favorite": "Texas A&M",
       "line": 3.0,
       "win_pct": 44,
       "proj_w": 7.2,
-      "proj_l": 2.8
+      "proj_l": 2.8,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2225,12 +2228,13 @@
       "opp_record": "0-0",
       "opp_rank": 14,
       "off_rank": 11,
-      "def_rank": 16,
+      "def_rank": 17,
       "favorite": "LSU",
       "line": 1.0,
       "win_pct": 52,
       "proj_w": 7.7,
-      "proj_l": 3.3
+      "proj_l": 3.3,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2239,56 +2243,27 @@
       "opponent": "Vanderbilt Commodores",
       "opp_record": "0-0",
       "opp_rank": 48,
-      "off_rank": 58,
-      "def_rank": 43,
+      "off_rank": 56,
+      "def_rank": 42,
       "favorite": "Tennessee",
-      "line": -7.5,
-      "win_pct": 73,
+      "line": -7.0,
+      "win_pct": 70,
       "proj_w": 8.4,
-      "proj_l": 3.6
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "7.5 – 4.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_l": 3.6,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "83",
+    "total_opp_power": "82",
     "sos_rank": "22",
     "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 13.53,
-  "offense_rating": 21.97,
-  "defense_rating": 8.44,
+  "power_rating_value": 13.42,
+  "offense_rating": 22.02,
+  "defense_rating": 8.6,
   "power_rank_db": 19,
   "composite_rank": 28,
   "gc_net_raw": 21.37,
@@ -2309,5 +2284,58 @@
   "scoring_home_games": 8,
   "scoring_road_ppg": 37.0,
   "scoring_road_games": 4,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "DeSean Bishop",
+      "position": "RB",
+      "points": 90,
+      "statsline": "1076 Yds, 16 TD"
+    },
+    {
+      "player_name": "Ty Redmond",
+      "position": "CB",
+      "points": 83,
+      "statsline": "3 Int, 11 Pd"
+    },
+    {
+      "player_name": "Edwin Spillman",
+      "position": "LB",
+      "points": 78,
+      "statsline": "81 Tac, 4 TFL"
+    },
+    {
+      "player_name": "Javin Gordon",
+      "position": "RB",
+      "points": 76,
+      "statsline": "516 Yds, 5 TD (* TR)"
+    },
+    {
+      "player_name": "Amare Campbell",
+      "position": "LB",
+      "points": 74,
+      "statsline": "103 Tac, 10 TFL (* TR)"
+    },
+    {
+      "player_name": "Braylon Staley",
+      "position": "WR",
+      "points": 73,
+      "statsline": "837 Yds, 6 TD"
+    },
+    {
+      "player_name": "Wendell Moe Jr.",
+      "position": "G",
+      "points": 73,
+      "statsline": "B- Block Grade"
+    },
+    {
+      "player_name": "Jordan Norman",
+      "position": "DE",
+      "points": 72,
+      "statsline": "27 Tac, 8 TFL (* TR)"
+    }
+  ],
+  "previous_head_coach": "Josh Heupel",
+  "previous_oc": "Joey Halzle",
+  "previous_dc": "Tim Banks",
+  "db_enriched_at": "2026-04-05"
 }

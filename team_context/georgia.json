@@ -2,9 +2,9 @@
   "team": "Georgia Bulldogs",
   "slug": "georgia",
   "url_param": "Georgia",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Georgia",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,15 @@
     "Georgia Bulldogs",
     "Kirby Smart",
     "Isiah Canion",
-    "Amaris Williams"
+    "Amaris Williams",
+    "Nate Frazier",
+    "KJ Bolden",
+    "Gunner Stockton",
+    "Chauncey Bowens",
+    "Drew Bobo",
+    "Chris Cole",
+    "Peyton Woodring",
+    "Ja'Marley Riddle"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -28,7 +36,7 @@
   "vegas_win_total": "9.5",
   "projected_record": "11-1",
   "projected_record_rank": 3,
-  "sos_rank": 25,
+  "sos_rank": 26,
   "power_rank": 1,
   "sp_plus_rank": 4,
   "record_prediction": "11-1",
@@ -75,8 +83,8 @@
   "eight_yr_record": "85-11",
   "avg_wins_under_coach": 11.7,
   "schedule_tiers": {
-    "elite": 3,
-    "good": 5,
+    "elite": 5,
+    "good": 3,
     "avg": 2,
     "bad": 1,
     "poor": 0
@@ -241,6 +249,7 @@
   "record_2025": "12-2",
   "record_2024": "11-3",
   "team_notes": [
+    "(4/2) OC Drew Bobo ranked top 4 C by PFF",
     "(1/28) QB Stockton grew into a great QB & leader",
     "(1/28) RBs Frazier w Dowdell (UK) great duo w depth",
     "(1/28) WR has been an issue, I Cannon (GT) only add?",
@@ -1972,21 +1981,6 @@
   ],
   "schedule_2026": [
     {
-      "week": 30,
-      "date": "",
-      "location": "",
-      "opponent": "DEFENSE",
-      "opp_record": "",
-      "opp_rank": 1,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
       "week": 1,
       "date": "Sat, 9/5",
       "location": "vs",
@@ -1999,7 +1993,8 @@
       "line": -37.0,
       "win_pct": 99,
       "proj_w": 1.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -2007,14 +2002,15 @@
       "location": "vs",
       "opponent": "Western Kentucky Hilltoppers",
       "opp_record": "0-0",
-      "opp_rank": 102,
+      "opp_rank": 103,
       "off_rank": 101,
-      "def_rank": 93,
+      "def_rank": 92,
       "favorite": "Georgia",
       "line": -31.0,
       "win_pct": 99,
       "proj_w": 2.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -2022,14 +2018,15 @@
       "location": "at",
       "opponent": "Arkansas Razorbacks",
       "opp_record": "0-0",
-      "opp_rank": 79,
-      "off_rank": 63,
-      "def_rank": 91,
+      "opp_rank": 81,
+      "off_rank": 64,
+      "def_rank": 93,
       "favorite": "Georgia",
       "line": -25.5,
       "win_pct": 97,
       "proj_w": 3.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": true
     },
     {
       "week": 4,
@@ -2044,7 +2041,8 @@
       "line": -11.5,
       "win_pct": 77,
       "proj_w": 3.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -2053,13 +2051,14 @@
       "opponent": "Vanderbilt Commodores",
       "opp_record": "0-0",
       "opp_rank": 48,
-      "off_rank": 58,
-      "def_rank": 43,
+      "off_rank": 56,
+      "def_rank": 42,
       "favorite": "Georgia",
       "line": -24.0,
       "win_pct": 96,
       "proj_w": 4.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -2068,13 +2067,14 @@
       "opponent": "Alabama Crimson Tide",
       "opp_record": "0-0",
       "opp_rank": 12,
-      "off_rank": 19,
+      "off_rank": 20,
       "def_rank": 9,
       "favorite": "Georgia",
-      "line": -8.5,
-      "win_pct": 71,
+      "line": -9.0,
+      "win_pct": 74,
       "proj_w": 5.5,
-      "proj_l": 0.5
+      "proj_l": 0.5,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -2082,14 +2082,15 @@
       "location": "vs",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "Georgia",
       "line": -22.5,
       "win_pct": 95,
       "proj_w": 6.5,
-      "proj_l": 0.5
+      "proj_l": 0.5,
+      "conference_game": true
     },
     {
       "week": 9,
@@ -2098,13 +2099,14 @@
       "opponent": "Florida Gators",
       "opp_record": "0-0",
       "opp_rank": 23,
-      "off_rank": 29,
+      "off_rank": 30,
       "def_rank": 19,
       "favorite": "Georgia",
       "line": -18.0,
       "win_pct": 91,
       "proj_w": 7.4,
-      "proj_l": 0.6
+      "proj_l": 0.6,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2119,7 +2121,8 @@
       "line": -10.0,
       "win_pct": 77,
       "proj_w": 8.2,
-      "proj_l": 0.8
+      "proj_l": 0.8,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2134,7 +2137,8 @@
       "line": -17.0,
       "win_pct": 90,
       "proj_w": 9.1,
-      "proj_l": 0.9
+      "proj_l": 0.9,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2144,12 +2148,13 @@
       "opp_record": "0-0",
       "opp_rank": 41,
       "off_rank": 36,
-      "def_rank": 46,
+      "def_rank": 48,
       "favorite": "Georgia",
       "line": -19.0,
       "win_pct": 91,
       "proj_w": 10.0,
-      "proj_l": 1.0
+      "proj_l": 1.0,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2157,56 +2162,27 @@
       "location": "vs",
       "opponent": "Georgia Tech Yellow Jackets",
       "opp_record": "0-0",
-      "opp_rank": 62,
-      "off_rank": 87,
-      "def_rank": 48,
+      "opp_rank": 64,
+      "off_rank": 90,
+      "def_rank": 46,
       "favorite": "Georgia",
       "line": -27.5,
       "win_pct": 97,
       "proj_w": 11.0,
-      "proj_l": 1.0
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "9.5 – 2.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_l": 1.0,
+      "conference_game": false
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "80",
-    "sos_rank": "25",
+    "total_opp_power": "79",
+    "sos_rank": "26",
     "expected_record": "11 – 1",
     "expected_conf_record": "8 – 1",
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 28.58,
-  "offense_rating": 30.0,
+  "power_rating_value": 28.55,
+  "offense_rating": 29.89,
   "defense_rating": null,
   "power_rank_db": 1,
   "composite_rank": 7,
@@ -2228,5 +2204,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 28.8,
   "scoring_road_games": 6,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Nate Frazier",
+      "position": "RB",
+      "points": 94,
+      "statsline": "947 Yds, 6 TD"
+    },
+    {
+      "player_name": "KJ Bolden",
+      "position": "S",
+      "points": 89,
+      "statsline": "2 Int, 5 Pd"
+    },
+    {
+      "player_name": "Gunner Stockton",
+      "position": "QB",
+      "points": 84,
+      "statsline": "2894 Yds, 24 TD"
+    },
+    {
+      "player_name": "Chauncey Bowens",
+      "position": "RB",
+      "points": 76,
+      "statsline": "526 Yds, 6 TD"
+    },
+    {
+      "player_name": "Drew Bobo",
+      "position": "C",
+      "points": 75,
+      "statsline": "B- Block Grade"
+    },
+    {
+      "player_name": "Chris Cole",
+      "position": "LB",
+      "points": 73,
+      "statsline": "61 Tac, 7 TFL"
+    },
+    {
+      "player_name": "Peyton Woodring",
+      "position": "K",
+      "points": 72,
+      "statsline": "17/19 (89.5%)"
+    },
+    {
+      "player_name": "Ja'Marley Riddle",
+      "position": "S",
+      "points": 71,
+      "statsline": "3 Int, 6 Pd (* TR)"
+    }
+  ],
+  "previous_head_coach": "Kirby Smart",
+  "previous_oc": "Mike Bobo",
+  "previous_dc": "Glenn Schumann",
+  "db_enriched_at": "2026-04-05"
 }

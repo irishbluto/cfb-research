@@ -2,9 +2,9 @@
   "team": "Auburn Tigers",
   "slug": "auburn",
   "url_param": "Auburn",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Auburn",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-06",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,14 @@
     "Auburn Tigers",
     "Alex Golesh",
     "Byrum Brown",
-    "Da'Shawn Womack"
+    "Da'Shawn Womack",
+    "Cody Sigler",
+    "Nykahi Davenport",
+    "Keshaun Singleton",
+    "Tae Meadows",
+    "Jeremiah Cobb",
+    "Cole Best",
+    "Andre Jordan Jr."
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +34,12 @@
   "coach_record": "0-0",
   "vegas_win_total": "6.5",
   "projected_record": "6-6",
-  "projected_record_rank": 68,
-  "sos_rank": 20,
-  "power_rank": 40,
+  "projected_record_rank": 67,
+  "sos_rank": 21,
+  "power_rank": 39,
   "sp_plus_rank": 26,
   "record_prediction": "6-6",
-  "record_prediction_rank": 68,
+  "record_prediction_rank": 67,
   "coaching_staff_rank": 12,
   "last_season_record": "5-7",
   "last_season_conf_record": "1-7",
@@ -75,10 +82,10 @@
   "eight_yr_record": "42-44",
   "avg_wins_under_coach": null,
   "schedule_tiers": {
-    "elite": 5,
-    "good": 2,
-    "avg": 2,
-    "bad": 1,
+    "elite": 6,
+    "good": 1,
+    "avg": 3,
+    "bad": 0,
     "poor": 1
   },
   "top_portal_additions": [
@@ -212,7 +219,7 @@
       "rating": 0.89
     }
   ],
-  "offense_power_rank": 40,
+  "offense_power_rank": 41,
   "defense_power_rank": 39,
   "off_momentum_control_rank": 44,
   "off_game_control_rank": 70,
@@ -241,6 +248,7 @@
   "injury_notes": [],
   "staff_schedule_notes": [
     "(2/16) Vibes: Excited for Golesh era & new Offense",
+    "(4/2) 10 starters LY left via portal, 9 out of eligibility",
     "(1/29) New staff under Golesh. DC Durkin remains",
     "(1/29) 60 new on roster after 41 portals out, 39 in"
   ],
@@ -2150,14 +2158,15 @@
       "location": "vs*",
       "opponent": "Baylor Bears",
       "opp_record": "0-0",
-      "opp_rank": 49,
-      "off_rank": 55,
-      "def_rank": 49,
+      "opp_rank": 50,
+      "off_rank": 59,
+      "def_rank": 47,
       "favorite": "Auburn",
       "line": -7.5,
       "win_pct": null,
       "proj_w": null,
-      "proj_l": null
+      "proj_l": null,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -2167,12 +2176,13 @@
       "opp_record": "0-0",
       "opp_rank": 121,
       "off_rank": 122,
-      "def_rank": 119,
+      "def_rank": 120,
       "favorite": "Auburn",
       "line": -26.5,
       "win_pct": 97,
       "proj_w": 1.6,
-      "proj_l": 0.4
+      "proj_l": 0.4,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -2181,13 +2191,14 @@
       "opponent": "Florida Gators",
       "opp_record": "0-0",
       "opp_rank": 23,
-      "off_rank": 29,
+      "off_rank": 30,
       "def_rank": 19,
       "favorite": "Florida",
       "line": 2.0,
       "win_pct": 45,
       "proj_w": 2.1,
-      "proj_l": 0.9
+      "proj_l": 0.9,
+      "conference_game": true
     },
     {
       "week": 4,
@@ -2196,13 +2207,14 @@
       "opponent": "Vanderbilt Commodores",
       "opp_record": "0-0",
       "opp_rank": 48,
-      "off_rank": 58,
-      "def_rank": 43,
+      "off_rank": 56,
+      "def_rank": 42,
       "favorite": "Auburn",
       "line": -4.0,
       "win_pct": 62,
       "proj_w": 2.7,
-      "proj_l": 1.3
+      "proj_l": 1.3,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -2217,7 +2229,8 @@
       "line": 8.0,
       "win_pct": 26,
       "proj_w": 3.0,
-      "proj_l": 2.0
+      "proj_l": 2.0,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -2232,7 +2245,8 @@
       "line": 21.5,
       "win_pct": 5,
       "proj_w": 3.1,
-      "proj_l": 2.9
+      "proj_l": 2.9,
+      "conference_game": true
     },
     {
       "week": 8,
@@ -2242,12 +2256,13 @@
       "opp_record": "0-0",
       "opp_rank": 14,
       "off_rank": 11,
-      "def_rank": 16,
+      "def_rank": 17,
       "favorite": "LSU",
       "line": 8.0,
       "win_pct": 26,
       "proj_w": 3.4,
-      "proj_l": 3.6
+      "proj_l": 3.6,
+      "conference_game": true
     },
     {
       "week": 9,
@@ -2262,7 +2277,8 @@
       "line": 10.0,
       "win_pct": 23,
       "proj_w": 3.6,
-      "proj_l": 4.4
+      "proj_l": 4.4,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2270,14 +2286,15 @@
       "location": "vs",
       "opponent": "Arkansas Razorbacks",
       "opp_record": "0-0",
-      "opp_rank": 79,
-      "off_rank": 63,
-      "def_rank": 91,
+      "opp_rank": 81,
+      "off_rank": 64,
+      "def_rank": 93,
       "favorite": "Auburn",
-      "line": -9.0,
-      "win_pct": 74,
-      "proj_w": 4.3,
-      "proj_l": 4.7
+      "line": -9.5,
+      "win_pct": 79,
+      "proj_w": 4.4,
+      "proj_l": 4.6,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2285,14 +2302,15 @@
       "location": "at",
       "opponent": "Mississippi State Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 83,
-      "off_rank": 86,
-      "def_rank": 78,
+      "opp_rank": 85,
+      "off_rank": 87,
+      "def_rank": 80,
       "favorite": "Auburn",
       "line": -6.5,
       "win_pct": 68,
-      "proj_w": 5.0,
-      "proj_l": 5.0
+      "proj_w": 5.1,
+      "proj_l": 4.9,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2306,8 +2324,9 @@
       "favorite": "Auburn",
       "line": -29.0,
       "win_pct": 99,
-      "proj_w": 6.0,
-      "proj_l": 5.0
+      "proj_w": 6.1,
+      "proj_l": 4.9,
+      "conference_game": false
     },
     {
       "week": 13,
@@ -2316,57 +2335,28 @@
       "opponent": "Alabama Crimson Tide",
       "opp_record": "0-0",
       "opp_rank": 12,
-      "off_rank": 19,
+      "off_rank": 20,
       "def_rank": 9,
       "favorite": "Alabama",
       "line": 11.5,
       "win_pct": 23,
-      "proj_w": 6.2,
-      "proj_l": 5.8
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "6.5 – 5.5↓ Under",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_w": 6.3,
+      "proj_l": 5.7,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "85",
-    "sos_rank": "20",
+    "total_opp_power": "84",
+    "sos_rank": "21",
     "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 5.7,
-  "offense_rating": 18.11,
-  "defense_rating": 12.41,
-  "power_rank_db": 40,
+  "power_rating_value": 5.51,
+  "offense_rating": 18.06,
+  "defense_rating": 12.54,
+  "power_rank_db": 39,
   "composite_rank": 50,
   "gc_net_raw": -6.88,
   "mc_net_raw": 0.2,
@@ -2386,5 +2376,58 @@
   "scoring_home_games": 7,
   "scoring_road_ppg": 27.2,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Byrum Brown",
+      "position": "QB",
+      "points": 95,
+      "statsline": "3158 Yds, 28 TD (* TR)"
+    },
+    {
+      "player_name": "Cody Sigler",
+      "position": "DT",
+      "points": 89,
+      "statsline": "34 Tac, 7 TFL (* TR)"
+    },
+    {
+      "player_name": "Nykahi Davenport",
+      "position": "RB",
+      "points": 86,
+      "statsline": "612 Yds, 7 TD (* TR)"
+    },
+    {
+      "player_name": "Keshaun Singleton",
+      "position": "WR",
+      "points": 77,
+      "statsline": "877 Yds, 8 TD (* TR)"
+    },
+    {
+      "player_name": "Tae Meadows",
+      "position": "RB",
+      "points": 77,
+      "statsline": "695 Yds, 6 TD (* TR)"
+    },
+    {
+      "player_name": "Jeremiah Cobb",
+      "position": "RB",
+      "points": 76,
+      "statsline": "969 Yds, 5 TD"
+    },
+    {
+      "player_name": "Cole Best",
+      "position": "C",
+      "points": 75,
+      "statsline": "B- Block Grade (* TR)"
+    },
+    {
+      "player_name": "Andre Jordan Jr.",
+      "position": "CB",
+      "points": 75,
+      "statsline": "0 Int, 10 Pd (* TR)"
+    }
+  ],
+  "previous_head_coach": "Hugh Freeze",
+  "previous_oc": "Derrick Nix",
+  "previous_dc": "D. J. Durkin",
+  "db_enriched_at": "2026-04-06"
 }

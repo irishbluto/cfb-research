@@ -2,9 +2,9 @@
   "team": "Missouri Tigers",
   "slug": "missouri",
   "url_param": "Missouri",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Missouri",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,14 @@
     "Missouri Tigers",
     "Eliah Drinkwitz",
     "Austin Simmons",
-    "Cayden Lee"
+    "Cayden Lee",
+    "Ahmad Hardy",
+    "Cayden Green",
+    "Donovan Olugbode",
+    "Jamal Roberts",
+    "Dominick Giudice",
+    "Robert Woodyard Jr.",
+    "Nicholas Rodriguez"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +34,12 @@
   "coach_record": "46-29",
   "vegas_win_total": "6.5",
   "projected_record": "8-4",
-  "projected_record_rank": 44,
+  "projected_record_rank": 47,
   "sos_rank": 15,
   "power_rank": 20,
   "sp_plus_rank": 20,
   "record_prediction": "8-4",
-  "record_prediction_rank": 44,
+  "record_prediction_rank": 47,
   "coaching_staff_rank": 19,
   "last_season_record": "8-5",
   "last_season_conf_record": "4-4",
@@ -50,7 +57,7 @@
   "returning_offense_pct": 94,
   "returning_offense_rank": 7,
   "returning_defense_pct": 46,
-  "returning_defense_rank": 121,
+  "returning_defense_rank": 122,
   "returning_starters": 10,
   "returning_starters_off": 6,
   "returning_starters_def": 4,
@@ -75,10 +82,10 @@
   "eight_yr_record": "52-35",
   "avg_wins_under_coach": 7.67,
   "schedule_tiers": {
-    "elite": 5,
-    "good": 1,
-    "avg": 2,
-    "bad": 2,
+    "elite": 6,
+    "good": 0,
+    "avg": 4,
+    "bad": 0,
     "poor": 1
   },
   "top_portal_additions": [
@@ -224,6 +231,7 @@
   "record_2025": "8-5",
   "record_2024": "10-3",
   "team_notes": [
+    "(4/2) OT Green + OG Giudice both PFF top 10 pos",
     "(3/20) QB Austin Simmons (Miss) wins job, Horn QB2",
     "(1/29) RB loaded w Hardy & Roberts + Edwards (1k FCS)",
     "(1/29) WR rebuild w 5 portals. Lee (Ole Miss) great add",
@@ -234,6 +242,7 @@
   "injury_notes": [],
   "staff_schedule_notes": [
     "(2/17) Vibes: Good, LY a step back but '26 looks exciting",
+    "(4/2) Def lost almost all FT starters from LY, depth must hit",
     "(2/2) Did not beat team w winning record LY.",
     "(1/29) New OC hire of Chip Lindsey? Not a fan"
   ],
@@ -1961,7 +1970,8 @@
       "line": -31.5,
       "win_pct": 99,
       "proj_w": 1.0,
-      "proj_l": 0.0
+      "proj_l": 0.0,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -1969,14 +1979,15 @@
       "location": "at",
       "opponent": "Kansas Jayhawks",
       "opp_record": "0-0",
-      "opp_rank": 73,
-      "off_rank": 73,
+      "opp_rank": 74,
+      "off_rank": 77,
       "def_rank": 68,
       "favorite": "Missouri",
-      "line": -11.0,
-      "win_pct": 78,
+      "line": -10.5,
+      "win_pct": 76,
       "proj_w": 1.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": false
     },
     {
       "week": 3,
@@ -1991,7 +2002,8 @@
       "line": -25.5,
       "win_pct": 97,
       "proj_w": 2.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": false
     },
     {
       "week": 4,
@@ -1999,14 +2011,15 @@
       "location": "at",
       "opponent": "Mississippi State Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 83,
-      "off_rank": 86,
-      "def_rank": 78,
+      "opp_rank": 85,
+      "off_rank": 87,
+      "def_rank": 80,
       "favorite": "Missouri",
       "line": -12.0,
       "win_pct": 79,
       "proj_w": 3.6,
-      "proj_l": 0.4
+      "proj_l": 0.4,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -2015,13 +2028,14 @@
       "opponent": "Florida Gators",
       "opp_record": "0-0",
       "opp_rank": 23,
-      "off_rank": 29,
+      "off_rank": 30,
       "def_rank": 19,
       "favorite": "Missouri",
       "line": -3.5,
       "win_pct": 62,
       "proj_w": 4.2,
-      "proj_l": 0.8
+      "proj_l": 0.8,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -2031,12 +2045,13 @@
       "opp_record": "0-0",
       "opp_rank": 18,
       "off_rank": 15,
-      "def_rank": 17,
+      "def_rank": 16,
       "favorite": "Texas A&M",
       "line": 0.5,
       "win_pct": 47,
       "proj_w": 4.7,
-      "proj_l": 1.3
+      "proj_l": 1.3,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -2051,7 +2066,8 @@
       "line": 4.5,
       "win_pct": 36,
       "proj_w": 5.1,
-      "proj_l": 1.9
+      "proj_l": 1.9,
+      "conference_game": true
     },
     {
       "week": 9,
@@ -2059,14 +2075,15 @@
       "location": "at",
       "opponent": "Arkansas Razorbacks",
       "opp_record": "0-0",
-      "opp_rank": 79,
-      "off_rank": 63,
-      "def_rank": 91,
+      "opp_rank": 81,
+      "off_rank": 64,
+      "def_rank": 93,
       "favorite": "Missouri",
       "line": -11.0,
       "win_pct": 78,
       "proj_w": 5.9,
-      "proj_l": 2.1
+      "proj_l": 2.1,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2074,14 +2091,15 @@
       "location": "vs",
       "opponent": "Texas Longhorns",
       "opp_record": "0-0",
-      "opp_rank": 4,
+      "opp_rank": 5,
       "off_rank": 2,
-      "def_rank": 6,
+      "def_rank": 7,
       "favorite": "Texas",
       "line": 10.5,
       "win_pct": 24,
       "proj_w": 6.1,
-      "proj_l": 2.9
+      "proj_l": 2.9,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2093,10 +2111,11 @@
       "off_rank": 1,
       "def_rank": 1,
       "favorite": "Georgia",
-      "line": 15.5,
-      "win_pct": 14,
+      "line": 16.0,
+      "win_pct": 12,
       "proj_w": 6.2,
-      "proj_l": 3.8
+      "proj_l": 3.8,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2104,14 +2123,15 @@
       "location": "vs",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "Missouri",
-      "line": -14.0,
-      "win_pct": 86,
+      "line": -14.5,
+      "win_pct": 85,
       "proj_w": 7.1,
-      "proj_l": 3.9
+      "proj_l": 3.9,
+      "conference_game": true
     },
     {
       "week": 13,
@@ -2126,50 +2146,21 @@
       "line": 3.0,
       "win_pct": 44,
       "proj_w": 7.5,
-      "proj_l": 4.5
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "6.5 – 5.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_l": 4.5,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "95",
+    "total_opp_power": "94",
     "sos_rank": "15",
     "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 12.19,
-  "offense_rating": 20.94,
-  "defense_rating": 8.75,
+  "power_rating_value": 12.13,
+  "offense_rating": 20.96,
+  "defense_rating": 8.82,
   "power_rank_db": 20,
   "composite_rank": 52,
   "gc_net_raw": 0.04,
@@ -2190,5 +2181,58 @@
   "scoring_home_games": 8,
   "scoring_road_ppg": 17.5,
   "scoring_road_games": 4,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Ahmad Hardy",
+      "position": "RB",
+      "points": 95,
+      "statsline": "1649 Yds, 16 TD"
+    },
+    {
+      "player_name": "Cayden Green",
+      "position": "T",
+      "points": 86,
+      "statsline": "B+ Block Grade"
+    },
+    {
+      "player_name": "Donovan Olugbode",
+      "position": "WR",
+      "points": 79,
+      "statsline": "401 Yds, 2 TD"
+    },
+    {
+      "player_name": "Jamal Roberts",
+      "position": "RB",
+      "points": 79,
+      "statsline": "753 Yds, 6 TD"
+    },
+    {
+      "player_name": "Cayden Lee",
+      "position": "WR",
+      "points": 75,
+      "statsline": "635 Yds, 3 TD (* TR)"
+    },
+    {
+      "player_name": "Dominick Giudice",
+      "position": "G",
+      "points": 74,
+      "statsline": "B- Block Grade"
+    },
+    {
+      "player_name": "Robert Woodyard Jr.",
+      "position": "LB",
+      "points": 71,
+      "statsline": "67 Tac, 7 TFL (* TR)"
+    },
+    {
+      "player_name": "Nicholas Rodriguez",
+      "position": "LB",
+      "points": 71,
+      "statsline": "61 Tac, 4 TFL"
+    }
+  ],
+  "previous_head_coach": "Eliah Drinkwitz",
+  "previous_oc": "Kirby Moore",
+  "previous_dc": "Corey Batoon",
+  "db_enriched_at": "2026-04-05"
 }

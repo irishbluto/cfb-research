@@ -2,9 +2,9 @@
   "team": "Alabama Crimson Tide",
   "slug": "alabama",
   "url_param": "Alabama",
-  "conference": "SEC",
+  "conference": "sec",
   "source_url": "https://www.puntandrally.com/teamprofile.php?team=Alabama",
-  "last_scraped": "2026-03-28",
+  "last_scraped": "2026-04-05",
   "agent_notes": "",
   "known_injuries": [],
   "position_battles": [],
@@ -12,7 +12,15 @@
     "Alabama Crimson Tide",
     "Kalen DeBoer",
     "Terrance Green",
-    "Devan Thompkins"
+    "Devan Thompkins",
+    "Bray Hubbard",
+    "Keon Sabb",
+    "Dijon Lee Jr.",
+    "Zabien Brown",
+    "Yhonzae Pierre",
+    "Lotzeir Brooks",
+    "Daniel Hill",
+    "Edric Hill"
   ],
   "youtube_channels": [],
   "beat_writers": [],
@@ -27,12 +35,12 @@
   "coach_record": "20-8",
   "vegas_win_total": "8.5",
   "projected_record": "9-3",
-  "projected_record_rank": 14,
-  "sos_rank": 14,
+  "projected_record_rank": 12,
+  "sos_rank": 16,
   "power_rank": 12,
   "sp_plus_rank": 11,
   "record_prediction": "9-3",
-  "record_prediction_rank": 14,
+  "record_prediction_rank": 12,
   "coaching_staff_rank": 4,
   "last_season_record": "11-4",
   "last_season_conf_record": "8-2",
@@ -45,7 +53,7 @@
   "performance_rank": 17,
   "special_teams_rank": 27,
   "returning_production_pct": 56,
-  "returning_production_rank": 106,
+  "returning_production_rank": 107,
   "starting_qb_note": "ALA lost their 25 starting QB",
   "returning_offense_pct": 49,
   "returning_offense_rank": 128,
@@ -218,7 +226,7 @@
       "rating": 0.97
     }
   ],
-  "offense_power_rank": 19,
+  "offense_power_rank": 20,
   "defense_power_rank": 9,
   "off_momentum_control_rank": 37,
   "off_game_control_rank": 13,
@@ -236,6 +244,7 @@
   "record_2025": "11-4",
   "record_2024": "9-4",
   "team_notes": [
+    "(4/2) OT Michael Carroll ranked #8 T by PFF",
     "(3/4) DBs one of the best units in CFB, deep & talented",
     "(1/28) QB battle? Austin Mack vs phenom Keelon Russell",
     "(1/28) RBs bad LY, lots of talent but no portal adds?",
@@ -1887,13 +1896,14 @@
       "opponent": "East Carolina Pirates",
       "opp_record": "0-0",
       "opp_rank": 59,
-      "off_rank": 66,
+      "off_rank": 62,
       "def_rank": 58,
       "favorite": "Alabama",
-      "line": -20.0,
-      "win_pct": 93,
+      "line": -19.5,
+      "win_pct": 88,
       "proj_w": 0.9,
-      "proj_l": 0.1
+      "proj_l": 0.1,
+      "conference_game": false
     },
     {
       "week": 2,
@@ -1901,14 +1911,15 @@
       "location": "at",
       "opponent": "Kentucky Wildcats",
       "opp_record": "0-0",
-      "opp_rank": 67,
+      "opp_rank": 72,
       "off_rank": 60,
-      "def_rank": 77,
+      "def_rank": 78,
       "favorite": "Alabama",
       "line": -15.0,
       "win_pct": 85,
       "proj_w": 1.8,
-      "proj_l": 0.2
+      "proj_l": 0.2,
+      "conference_game": true
     },
     {
       "week": 3,
@@ -1917,13 +1928,14 @@
       "opponent": "Florida State Seminoles",
       "opp_record": "0-0",
       "opp_rank": 33,
-      "off_rank": 54,
+      "off_rank": 55,
       "def_rank": 24,
       "favorite": "Alabama",
       "line": -12.5,
       "win_pct": 81,
       "proj_w": 2.6,
-      "proj_l": 0.4
+      "proj_l": 0.4,
+      "conference_game": false
     },
     {
       "week": 4,
@@ -1933,12 +1945,13 @@
       "opp_record": "0-0",
       "opp_rank": 41,
       "off_rank": 36,
-      "def_rank": 46,
+      "def_rank": 48,
       "favorite": "Alabama",
       "line": -12.5,
       "win_pct": 81,
       "proj_w": 3.4,
-      "proj_l": 0.6
+      "proj_l": 0.6,
+      "conference_game": true
     },
     {
       "week": 5,
@@ -1946,14 +1959,15 @@
       "location": "at",
       "opponent": "Mississippi State Bulldogs",
       "opp_record": "0-0",
-      "opp_rank": 83,
-      "off_rank": 86,
-      "def_rank": 78,
+      "opp_rank": 85,
+      "off_rank": 87,
+      "def_rank": 80,
       "favorite": "Alabama",
       "line": -16.5,
       "win_pct": 90,
       "proj_w": 4.3,
-      "proj_l": 0.7
+      "proj_l": 0.7,
+      "conference_game": true
     },
     {
       "week": 6,
@@ -1968,7 +1982,8 @@
       "line": 7.5,
       "win_pct": 27,
       "proj_w": 4.6,
-      "proj_l": 1.4
+      "proj_l": 1.4,
+      "conference_game": true
     },
     {
       "week": 7,
@@ -1983,7 +1998,8 @@
       "line": -2.0,
       "win_pct": 55,
       "proj_w": 5.2,
-      "proj_l": 1.8
+      "proj_l": 1.8,
+      "conference_game": true
     },
     {
       "week": 8,
@@ -1993,12 +2009,13 @@
       "opp_record": "0-0",
       "opp_rank": 18,
       "off_rank": 15,
-      "def_rank": 17,
+      "def_rank": 16,
       "favorite": "Alabama",
       "line": -4.0,
       "win_pct": 62,
       "proj_w": 5.8,
-      "proj_l": 2.2
+      "proj_l": 2.2,
+      "conference_game": true
     },
     {
       "week": 10,
@@ -2008,12 +2025,13 @@
       "opp_record": "0-0",
       "opp_rank": 14,
       "off_rank": 11,
-      "def_rank": 16,
+      "def_rank": 17,
       "favorite": "LSU",
       "line": 1.5,
       "win_pct": 50,
       "proj_w": 6.3,
-      "proj_l": 2.7
+      "proj_l": 2.7,
+      "conference_game": true
     },
     {
       "week": 11,
@@ -2022,13 +2040,14 @@
       "opponent": "Vanderbilt Commodores",
       "opp_record": "0-0",
       "opp_rank": 48,
-      "off_rank": 58,
-      "def_rank": 43,
+      "off_rank": 56,
+      "def_rank": 42,
       "favorite": "Alabama",
       "line": -10.5,
       "win_pct": 76,
       "proj_w": 7.1,
-      "proj_l": 2.9
+      "proj_l": 2.9,
+      "conference_game": true
     },
     {
       "week": 12,
@@ -2043,7 +2062,8 @@
       "line": -33.0,
       "win_pct": 99,
       "proj_w": 8.1,
-      "proj_l": 2.9
+      "proj_l": 2.9,
+      "conference_game": false
     },
     {
       "week": 13,
@@ -2051,57 +2071,28 @@
       "location": "vs",
       "opponent": "Auburn Tigers",
       "opp_record": "0-0",
-      "opp_rank": 40,
-      "off_rank": 40,
+      "opp_rank": 39,
+      "off_rank": 41,
       "def_rank": 39,
       "favorite": "Alabama",
       "line": -12.5,
       "win_pct": 81,
       "proj_w": 8.9,
-      "proj_l": 3.1
-    },
-    {
-      "week": 1,
-      "date": "",
-      "location": "",
-      "opponent": "vs More Talented",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "0 – 0",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
-    },
-    {
-      "week": 0,
-      "date": "",
-      "location": "",
-      "opponent": "Vegas Win Total",
-      "opp_record": "",
-      "opp_rank": null,
-      "off_rank": null,
-      "def_rank": null,
-      "favorite": "8.5 – 3.5↑ Over",
-      "line": null,
-      "win_pct": null,
-      "proj_w": null,
-      "proj_l": null
+      "proj_l": 3.1,
+      "conference_game": true
     }
   ],
   "schedule_summary": {
-    "total_opp_power": "91",
-    "sos_rank": "14",
+    "total_opp_power": "90",
+    "sos_rank": "16",
     "expected_record": null,
     "expected_conf_record": null,
     "p4_g6_opponents": "10 / 1\n",
     "vs_bowl_teams": "0 – 0\n"
   },
-  "power_rating_value": 17.36,
-  "offense_rating": 21.67,
-  "defense_rating": 4.31,
+  "power_rating_value": 17.12,
+  "offense_rating": 21.51,
+  "defense_rating": 4.39,
   "power_rank_db": 12,
   "composite_rank": 21,
   "gc_net_raw": 26.04,
@@ -2122,5 +2113,58 @@
   "scoring_home_games": 8,
   "scoring_road_ppg": 24.8,
   "scoring_road_games": 5,
-  "db_enriched_at": "2026-03-28"
+  "best_players": [
+    {
+      "player_name": "Bray Hubbard",
+      "position": "S",
+      "points": 88,
+      "statsline": "4 Int, 8 Pd"
+    },
+    {
+      "player_name": "Keon Sabb",
+      "position": "S",
+      "points": 85,
+      "statsline": "1 Int, 3 Pd"
+    },
+    {
+      "player_name": "Dijon Lee Jr.",
+      "position": "CB",
+      "points": 82,
+      "statsline": "2 Int, 5 Pd"
+    },
+    {
+      "player_name": "Zabien Brown",
+      "position": "CB",
+      "points": 77,
+      "statsline": "2 Int, 6 Pd"
+    },
+    {
+      "player_name": "Yhonzae Pierre",
+      "position": "LB",
+      "points": 71,
+      "statsline": "52 Tac, 15 TFL"
+    },
+    {
+      "player_name": "Lotzeir Brooks",
+      "position": "WR",
+      "points": 70,
+      "statsline": "441 Yds, 2 TD"
+    },
+    {
+      "player_name": "Daniel Hill",
+      "position": "RB",
+      "points": 68,
+      "statsline": "284 Yds, 6 TD"
+    },
+    {
+      "player_name": "Edric Hill",
+      "position": "DT",
+      "points": 68,
+      "statsline": "20 Tac, 3 TFL"
+    }
+  ],
+  "previous_head_coach": "Kalen DeBoer",
+  "previous_oc": "Ryan Grubb",
+  "previous_dc": "Kane Wommack",
+  "db_enriched_at": "2026-04-05"
 }
