@@ -554,6 +554,10 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
         return True
 
     # Write prompt to a temp file so we don't hit shell escaping issues
+    # Strip null bytes — can sneak in from Playwright scrape encoding issues
+    # and cause subprocess.run to fail with "embedded null byte"
+    prompt = prompt.replace('\x00', '')
+
     prompt_file = BASE_DIR / "logs" / f"prompt_{slug}.txt"
     prompt_file.write_text(prompt)
 
