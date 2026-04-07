@@ -2,7 +2,7 @@
 """
 run_pipeline.py
 ---------------
-Master pipeline runner for CFB research. Runs all five steps in order,
+Master pipeline runner for CFB research. Runs all six steps in order,
 waiting for each to complete before proceeding to the next.
 
 Pipeline steps:
@@ -11,34 +11,69 @@ Pipeline steps:
   3. youtube_fetcher.py         — fetches YouTube videos (daily cache)
   4. written_sources_fetcher.py — fetches RSS/articles with body prefetch
   5. research_agent.py          — runs Claude agent per team → JSON output
+  6. team_memory_writer.py      — distills research output into team_memory/{slug}.json
+                                  for use as prior-run context on subsequent runs
+                                  (fast, no API calls; skipped if step 5 was skipped)
 
 Step control flags:
-  --no-research   Run steps 1–4 only; skip research_agent.py
+  --no-research   Run steps 1–4 only; skip research agent and memory writer
   --skip-fetch    Skip steps 3–4 (YouTube + written sources); use existing cache
-  --fetch-only    Run steps 3–4 only; skip scrape, enrich, and research
+  --fetch-only    Run steps 3–4 only; skip scrape, enrich, research, and memory
 
-Usage:
-  python3 scripts/run_pipeline.py --conf sec
-  python3 scripts/run_pipeline.py --conference big10
-  python3 scripts/run_pipeline.py --team alabama
-  python3 scripts/run_pipeline.py --conf mwc --no-research
-  python3 scripts/run_pipeline.py --conf sec --skip-fetch
-  python3 scripts/run_pipeline.py --conf acc --fetch-only
+Pass-through flags:
+  --days N        Lookback window in days for YouTube + written sources (default: 14)
+  --no-ytdlp      Disable yt-dlp fallback in youtube_fetcher
+  --no-prefetch   Disable article body prefetch in written_sources_fetcher
 
-# Full pipeline — all 5 steps
-    python3 scripts/run_pipeline.py --conf mwc
+-------------------------------------------------------------------------------
+USAGE EXAMPLES
+-------------------------------------------------------------------------------
 
-    # Steps 1–4 only, review output before running agent
+# Full pipeline — all 6 steps (standard conference run)
+    python3 scripts/run_pipeline.py --conf sec
+    python3 scripts/run_pipeline.py --conference big10
+
+# Single team, full pipeline
+    python3 scripts/run_pipeline.py --team alabama
+
+# Steps 1–4 only — scrape/enrich/fetch without running the agent
+# Useful to review context quality before committing to a full agent run
     python3 scripts/run_pipeline.py --conf acc --no-research
 
-    # Re-run agent only (scrape/enrich/fetch already done today)
+# Steps 5–6 only — re-run agent on fresh data (scrape/enrich/fetch already done today)
+# Most common re-run pattern: use when you've already fetched today
     python3 scripts/run_pipeline.py --conf sec --skip-fetch
 
-    # Just refresh YouTube + articles without touching context or running agent
+# Steps 3–4 only — refresh YouTube + articles without scraping or running agent
+# Use when context is current but caches are stale
     python3 scripts/run_pipeline.py --conf big10 --fetch-only
 
-    # Single team, full pipeline
-    python3 scripts/run_pipeline.py --team alabama
+# Extend lookback window (e.g. first run of the season, or after a long gap)
+    python3 scripts/run_pipeline.py --conf mwc --days 30
+
+# YouTube quota exhausted — skip YouTube fetcher entirely
+# Add --no-youtube directly to research_agent.py if running it standalone;
+# run_pipeline.py passes through --skip-fetch to avoid re-fetching YouTube
+    python3 scripts/run_pipeline.py --conf sec --skip-fetch
+
+-------------------------------------------------------------------------------
+TEAM MEMORY NOTES
+-------------------------------------------------------------------------------
+
+team_memory/{slug}.json is written after each successful research run and
+injected into the next run's prompt as "PRIOR RUN NOTES." It captures:
+  - Prior agent summary, sentiment, and key storylines
+  - Coaching staff snapshot at time of last run
+  - agent_flags: what the agent was confident about, what to recheck,
+    and any unresolved storylines to watch (e.g. open QB battles)
+
+To seed memory from existing research output without re-running the agent:
+    python3 scripts/team_memory_writer.py --conf sec
+    python3 scripts/team_memory_writer.py --all
+
+Memory is only as valuable as the prior run's output quality. On a team's
+first-ever run, no memory file exists and the agent starts cold — this is
+expected and has zero cost/overhead.
 """
 
 import os, sys, subprocess, argparse, json
