@@ -144,11 +144,14 @@ def main():
     log_path   = LOG_DIR / f"pipeline_{log_tag}_{started_at.strftime('%Y%m%d_%H%M%S')}.json"
 
     steps_desc = []
+    run_memory = run_research  # only write memory when research ran
+
     if run_scrape:   steps_desc.append('1.scrape')
     if run_enrich:   steps_desc.append('2.enrich')
     if run_youtube:  steps_desc.append('3.youtube')
     if run_written:  steps_desc.append('4.written')
     if run_research: steps_desc.append('5.research')
+    if run_memory:   steps_desc.append('6.memory')
 
     print(f"\n{'='*60}", flush=True)
     print(f"  CFB Research Pipeline", flush=True)
@@ -205,6 +208,12 @@ def main():
         if not step("5. Research agent", "research_agent.py"):
             print("\n[ABORT] Research agent failed.", flush=True)
             sys.exit(1)
+
+    # Step 6 — Team memory writer (non-fatal: memory is a nice-to-have, not a blocker)
+    if run_memory:
+        ok = step("6. Team memory writer", "team_memory_writer.py", warn_on_fail=True)
+        if not ok:
+            print("  Memory write failed — research output is still valid.", flush=True)
 
 
     # ---------------------------------------------------------------------------

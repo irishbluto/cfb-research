@@ -46,6 +46,7 @@ BASE_DIR      = Path("/cfb-research")
 CONTEXT_DIR   = BASE_DIR / "team_context"
 CHANNELS_FILE = BASE_DIR / "config" / "youtube_channels.json"
 OUTPUT_DIR    = BASE_DIR / "research"
+MEMORY_DIR    = BASE_DIR / "team_memory"
 LOG_DIR       = BASE_DIR / "logs"
 CLAUDE_BIN    = "/home/joleary/.local/bin/claude"  # adjust if different
 
@@ -193,6 +194,18 @@ def build_prompt(slug, context, channels, no_youtube=False):
     off_profile = context.get('offense_profile_db', context.get('offense_profile', ''))
 
     # ---------------------------------------------------------------------------
+    # Load prior team memory if available (written by team_memory_writer.py)
+    # ---------------------------------------------------------------------------
+    memory_file = MEMORY_DIR / f"{slug}.json"
+    prior_memory = {}
+    if memory_file.exists():
+        try:
+            with open(memory_file) as f:
+                prior_memory = json.load(f)
+        except Exception:
+            pass  # Corrupt memory file — proceed without it
+
+    # ---------------------------------------------------------------------------
     # Research mode — determined early so roster caps can reference it
     # ---------------------------------------------------------------------------
     month = datetime.now().month
@@ -244,6 +257,37 @@ def build_prompt(slug, context, channels, no_youtube=False):
     if staff_notes:
         notes_block += "Staff/schedule notes:\n"
         notes_block += "\n".join(f"  - {n}" for n in staff_notes) + "\n"
+
+    # Build prior memory block for prompt injection
+    memory_block = ""
+    if prior_memory:
+        run_label   = f"run #{prior_memory.get('run_count', '?')}"
+        last_run    = prior_memory.get('last_run', 'unknown date')
+        prior_mode  = prior_memory.get('mode', '')
+        storylines  = prior_memory.get('prior_storylines', [])
+        inj_flags   = prior_memory.get('prior_injury_flags', [])
+        flags       = prior_memory.get('agent_flags', {})
+        recheck     = flags.get('low_confidence', []) + flags.get('watch_for_next_run', [])
+
+        memory_block = f"""=== PRIOR RUN NOTES ({last_run} — {run_label}, mode: {prior_mode}) ===
+Use these as your starting point. Confirm, update, or contradict them based on new sources.
+
+Prior overall sentiment: {prior_memory.get('prior_sentiment', 'unknown')}
+
+Prior agent summary:
+  {prior_memory.get('prior_summary', '(none)')}
+
+Prior key storylines:
+{chr(10).join(f"  - {s}" for s in storylines) if storylines else "  (none recorded)"}
+{f"{chr(10)}Prior injury flags:{chr(10)}{chr(10).join(f'  - {i}' for i in inj_flags)}" if inj_flags else ""}
+High-confidence from prior run (likely still valid — verify if new sources contradict):
+  {', '.join(flags.get('high_confidence', [])) or '(none recorded)'}
+
+Watch / recheck this run:
+{chr(10).join(f"  - {w}" for w in recheck) if recheck else "  (none flagged)"}
+=== END PRIOR RUN NOTES ===
+
+"""
 
     # Build position-grouped roster lookup from full_roster
     roster_block = ""
@@ -418,7 +462,7 @@ CUSA (11): Delaware, FIU, Jacksonville State, Kennesaw State, Liberty, Louisiana
 
 ## Team Context (use this to guide what to look for)
 
-Team: {team_name}
+{memory_block}Team: {team_name}
 Conference: {conference}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
 {f"Previous Staff (2025) — HC: {prev_coach} | OC: {prev_oc} | DC: {prev_dc}" if prev_coach else "Previous coaching staff: Not in DB — do NOT name or guess any former coaches or coordinators"}
@@ -523,7 +567,17 @@ The file must be valid JSON matching this exact structure:
   ],
   "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
-  "agent_summary": "Write 4-5 dense, analyst-quality sentences. Always include: (1) the single most important current narrative with specific player names or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter — a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.' OFFSEASON/PRESEASON modes: focus on roster construction, coaching staff quality, win projection, and where they stand in their conference pecking order. IN-SEASON/PLAYOFFS modes: expand to up to 7 sentences — cover current performance, key injuries affecting the next game, ATS record if notable (good or bad), bowl/CFP outlook, and any Heisman or major award candidates. Rank priority: CFP Playoff rank > AP Poll rank > power rating."
+  "coaching_snapshot": {{
+    "head_coach": "{coach}",
+    "oc": "{oc}",
+    "dc": "{dc}"
+  }},
+  "agent_summary": "Write 4-5 dense, analyst-quality sentences. Always include: (1) the single most important current narrative with specific player names or numbers, (2) the biggest concern or question mark with concrete evidence, (3) one context-setter — a key schedule game, ranking, or historical note. Avoid generic phrases like 'enters 2026 with questions' or 'looks to build on last year.' OFFSEASON/PRESEASON modes: focus on roster construction, coaching staff quality, win projection, and where they stand in their conference pecking order. IN-SEASON/PLAYOFFS modes: expand to up to 7 sentences — cover current performance, key injuries affecting the next game, ATS record if notable (good or bad), bowl/CFP outlook, and any Heisman or major award candidates. Rank priority: CFP Playoff rank > AP Poll rank > power rating.",
+  "agent_flags": {{
+    "high_confidence": ["2-3 specific facts you confirmed from multiple independent sources — e.g. 'Kalen DeBoer confirmed as HC, no instability signals in any source'"],
+    "low_confidence": ["1-2 things mentioned in only one source or with hedging language — flag for verification next run"],
+    "watch_for_next_run": ["1-2 active unknowns still unresolved — e.g. 'QB battle between X and Y unresolved after spring game', 'portal addition not yet confirmed enrolled'"]
+  }}
 }}
 
 ## Important Instructions
@@ -565,6 +619,14 @@ The file must be valid JSON matching this exact structure:
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
 **Tone:** Write with the voice of a knowledgeable, fun but slightly suspicious CFB analyst — someone who has heard every "program-defining offseason" speech and seen every portal-fueled rebuild promise come and go. One or two moments of dry wit or knowing snark per writeup are encouraged where they land naturally. Earn it with specifics, not generic irony. If it doesn't fit, write it straight — never force it.
+
+**coaching_snapshot:** Copy the head_coach, oc, and dc values exactly as given in Team Context — do not modify them.
+
+**agent_flags:** Fill these in honestly after completing the rest of the JSON:
+  - high_confidence: Facts you confirmed from 2+ independent sources. Be specific: "OL starter list confirmed across beat coverage and spring depth chart" beats "coaching staff is stable."
+  - low_confidence: Things mentioned in only one source or with qualifier language ("reportedly," "expected to," "could"). Flag these for the next run to verify or drop.
+  - watch_for_next_run: Active unknowns — unresolved depth chart battles, portal additions not yet confirmed enrolled, injuries with unclear return timelines. Max 2 items. Be concrete: "QB battle between Mack and Russell still open" not "depth chart uncertainty."
+  Keep each list to 3 items max. If nothing qualifies for a list, use an empty array.
 
 **sentiment_score:** 0.0 = extremely negative · 0.5 = neutral · 1.0 = extremely positive.
 """
