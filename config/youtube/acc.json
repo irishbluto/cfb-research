@@ -90,6 +90,13 @@
       "type": "beat_writer"
     }
   ],
+    "stanford": [
+	{
+      "id": "UC3eNlJKuJzJfNQzLphGZW7w",
+      "name": "Go Stanford",
+      "type": "beat_writer"
+    }
+  ],
     "virginia": [
 	{
       "id": "UCqUWMDg4VdudojNs2Qf9V6g",
