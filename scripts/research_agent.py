@@ -286,8 +286,20 @@ def build_prompt(slug, context, channels, no_youtube=False):
         schedule_block = "Opening 2026 schedule (CONF = conference game, NON-CONF = non-conference):\n"
         for g in schedule[:5]:
             conf_tag = "[CONF]" if g.get('conference_game') else "[NON-CONF]"
+            # Format spread from THIS team's perspective — agent must never reinterpret the sign
+            raw_line = g.get('line')
+            raw_win_pct = g.get('win_pct')
+            if raw_line is not None and raw_win_pct is not None:
+                try:
+                    abs_line = abs(float(raw_line))
+                    line_str = f"{abs_line:.1f}".rstrip('0').rstrip('.')
+                    line_display = f"+{line_str}" if float(raw_win_pct) < 50 else f"-{line_str}"
+                except (ValueError, TypeError):
+                    line_display = str(raw_line)
+            else:
+                line_display = str(raw_line) if raw_line is not None else "N/A"
             schedule_block += (f"  Wk{g['week']} {g['date']} {g['location']} "
-                             f"{g['opponent']} {conf_tag} (line: {g['line']}, "
+                             f"{g['opponent']} {conf_tag} (line: {line_display}, "
                              f"win%: {g['win_pct']}%)\n")
 
     # Format best players — used to constrain player identification in the summary
