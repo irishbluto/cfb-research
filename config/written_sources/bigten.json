@@ -27,8 +27,8 @@
       "name": "Hoosier Huddle",
       "url": "https://hoosierhuddle.com/football/",
       "type": "fan_aggregator",
-      "rss": "https://hoosierhuddle.com/football/rss",
-      "notes": "All IU Sports All the Time"
+      "rss": "https://hoosierhuddle.com/feed/",
+      "notes": "All IU Sports All the Time; RSS path corrected to standard /feed/ (football/rss was non-standard)"
     }
   ],
   "iowa": [
@@ -131,21 +131,21 @@
       "url": "https://www.cornnation.com/",
       "type": "beat_writer",
       "rss": "https://www.cornnation.com/rss/index.xml",
-      "notes": "SB Nation — Nebraska Cornhuskers community"
+      "notes": "SBNation — Nebraska Cornhuskers community; monitor for paywall failures"
+    },
+    {
+      "name": "Huskers Wire — USA Today",
+      "url": "https://huskerswire.usatoday.com/",
+      "type": "fan_aggregator",
+      "rss": "https://huskerswire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — Nebraska football; backup RSS source"
     },
     {
       "name": "Husker Online",
       "url": "https://www.huskeronline.com/",
-      "type": "fan_aggregator",
-      "rss": null,
-      "notes": "Nebraska football insider coverage"
-    },
-    {
-      "name": "Omaha World-Herald — Huskers",
-      "url": "https://omaha.com/sports/huskers/football/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "Primary newspaper beat for Nebraska football"
+      "notes": "Nebraska football insider coverage — direct URL only, likely paywalled"
     }
   ],
   "northwestern": [
@@ -183,8 +183,8 @@
       "name": "Eleven Warriors",
       "url": "https://www.elevenwarriors.com/",
       "type": "beat_writer",
-      "rss": null,
-      "notes": "Independent Ohio State football coverage — very active"
+      "rss": "https://www.elevenwarriors.com/rss.xml",
+      "notes": "Independent Ohio State football coverage — very active; primary OSU beat source"
     }
   ],
   "oregon": [
@@ -239,7 +239,14 @@
       "url": "https://www.hammerandrails.com/",
       "type": "beat_writer",
       "rss": "https://www.hammerandrails.com/rss/index.xml",
-      "notes": "SB Nation — Purdue Boilermakers community"
+      "notes": "SBNation — Purdue Boilermakers community; sole RSS source, monitor for paywall failures"
+    },
+    {
+      "name": "Boilermakers Wire — USA Today",
+      "url": "https://boilermakerswire.usatoday.com/",
+      "type": "fan_aggregator",
+      "rss": "https://boilermakerswire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — Purdue football; backup RSS source"
     }
   ],
   "rutgers": [
@@ -322,11 +329,11 @@
       "notes": "SB Nation — Wisconsin Badgers community"
     },
     {
-      "name": "Badgers Extra",
-      "url": "https://badgerextra.com/",
+      "name": "Badgers Wire — USA Today",
+      "url": "https://badgerswire.usatoday.com/",
       "type": "fan_aggregator",
       "rss": "https://badgerswire.usatoday.com/feed/",
-      "notes": "Badgers Extra  — Wisconsin football"
+      "notes": "USA Today fan wire — Wisconsin football; URL corrected from badgerextra.com (different site)"
     },
     {
       "name": "Milwaukee Journal Sentinel — Badgers",

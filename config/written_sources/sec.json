@@ -103,8 +103,8 @@
       "name": "Dawg Nation",
       "url": "https://www.dawgnation.com/",
       "type": "fan_aggregator",
-      "rss": "https://www.dawgnation.com/",
-      "notes": "Dawg nation"
+      "rss": "https://www.dawgnation.com/feed/",
+      "notes": "Dawg Nation — Georgia football news; RSS was incorrectly set to homepage URL, corrected to /feed/"
     }
   ],
     "kentucky": [
@@ -117,10 +117,10 @@
     },
     {
       "name": "A Sea of Blue",
-      "url": "https://www.aseaofblue.com/rss/index.xml",
+      "url": "https://www.aseaofblue.com/",
       "type": "beat_writer",
-      "rss": null,
-      "notes": "Your best source for quality Kentucky Wildcats news"
+      "rss": "https://www.aseaofblue.com/rss/index.xml",
+      "notes": "SBNation Kentucky community — url and rss fields were swapped in original config, corrected"
     },
     {
       "name": "A Nation of Blue",
@@ -194,11 +194,11 @@
       "notes": "Oklahomoa Sooners Football Site"
     },
     {
-      "name": "USA Today — Oklahoma",
-      "url": "hhttps://soonerswire.usatoday.com/",
+      "name": "Sooners Wire — USA Today",
+      "url": "https://soonerswire.usatoday.com/",
       "type": "beat_writer",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "rss": "https://soonerswire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — Oklahoma football; URL had typo (hhttps) and RSS was null, both corrected"
     },
     {
       "name": "The Oklahoman",

@@ -44,14 +44,21 @@
       "url": "https://sicem365.com/",
       "type": "fan_aggregator",
       "rss": null,
-      "notes": "Largest independent Baylor fan site (merged with BaylorFans.com) — confirmed active 2026; note: ourdailybears.com (former SBNation blog) is defunct as of 2025"
+      "notes": "Largest independent Baylor fan site — no RSS available; direct URL only"
+    },
+    {
+      "name": "Baylor Wire — USA Today",
+      "url": "https://baylorwire.usatoday.com/",
+      "type": "fan_aggregator",
+      "rss": "https://baylorwire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — Baylor football; added as primary RSS source (both original sources were rss: null)"
     },
     {
       "name": "247Sports — Baylor",
       "url": "https://247sports.com/college/baylor/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "Recruiting and portal tracking"
+      "notes": "Recruiting and portal tracking; note: ourdailybears.com (former SBNation blog) defunct as of 2025"
     }
   ],
   "byu": [
@@ -249,8 +256,8 @@
       "name": "Block U",
       "url": "https://www.blocku.com/utah-utes-football",
       "type": "fan_aggregator",
-      "rss": "https://www.blocku.com/rss/index.xml",
-      "notes": "SBNation Utah community — use /utah-utes-football subpath; root domain returns minimal page but SBNation subpages remain active"
+      "rss": "https://www.blocku.com/utah-utes-football/rss/index.xml",
+      "notes": "SBNation Utah community — RSS corrected to /utah-utes-football subpath; root /rss/index.xml returns nothing (root domain is minimal)"
     },
     {
       "name": "KSL Sports — Utah Football",
