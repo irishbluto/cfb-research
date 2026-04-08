@@ -24,6 +24,21 @@
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
     },
     {
+      "name": "Red Wolf Report",
+      "url": "https://www.redwolfreport.com/t/arkansas-state-football",
+      "type": "beat_writer",
+      "rss": "https://www.redwolfreport.com/feed/",
+      "title_filter": ["football", "red wolves", "arkansas state"],
+      "notes": "Substack-based Arkansas State athletics coverage — multi-sport RSS, title_filter limits to football articles; confirmed active Apr 2026"
+    },
+    {
+      "name": "KAIT 8 — Arkansas State",
+      "url": "https://www.kait8.com/sports/ncaa/a-state/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "ABC affiliate in Jonesboro, AR — free, confirmed active A-State coverage; direct URL only"
+    },
+    {
       "name": "247Sports — Arkansas State",
       "url": "https://247sports.com/college/arkansas-state/",
       "type": "beat_writer",
@@ -104,6 +119,21 @@
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
     },
     {
+      "name": "Crescent City Sports — Louisiana",
+      "url": "https://crescentcitysports.com/louisiana-lafayette-ragin-cajuns/",
+      "type": "beat_writer",
+      "rss": "https://crescentcitysports.com/feed/",
+      "title_filter": ["football", "cajuns", "louisiana"],
+      "notes": "New Orleans sports site — multi-team site-wide RSS; title_filter limits to Cajuns/Louisiana football articles; coverage can be baseball-heavy, filter aggressive"
+    },
+    {
+      "name": "KATC — UL Lafayette",
+      "url": "https://www.katc.com/sports/ul-sports",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Lafayette ABC affiliate — free, covers UL athletics; direct URL only"
+    },
+    {
       "name": "247Sports — Louisiana",
       "url": "https://247sports.com/college/louisiana/",
       "type": "beat_writer",
@@ -118,6 +148,13 @@
       "type": "podcast",
       "rss": "https://feeds.megaphone.fm/LKN2439186676",
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "KNOE 8 — UL Monroe",
+      "url": "https://www.knoe.com/sports/college/louisiana-monroe/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Monroe CBS affiliate — free, Arc Publishing platform, confirmed active ULM coverage with dedicated sports reporters; direct URL only (Arc category RSS path returned 404)"
     },
     {
       "name": "247Sports — Louisiana Monroe",
@@ -152,6 +189,13 @@
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
     },
     {
+      "name": "WV MetroNews — Marshall",
+      "url": "https://wvmetronews.com/sports/marshall-sports/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "West Virginia statewide radio/web news — free, covers Marshall sports; direct URL only (team-specific RSS feed is empty)"
+    },
+    {
       "name": "247Sports — Marshall",
       "url": "https://247sports.com/college/marshall/",
       "type": "beat_writer",
@@ -184,6 +228,13 @@
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
     },
     {
+      "name": "AL.com — South Alabama",
+      "url": "https://www.al.com/usa/",
+      "type": "beat_writer",
+      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/usa/",
+      "notes": "AL.com South Alabama section — Arc Publishing RSS pattern (same as Alabama/Auburn/UAB entries); free content"
+    },
+    {
       "name": "247Sports — South Alabama",
       "url": "https://247sports.com/college/south-alabama/",
       "type": "beat_writer",
@@ -200,6 +251,21 @@
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
     },
     {
+      "name": "Hub City Spokes — Southern Miss",
+      "url": "https://www.hubcityspokes.com/usm-golden-eagles/",
+      "type": "beat_writer",
+      "rss": "https://www.hubcityspokes.com/taxonomy/term/2098/feed",
+      "title_filter": ["football", "golden eagles", "southern miss"],
+      "notes": "Hattiesburg local paper (Emmerich Newspapers) — multi-sport RSS for USM; title_filter limits to football articles; mixed free/paywalled but feed headlines accessible"
+    },
+    {
+      "name": "WDAM — Southern Miss",
+      "url": "https://www.wdam.com/sports/ncaa/southern-miss/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "NBC affiliate in Hattiesburg — free, confirmed active Southern Miss coverage; direct URL only"
+    },
+    {
       "name": "247Sports — Southern Miss",
       "url": "https://247sports.com/college/southern-miss/",
       "type": "beat_writer",
@@ -214,6 +280,13 @@
       "type": "podcast",
       "rss": "https://feeds.megaphone.fm/LKN2439186676",
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "WSFA 12 — Troy",
+      "url": "https://www.wsfa.com/sports/ncaa/troy/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "NBC affiliate in Montgomery, AL — free, confirmed active Troy coverage including football; direct URL only"
     },
     {
       "name": "247Sports — Troy",

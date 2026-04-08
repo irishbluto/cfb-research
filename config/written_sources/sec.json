@@ -31,6 +31,13 @@
       "notes": "the biggest and most popular independent Arkansas sports website."
     },
     {
+      "name": "KAIT 8 — Arkansas",
+      "url": "https://www.kait8.com/sports/ncaa/arkansas/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "ABC affiliate in Jonesboro, AR — free, covers Razorbacks athletics; direct URL only"
+    },
+    {
       "name": "Whole Hog Sports",
       "url": "https://www.wholehogsports.com/",
       "type": "fan_aggregator",

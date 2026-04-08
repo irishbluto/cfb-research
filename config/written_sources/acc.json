@@ -185,6 +185,13 @@
       "notes": "Recruiting and portal tracking"
     },
     {
+      "name": "WRAL SportsFan — NC State",
+      "url": "https://www.wralsportsfan.com/ncsu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Triangle-area TV sports site (WRAL/Capitol Broadcasting) — free, professional bylined coverage of Wolfpack football; direct URL only"
+    },
+    {
       "name": "Wolf Pack Wire — USA Today",
       "url": "https://wolfpackwire.usatoday.com/",
       "type": "beat_writer",
@@ -206,6 +213,13 @@
       "type": "beat_writer",
       "rss": "https://www.dailytarheel.com/rss.xml",
       "notes": "UNC student newspaper — free to access, covers football news; RSS is site-wide but football is primary sport"
+    },
+    {
+      "name": "WRAL SportsFan — North Carolina",
+      "url": "https://www.wralsportsfan.com/unc/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Triangle-area TV sports site (WRAL/Capitol Broadcasting) — free, professional coverage of Tar Heels football; direct URL only"
     },
     {
       "name": "Inside Carolina — On3",
