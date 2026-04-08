@@ -10,6 +10,14 @@
   ],
   "colorado-state": [
     {
+      "name": "The Collegian — CSU Sports",
+      "url": "https://collegian.com/category/articles/sports/ncaa/",
+      "type": "beat_writer",
+      "rss": "https://collegian.com/category/articles/sports/ncaa/feed/",
+      "title_filter": ["football", "rams", "csu"],
+      "notes": "CSU student newspaper — valid RSS confirmed April 2026; multi-sport feed, title_filter limits to football/CSU articles"
+    },
+    {
       "name": "Colorado State Insider Podcast",
       "url": "https://csurams.com/podcasts",
       "type": "podcast",
@@ -21,7 +29,7 @@
       "url": "https://247sports.com/college/colorado-state/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+      "notes": "Recruiting and portal tracking"
     }
   ],
   "fresno-state": [
@@ -35,11 +43,18 @@
   ],
   "oregon-state": [
     {
+      "name": "OregonLive — Beavers",
+      "url": "https://www.oregonlive.com/beavers/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Primary Oregon newspaper — strong Beavers football beat coverage; Advance Local network blocks RSS pre-fetch, direct URL only (agent can browse)"
+    },
+    {
       "name": "247Sports — Oregon State",
       "url": "https://247sports.com/college/oregon-state/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+      "notes": "Recruiting and portal tracking"
     }
   ],
   "san-diego-state": [
@@ -53,6 +68,13 @@
   ],
   "texas-state": [
     {
+      "name": "Dave Campbell's Texas Football — Texas State",
+      "url": "https://www.texasfootball.com/team/texas-state-bobcats",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Established Texas CFB publication with bylined analysis — no RSS available, direct URL"
+    },
+    {
       "name": "247Sports — Texas State",
       "url": "https://247sports.com/college/texas-state/",
       "type": "beat_writer",
@@ -62,20 +84,34 @@
   ],
   "utah-state": [
     {
+      "name": "Deseret News — Utah State Aggies",
+      "url": "https://www.deseret.com/sports/utah-state-aggies/",
+      "type": "beat_writer",
+      "rss": "https://www.deseret.com/arc/outboundfeeds/rss/category/sports/utah-state-aggies/",
+      "notes": "Primary Utah statewide newspaper — active RSS confirmed April 2026, free to access; multi-sport feed but football content present (Bronco Mendenhall spring camp, SP+ analysis)"
+    },
+    {
       "name": "247Sports — Utah State",
       "url": "https://247sports.com/college/utah-state/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+      "notes": "Recruiting and portal tracking"
     }
   ],
   "washington-state": [
+    {
+      "name": "KREM — Washington State Cougars",
+      "url": "https://www.krem.com/section/washington-state-cougars",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Spokane local TV — WSU-specific section, active football coverage; RSS unconfirmed, direct URL only"
+    },
     {
       "name": "247Sports — Washington State",
       "url": "https://247sports.com/college/washington-state/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "JS-rendered, no clean RSS. Direct URL fetch."
+      "notes": "Recruiting and portal tracking"
     }
   ]
 }

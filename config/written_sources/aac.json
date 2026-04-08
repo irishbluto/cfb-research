@@ -19,7 +19,8 @@
       "url": "https://www.underdogdynasty.com/army-black-knights",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "AAC-focused editorial hub — primary editorial source for all AAC teams; covers Army consistently"
+      "title_filter": ["army", "black knights"],
+      "notes": "AAC editorial hub — site-wide RSS feed, title_filter limits to Army articles"
     }
   ],
   "charlotte": [
@@ -28,7 +29,8 @@
       "url": "https://www.underdogdynasty.com/charlotte-49ers",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "Best external editorial coverage of Charlotte football; no active independent fan blog found"
+      "title_filter": ["charlotte", "49ers"],
+      "notes": "AAC editorial hub — site-wide RSS feed, title_filter limits to Charlotte articles"
     },
     {
       "name": "247Sports — Charlotte",
@@ -51,7 +53,8 @@
       "url": "https://www.underdogdynasty.com/east-carolina-pirates",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "AAC editorial hub — strong ECU coverage including bowl previews and weekly game analysis"
+      "title_filter": ["east carolina", "ecu", "pirates"],
+      "notes": "AAC editorial hub — site-wide RSS feed, title_filter limits to ECU articles"
     },
     {
       "name": "247Sports — East Carolina",
@@ -67,7 +70,8 @@
       "url": "https://www.underdogdynasty.com/florida-atlantic-owls",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "Best external editorial coverage of FAU football; no prominent active independent fan blog found"
+      "title_filter": ["florida atlantic", "fau", "owls"],
+      "notes": "AAC editorial hub — site-wide RSS feed, title_filter limits to FAU articles"
     },
     {
       "name": "247Sports — Florida Atlantic",
@@ -90,7 +94,15 @@
       "url": "https://www.underdogdynasty.com/memphis-tigers",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "AAC editorial hub — top Memphis football analysis including preseason previews and bowl coverage"
+      "title_filter": ["memphis", "tigers"],
+      "notes": "AAC editorial hub — site-wide RSS feed, title_filter limits to Memphis articles; note 'tigers' may occasionally match Missouri/Clemson in slow news periods"
+    },
+    {
+      "name": "Daily Memphian — Tigers Football",
+      "url": "https://dailymemphian.com/section/sportsmemphis-tigers-football",
+      "type": "beat_writer",
+      "rss": "https://dailymemphian.com/feed/section/sportsmemphis-tigers-football",
+      "notes": "Dedicated Memphis Tigers football beat — paywalled body content (domain in SKIP_PREFETCH_DOMAINS), RSS headlines/excerpts still useful; active beat writer Frank Bonner II through Apr 2026"
     },
     {
       "name": "247Sports — Memphis",
@@ -106,14 +118,8 @@
       "url": "https://www.underdogdynasty.com/navy-midshipmen",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "Best external editorial coverage for Navy football — strong weekly game previews, confirmed active 2025"
-    },
-    {
-      "name": "AcademyWars.com — Army Football Forum",
-      "url": "https://academywars.com/awforums/viewforum.php?f=6",
-      "type": "fan_aggregator",
-      "rss": null,
-      "notes": "Long-running service academy fan forum — active Army and Navy discussion through December 2025"
+      "title_filter": ["navy", "midshipmen"],
+      "notes": "AAC editorial hub — site-wide RSS feed, title_filter limits to Navy articles"
     },
     {
       "name": "247Sports — Navy",
@@ -132,11 +138,11 @@
       "notes": "Independent UNT football-focused Substack — confirmed very active 2025 with deep in-game analysis and game previews"
     },
     {
-      "name": "GoMeanGreen.com",
-      "url": "https://www.gomeangreen.com/forums/",
-      "type": "fan_aggregator",
+      "name": "Dave Campbell's Texas Football — North Texas",
+      "url": "https://www.texasfootball.com/team/north-texas-mean-green",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Largest UNT fan forum community — confirmed active 2025 recruiting and football discussion"
+      "notes": "Established Texas CFB publication with bylined analysis — no RSS available, direct URL"
     },
     {
       "name": "247Sports — North Texas",
@@ -152,7 +158,16 @@
       "url": "https://www.underdogdynasty.com/rice-owls",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["rice", "owls"],
       "notes": "Best external editorial coverage for Rice football — confirmed active 2025, including upset previews"
+    },
+    {
+      "name": "At The Roost",
+      "url": "https://attheroost.com/football/",
+      "type": "beat_writer",
+      "rss": "https://attheroost.com/feed/",
+      "title_filter": ["football", "rice", "owls"],
+      "notes": "Rice athletics site — multi-sport RSS, title_filter limits to football/Rice/Owls articles"
     },
     {
       "name": "247Sports — Rice",
@@ -171,11 +186,11 @@
       "notes": "USF fan news and community site — confirmed active 2025 with game coverage and analysis"
     },
     {
-      "name": "The Bulls Pen",
-      "url": "https://www.thebullspen.com/",
-      "type": "fan_aggregator",
+      "name": "Bay News 9 — USF Bulls",
+      "url": "https://baynews9.com/fl/tampa/sports/college/usf-bulls",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Largest USF fan forum — confirmed active 2025, long-running community with football coverage"
+      "notes": "Tampa Spectrum cable news — free USF coverage confirmed active; direct URL only, no team-specific RSS"
     },
     {
       "name": "247Sports — South Florida",
@@ -191,6 +206,7 @@
       "url": "https://www.underdogdynasty.com/temple-owls",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["temple", "owls"],
       "notes": "Best external editorial coverage for Temple football — confirmed active 2025"
     },
     {
@@ -207,7 +223,16 @@
       "url": "https://www.underdogdynasty.com/tulane-green-wave",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["tulane", "green wave"],
       "notes": "AAC editorial hub — top Tulane football analysis; confirmed active with CFP-level coverage 2025"
+    },
+    {
+      "name": "Crescent City Sports — Tulane",
+      "url": "https://crescentcitysports.com/tulane-green-wave/",
+      "type": "beat_writer",
+      "rss": "https://crescentcitysports.com/feed/",
+      "title_filter": ["tulane", "green wave"],
+      "notes": "New Orleans sports site — multi-team RSS (LSU, Tulane, UNO, SLU); title_filter limits to Tulane/Green Wave articles"
     },
     {
       "name": "247Sports — Tulane",
@@ -223,6 +248,7 @@
       "url": "https://www.underdogdynasty.com/tulsa-golden-hurricane",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["tulsa", "golden hurricane"],
       "notes": "Best external editorial coverage for Tulsa football — confirmed active 2025 under first-year coach Tre Lamb"
     },
     {
@@ -239,7 +265,22 @@
       "url": "https://www.underdogdynasty.com/uab-blazers",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["uab", "blazers"],
       "notes": "Best external editorial coverage for UAB football; no active independent fan blog found"
+    },
+    {
+      "name": "AL.com — UAB",
+      "url": "https://www.al.com/uab/",
+      "type": "beat_writer",
+      "rss": "https://www.al.com/arc/outboundfeeds/rss/category/uab/",
+      "notes": "AL.com UAB section — Arc Publishing RSS; confirmed free content, strong local beat reporting"
+    },
+    {
+      "name": "WBRC Fox 6 — UAB",
+      "url": "https://www.wbrc.com/sports/ncaa/uab/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Birmingham TV news UAB section — free, confirmed active spring practice and coaching coverage through 2026"
     },
     {
       "name": "247Sports — UAB",
@@ -255,14 +296,22 @@
       "url": "https://www.underdogdynasty.com/utsa-roadrunners",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["utsa", "roadrunners"],
       "notes": "Strong UTSA football coverage — confirmed very active 2025 including preseason previews and weekly analysis"
     },
     {
-      "name": "Rowdy Talk",
-      "url": "https://www.rowdytalk.com/",
-      "type": "fan_aggregator",
+      "name": "KSAT 12 — UTSA",
+      "url": "https://www.ksat.com/topic/UTSA_Roadrunners/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Largest UTSA fan forum — confirmed active 2025, covers football recruiting and game discussion"
+      "notes": "San Antonio NBC affiliate — free UTSA coverage confirmed active; direct URL only"
+    },
+    {
+      "name": "Dave Campbell's Texas Football — UTSA",
+      "url": "https://www.texasfootball.com/team/utsa-roadrunners",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Established Texas CFB publication with bylined analysis — no RSS available, direct URL"
     },
     {
       "name": "247Sports — UTSA",

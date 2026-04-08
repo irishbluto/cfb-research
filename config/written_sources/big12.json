@@ -67,14 +67,14 @@
       "url": "https://www.vanquishthefoe.com/byu-football",
       "type": "fan_aggregator",
       "rss": "https://www.vanquishthefoe.com/rss/index.xml",
-      "notes": "SBNation BYU community — confirmed active with 2025 football coverage"
+      "notes": "SBNation BYU community — confirmed active with 2025 football coverage; monitor for paywall failures"
     },
     {
-      "name": "CougarBoard",
-      "url": "https://www.cougarboard.com/",
-      "type": "fan_aggregator",
+      "name": "Deseret News — BYU Cougars",
+      "url": "https://www.deseret.com/sports/byu-cougars/",
+      "type": "beat_writer",
       "rss": null,
-      "notes": "Largest independent BYU fan community — confirmed active 2025, high-volume message board with news"
+      "notes": "Primary Utah/BYU newspaper — daily beat coverage, freely accessible; RSS category exists but returns empty feed as of April 2026, direct URL only"
     },
     {
       "name": "247Sports — BYU",
@@ -253,18 +253,11 @@
   ],
   "utah": [
     {
-      "name": "Block U",
-      "url": "https://www.blocku.com/utah-utes-football",
-      "type": "fan_aggregator",
-      "rss": null,
-      "notes": "SBNation Utah community — both root and /utah-utes-football RSS return 404 or empty as of April 2026; site appears inactive"
-    },
-    {
-      "name": "Utes Wire — USA Today",
-      "url": "https://uteswire.usatoday.com/",
-      "type": "fan_aggregator",
-      "rss": "https://uteswire.usatoday.com/feed/",
-      "notes": "USA Today fan wire — Utah football; added as primary RSS source"
+      "name": "Deseret News — Utah Utes",
+      "url": "https://www.deseret.com/sports/utah-utes/",
+      "type": "beat_writer",
+      "rss": "https://www.deseret.com/arc/outboundfeeds/rss/category/sports/utah-utes/",
+      "notes": "Primary Salt Lake City newspaper — free to access, active daily football coverage, Arc Publishing RSS (same pattern as AL.com/MLive/PennLive)"
     },
     {
       "name": "247Sports — Utah",

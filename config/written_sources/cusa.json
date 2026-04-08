@@ -54,6 +54,13 @@
       "notes": "SBNation CUSA hub — confirmed active; Jax State is a perennial CUSA contender and gets strong weekly coverage including title race scenarios"
     },
     {
+      "name": "WBRC Fox 6 — Jacksonville State",
+      "url": "https://www.wbrc.com/sports/ncaa/jsu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Birmingham TV news JSU section — free, confirmed active; Alabama's largest TV market covers Jax State as a notable in-state program"
+    },
+    {
       "name": "247Sports — Jacksonville State",
       "url": "https://247sports.com/college/jacksonville-state/",
       "type": "beat_writer",
@@ -187,6 +194,13 @@
       "notes": "SBNation CUSA hub — confirmed active with Sam Houston coverage including 2025 season struggles and November turnaround"
     },
     {
+      "name": "Dave Campbell's Texas Football — Sam Houston",
+      "url": "https://www.texasfootball.com/team/sam-houston-bearkats",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Established Texas CFB publication — bylined analysis and program coverage; no RSS available, direct URL"
+    },
+    {
       "name": "247Sports — Sam Houston",
       "url": "https://247sports.com/college/sam-houston/",
       "type": "beat_writer",
@@ -205,6 +219,30 @@
     {
       "name": "247Sports — Western Kentucky",
       "url": "https://247sports.com/college/western-kentucky/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Recruiting and portal tracking"
+    }
+  ],
+  "utep": [
+    {
+      "name": "Underdog Dynasty — UTEP",
+      "url": "https://www.underdogdynasty.com/utep-miners",
+      "type": "fan_aggregator",
+      "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["utep", "miners"],
+      "notes": "CUSA editorial coverage for UTEP — site-wide RSS, title_filter limits to UTEP/Miners articles"
+    },
+    {
+      "name": "Dave Campbell's Texas Football — UTEP",
+      "url": "https://www.texasfootball.com/team/utep-miners",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Established Texas CFB publication with bylined analysis — no RSS available, direct URL"
+    },
+    {
+      "name": "247Sports — UTEP",
+      "url": "https://247sports.com/college/utep/",
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"

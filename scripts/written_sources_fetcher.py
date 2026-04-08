@@ -91,6 +91,8 @@ SKIP_PREFETCH_DOMAINS = {
     'omaha.com',        # Paywalled newspaper (Omaha World-Herald)
     'kentucky.com',     # Paywalled newspaper (Lexington Herald-Leader)
     'theadvocate.com',  # Paywalled newspaper (Baton Rouge)
+    'oklahoman.com',    # Paywalled newspaper (Oklahoma City)
+    'dailymemphian.com', # Paywalled local paper — RSS headlines useful, body blocked
     'oklahoman.com',    # Paywalled newspaper
 }
 
@@ -208,6 +210,14 @@ def _fetch_rss(source, days=14, max_items=5):
         link = link.strip()
         if link.startswith('//'):
             link = 'https:' + link
+
+        # Apply title filter if configured — for multi-sport feeds, only keep
+        # articles matching at least one keyword (case-insensitive title match)
+        title_filter = source.get('title_filter', [])
+        if title_filter:
+            title_lower = title.lower()
+            if not any(kw.lower() in title_lower for kw in title_filter):
+                continue
 
         articles.append({
             'source':      name,

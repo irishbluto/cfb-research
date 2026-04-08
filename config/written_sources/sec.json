@@ -146,6 +146,14 @@
       "notes": "Dandy Don’s LSU Sporting News"
     },
     {
+      "name": "Crescent City Sports — LSU",
+      "url": "https://crescentcitysports.com/lsu-tigers/",
+      "type": "beat_writer",
+      "rss": "https://crescentcitysports.com/feed/",
+      "title_filter": ["lsu", "tigers"],
+      "notes": "New Orleans sports site — multi-team RSS (LSU, Tulane, UNO, SLU); title_filter limits to LSU/Tigers articles"
+    },
+    {
       "name": "The Advocate",
       "url": "https://www.theadvocate.com/baton_rouge/sports/lsu/",
       "type": "beat_writer",
@@ -298,6 +306,13 @@
       "type": "fan_aggregator",
       "rss": "https://www.burntorangenation.com/feed",
       "notes": "Texas Football News"
+    },
+    {
+      "name": "Austin American-Statesman — Hook 'Em",
+      "url": "https://www.statesman.com/hookem/football/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Austin newspaper Texas Longhorns football section — strong beat coverage; paywall likely limits pre-fetch, direct URL only"
     }
   ],
     "texas-am": [
@@ -314,6 +329,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Texas A&M Football News"
+    },
+    {
+      "name": "Austin American-Statesman — Texas A&M",
+      "url": "https://www.statesman.com/sports/tamu/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Austin newspaper Texas A&M section — strong statewide college coverage; paywall likely limits pre-fetch, direct URL only"
     },
     {
       "name": "247 - Texas A&M",
