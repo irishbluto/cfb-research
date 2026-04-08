@@ -259,8 +259,8 @@
       "name": "Rule of Tree",
       "url": "https://www.ruleoftree.com/football",
       "type": "fan_aggregator",
-      "rss": "https://www.ruleoftree.com/football/rss/index.xml",
-      "notes": "SBNation Stanford community — use /football subpath RSS; root domain RSS returns nothing (install page)"
+      "rss": null,
+      "notes": "SBNation Stanford community — both root and /football/rss/index.xml return 404; RSS unavailable as of April 2026"
     },
     {
       "name": "The Stanford Daily — Sports",

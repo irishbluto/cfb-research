@@ -87,6 +87,11 @@ SKIP_PREFETCH_DOMAINS = {
     'theathletic.com',
     'si.com',
     'the-athletic.com',
+    'kslsports.com',    # JS-heavy local news site, slow to fetch
+    'omaha.com',        # Paywalled newspaper (Omaha World-Herald)
+    'kentucky.com',     # Paywalled newspaper (Lexington Herald-Leader)
+    'theadvocate.com',  # Paywalled newspaper (Baton Rouge)
+    'oklahoman.com',    # Paywalled newspaper
 }
 
 # ---------------------------------------------------------------------------
@@ -140,7 +145,7 @@ def _fetch_rss(source, days=14, max_items=5):
             rss_url,
             headers={
                 'User-Agent': 'Mozilla/5.0 (compatible; CFBResearchBot/1.0)',
-                'Accept': 'application/rss+xml, application/xml, text/xml',
+                'Accept': 'application/rss+xml, application/xml, text/xml, */*;q=0.8',
             }
         )
         with urllib.request.urlopen(req, timeout=10) as resp:

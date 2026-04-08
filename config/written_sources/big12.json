@@ -256,15 +256,15 @@
       "name": "Block U",
       "url": "https://www.blocku.com/utah-utes-football",
       "type": "fan_aggregator",
-      "rss": "https://www.blocku.com/utah-utes-football/rss/index.xml",
-      "notes": "SBNation Utah community — RSS corrected to /utah-utes-football subpath; root /rss/index.xml returns nothing (root domain is minimal)"
+      "rss": null,
+      "notes": "SBNation Utah community — both root and /utah-utes-football RSS return 404 or empty as of April 2026; site appears inactive"
     },
     {
-      "name": "KSL Sports — Utah Football",
-      "url": "https://kslsports.com/ncaa/utah/",
-      "type": "beat_writer",
-      "rss": null,
-      "notes": "Salt Lake City's KSL Sports — solid beat coverage of Utah football with insider access"
+      "name": "Utes Wire — USA Today",
+      "url": "https://uteswire.usatoday.com/",
+      "type": "fan_aggregator",
+      "rss": "https://uteswire.usatoday.com/feed/",
+      "notes": "USA Today fan wire — Utah football; added as primary RSS source"
     },
     {
       "name": "247Sports — Utah",
