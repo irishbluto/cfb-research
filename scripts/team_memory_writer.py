@@ -57,6 +57,14 @@ def write_team_memory(slug):
         logging.error(f"  [{slug}] Failed to read research file: {e}")
         return False
 
+    # Skip if the research file is stale (not from today) — prevents overwriting
+    # good memory with old output when a team timed out in the current run.
+    research_date = data.get("research_date", "")
+    today = datetime.now().strftime("%Y-%m-%d")
+    if research_date and research_date != today:
+        logging.info(f"  [{slug}] Research file is from {research_date} (not today) — skipping memory update")
+        return False
+
     # Increment run_count from existing memory if it exists
     run_count = 1
     if memory_file.exists():

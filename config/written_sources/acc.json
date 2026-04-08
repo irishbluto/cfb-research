@@ -198,37 +198,37 @@
       "url": "https://www.tarheelblog.com/unc-football",
       "type": "fan_aggregator",
       "rss": "https://www.tarheelblog.com/rss/index.xml",
-      "notes": "SBNation UNC community — confirmed active 2025"
+      "notes": "SBNation UNC community — RSS finds articles but body pre-fetch may fail due to SBNation paywall; keep as signal source"
     },
     {
-      "name": "Tar Heel Fan Blog",
-      "url": "https://www.tarheelfanblog.com/",
-      "type": "fan_aggregator",
-      "rss": "https://www.tarheelfanblog.com/feed/",
-      "notes": "Independent UNC fan blog — football, basketball, and baseball focus"
+      "name": "Daily Tar Heel — Sports",
+      "url": "https://www.dailytarheel.com/section/sports",
+      "type": "beat_writer",
+      "rss": "https://www.dailytarheel.com/rss.xml",
+      "notes": "UNC student newspaper — free to access, covers football news; RSS is site-wide but football is primary sport"
     },
     {
       "name": "Inside Carolina — On3",
       "url": "https://www.on3.com/teams/north-carolina-tar-heels/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "On3 UNC site — recruiting and portal tracking"
+      "notes": "On3 UNC site — recruiting and portal tracking (direct URL only)"
     }
   ],
   "pittsburgh": [
+    {
+      "name": "The Pitt News — Sports",
+      "url": "https://www.pittnews.com/category/sports/",
+      "type": "beat_writer",
+      "rss": "https://www.pittnews.com/category/sports/feed/",
+      "notes": "Pitt student newspaper — free to access, covers football; RSS is sports-wide but football is primary fall sport"
+    },
     {
       "name": "Panther-Lair — 247Sports Pitt",
       "url": "https://247sports.com/college/pittsburgh/",
       "type": "beat_writer",
       "rss": null,
-      "notes": "Primary Pitt beat site via 247Sports — confirmed very active 2025; note: cardiachill.com (former SBNation blog) is defunct as of 2025"
-    },
-    {
-      "name": "Pittsburgh Sports Now",
-      "url": "https://www.si.com/college/pittsburgh",
-      "type": "beat_writer",
-      "rss": null,
-      "notes": "Sports Illustrated Pitt channel — active football and recruiting coverage"
+      "notes": "Primary Pitt beat site via 247Sports — recruiting and portal tracking (direct URL only); cardiachill.com defunct as of 2025"
     }
   ],
   "smu": [
@@ -259,8 +259,8 @@
       "name": "Rule of Tree",
       "url": "https://www.ruleoftree.com/football",
       "type": "fan_aggregator",
-      "rss": "https://www.ruleoftree.com/rss/index.xml",
-      "notes": "SBNation Stanford community — use /football subpath; root domain shows install page but SBNation subpages are active"
+      "rss": "https://www.ruleoftree.com/football/rss/index.xml",
+      "notes": "SBNation Stanford community — use /football subpath RSS; root domain RSS returns nothing (install page)"
     },
     {
       "name": "The Stanford Daily — Sports",
