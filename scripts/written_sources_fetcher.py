@@ -93,7 +93,7 @@ SKIP_PREFETCH_DOMAINS = {
     'theadvocate.com',  # Paywalled newspaper (Baton Rouge)
     'oklahoman.com',    # Paywalled newspaper (Oklahoma City)
     'dailymemphian.com', # Paywalled local paper — RSS headlines useful, body blocked
-    'oklahoman.com',    # Paywalled newspaper
+    'toledoblade.com',  # Paywalled local paper (Toledo OH) — RSS headlines useful, body blocked
 }
 
 # ---------------------------------------------------------------------------

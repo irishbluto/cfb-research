@@ -5,6 +5,7 @@
       "url": "https://www.underdogdynasty.com/delaware-blue-hens",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["delaware", "blue hens"],
       "notes": "SBNation CUSA hub — confirmed very active through March 2026; deep weekly game previews, recaps, and 'Weekday CUSA' coverage for all 11 teams"
     },
     {
@@ -35,6 +36,7 @@
       "url": "https://www.underdogdynasty.com/fiu-panthers",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["florida international", "fiu", "panthers"],
       "notes": "SBNation CUSA hub — confirmed active with FIU coverage including Willie Simmons first-year rebuild in 2025"
     },
     {
@@ -51,6 +53,7 @@
       "url": "https://www.underdogdynasty.com/jacksonville-state-gamecocks",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["jacksonville state", "jsu", "gamecocks"],
       "notes": "SBNation CUSA hub — confirmed active; Jax State is a perennial CUSA contender and gets strong weekly coverage including title race scenarios"
     },
     {
@@ -74,6 +77,7 @@
       "url": "https://www.underdogdynasty.com/kennesaw-state-owls",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["kennesaw state", "kennesaw"],
       "notes": "SBNation CUSA hub — confirmed active; strong KSU coverage following their 2025 CUSA championship run and Jerry Mack era"
     },
     {
@@ -90,6 +94,7 @@
       "url": "https://www.underdogdynasty.com/liberty-flames",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["liberty", "flames"],
       "notes": "SBNation CUSA hub — confirmed active; Liberty is one of the conference's most-covered teams given their FBS success history"
     },
     {
@@ -106,6 +111,7 @@
       "url": "https://www.underdogdynasty.com/louisiana-tech-bulldogs",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["louisiana tech", "la tech"],
       "notes": "SBNation CUSA hub — confirmed active; La Tech in limbo (Sun Belt exit likely 2026 or 2027) but schedule released for CUSA in 2026; include unless confirmed departed"
     },
     {
@@ -122,6 +128,7 @@
       "url": "https://www.underdogdynasty.com/middle-tennessee-blue-raiders",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["middle tennessee", "mtsu", "blue raiders"],
       "notes": "SBNation CUSA hub — confirmed active with MTSU coverage"
     },
     {
@@ -152,6 +159,7 @@
       "url": "https://www.underdogdynasty.com/missouri-state-bears",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["missouri state"],
       "notes": "SBNation CUSA hub — confirmed active with Missouri State coverage in their first CUSA season; Bears were competitive in 2025 despite FBS transition"
     },
     {
@@ -168,6 +176,7 @@
       "url": "https://www.underdogdynasty.com/new-mexico-state-aggies",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["new mexico state", "nmsu"],
       "notes": "SBNation CUSA hub — confirmed active with NMSU coverage"
     },
     {
@@ -191,6 +200,7 @@
       "url": "https://www.underdogdynasty.com/sam-houston-bearkats",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["sam houston", "bearkats"],
       "notes": "SBNation CUSA hub — confirmed active with Sam Houston coverage including 2025 season struggles and November turnaround"
     },
     {
@@ -214,35 +224,12 @@
       "url": "https://www.underdogdynasty.com/western-kentucky-hilltoppers",
       "type": "fan_aggregator",
       "rss": "https://www.underdogdynasty.com/rss/current.xml",
+      "title_filter": ["western kentucky", "wku", "hilltoppers"],
       "notes": "SBNation CUSA hub — confirmed very active; WKU is a CUSA powerhouse and gets the deepest weekly coverage of any team in the conference"
     },
     {
       "name": "247Sports — Western Kentucky",
       "url": "https://247sports.com/college/western-kentucky/",
-      "type": "beat_writer",
-      "rss": null,
-      "notes": "Recruiting and portal tracking"
-    }
-  ],
-  "utep": [
-    {
-      "name": "Underdog Dynasty — UTEP",
-      "url": "https://www.underdogdynasty.com/utep-miners",
-      "type": "fan_aggregator",
-      "rss": "https://www.underdogdynasty.com/rss/current.xml",
-      "title_filter": ["utep", "miners"],
-      "notes": "CUSA editorial coverage for UTEP — site-wide RSS, title_filter limits to UTEP/Miners articles"
-    },
-    {
-      "name": "Dave Campbell's Texas Football — UTEP",
-      "url": "https://www.texasfootball.com/team/utep-miners",
-      "type": "beat_writer",
-      "rss": null,
-      "notes": "Established Texas CFB publication with bylined analysis — no RSS available, direct URL"
-    },
-    {
-      "name": "247Sports — UTEP",
-      "url": "https://247sports.com/college/utep/",
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"

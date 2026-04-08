@@ -122,6 +122,7 @@
       "url": "https://www.underdogdynasty.com/houston-cougars",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["houston", "cougars"],
       "notes": "AAC/Big 12-focused site with dedicated Houston football coverage — confirmed very active 2025"
     },
     {
@@ -281,6 +282,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "WCHS TV — WVU Sports",
+      "url": "https://www.wchstv.com/sports",
+      "type": "local_news",
+      "rss": null,
+      "notes": "Charleston/Huntington ABC affiliate — WVU and Marshall dedicated sports sections; no RSS available, direct URL only"
     }
   ]
 }

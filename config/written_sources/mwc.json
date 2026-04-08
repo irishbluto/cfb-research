@@ -5,6 +5,7 @@
       "url": "https://www.mwcconnection.com/air-force-falcons-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["air force", "falcons"],
       "notes": "SBNation MWC hub — confirmed very active through March 2026; dedicated Air Force beat writer each season"
     },
     {
@@ -13,6 +14,13 @@
       "type": "fan_aggregator",
       "rss": "https://www.againstallenemies.com/rss/index.xml",
       "notes": "SBNation service academy community covering Air Force, Army and Navy athletics — confirmed active 2025"
+    },
+    {
+      "name": "KKTV 11 — Air Force",
+      "url": "https://www.kktv.com/sports/college/air-force/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Colorado Springs CBS affiliate — free, confirmed active Air Force football coverage; direct URL only"
     },
     {
       "name": "247Sports — Air Force",
@@ -28,7 +36,15 @@
       "url": "https://www.mwcconnection.com/hawaii-warriors-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["hawaii", "warriors"],
       "notes": "SBNation MWC hub — confirmed very active; dedicated Hawaii beat writer with recruiting class breakdowns and season previews"
+    },
+    {
+      "name": "Hawaii News Now — Warriors",
+      "url": "https://www.hawaiinewsnow.com/sports/ncaa/hawaii/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Honolulu local TV news — free, Arc Publishing platform, confirmed active UH football coverage including bowl game recaps and coaching updates; direct URL only"
     },
     {
       "name": "247Sports — Hawaii",
@@ -44,6 +60,7 @@
       "url": "https://www.mwcconnection.com/nevada-wolfpack-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["nevada", "wolf pack"],
       "notes": "SBNation MWC hub — confirmed active; dedicated Nevada beat writer (Dom) each season"
     },
     {
@@ -74,6 +91,7 @@
       "url": "https://www.mwcconnection.com/new-mexico-lobos-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["new mexico", "lobos"],
       "notes": "SBNation MWC hub — dedicated New Mexico beat writer (Roger); good season previews and analysis"
     },
     {
@@ -82,6 +100,20 @@
       "type": "beat_writer",
       "rss": "https://www.dailylobo.com/search/?f=rss&q=football",
       "notes": "UNM student newspaper — confirmed active 2025 with game recaps and football coverage"
+    },
+    {
+      "name": "KRQE — UNM Lobos",
+      "url": "https://www.krqe.com/unm-lobo-football/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Albuquerque CBS affiliate — free, confirmed active UNM football coverage; direct URL only"
+    },
+    {
+      "name": "KOB 4 — UNM Lobos",
+      "url": "https://www.kob.com/category/sports-stories/lobos/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Albuquerque NBC affiliate — free, covers Lobo sports; direct URL only"
     },
     {
       "name": "Albuquerque Journal — Lobos",
@@ -104,7 +136,22 @@
       "url": "https://www.mwcconnection.com/north-dakota-state-bison-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["north dakota state", "ndsu", "bison"],
       "notes": "MWC hub covering NDSU's transition to FBS — confirmed active with 2026 schedule and conference intro coverage"
+    },
+    {
+      "name": "KVRR — NDSU Bison Football",
+      "url": "https://www.kvrr.com/tag/bison-football/",
+      "type": "beat_writer",
+      "rss": "https://www.kvrr.com/tag/bison-football/feed/",
+      "notes": "Fargo Fox affiliate — free, RSS confirmed valid Apr 2026; covers NDSU recruiting, NFL alumni, and MWC transition"
+    },
+    {
+      "name": "Valley News Live — Bison Huddle",
+      "url": "https://www.valleynewslive.com/sports/college/bison-huddle/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Fargo ABC affiliate — free, confirmed active NDSU football coverage; direct URL only"
     },
     {
       "name": "247Sports — North Dakota State",
@@ -120,6 +167,7 @@
       "url": "https://www.mwcconnection.com/northern-illinois-huskies-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["northern illinois", "niu", "huskies"],
       "notes": "MWC hub covering NIU's transition from the MAC — confirmed active with 2026 schedule coverage"
     },
     {
@@ -136,6 +184,7 @@
       "url": "https://www.mwcconnection.com/san-jose-state-spartans-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["san jose state", "sjsu", "spartans"],
       "notes": "SBNation MWC hub — dedicated SJSU beat writer (Vic); confirmed active with weekly analysis"
     },
     {
@@ -152,7 +201,22 @@
       "url": "https://www.mwcconnection.com/unlv-rebels-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["unlv", "rebels"],
       "notes": "SBNation MWC hub — dedicated UNLV beat writer (Zane); confirmed active 2025 with strong Rebels coverage during title run"
+    },
+    {
+      "name": "Las Vegas Sun — UNLV Football",
+      "url": "https://lasvegassun.com/news/sports/unlv/football/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Las Vegas independent paper — free, confirmed active UNLV football coverage with named beat writer (Ray Brewer); direct URL only"
+    },
+    {
+      "name": "Fox5 Vegas — UNLV",
+      "url": "https://www.fox5vegas.com/sports/ncaa/unlv/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Las Vegas Fox affiliate — free UNLV sports coverage; direct URL only"
     },
     {
       "name": "Rebel-Net — UNLV Rivals",
@@ -175,6 +239,7 @@
       "url": "https://www.mwcconnection.com/utep-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["utep", "miners"],
       "notes": "MWC hub covering UTEP's arrival — confirmed active March 2026 with MWC fan intro feature for the Miners"
     },
     {
@@ -182,7 +247,22 @@
       "url": "https://www.underdogdynasty.com/utep-miners",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
-      "notes": "Strong UTEP editorial coverage through CUSA days — confirmed active with 2026 MWC schedule preview; good source for roster and context"
+      "title_filter": ["utep", "miners"],
+      "notes": "UTEP editorial coverage — site-wide RSS, title_filter limits to UTEP/Miners articles; active with 2026 MWC schedule preview"
+    },
+    {
+      "name": "Dave Campbell's Texas Football — UTEP",
+      "url": "https://www.texasfootball.com/team/utep-miners",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Established Texas CFB publication with bylined analysis — no RSS available, direct URL"
+    },
+    {
+      "name": "KTSM 9 — UTEP",
+      "url": "https://www.ktsm.com/sports/college-sports/utep/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "El Paso NBC affiliate — free UTEP sports coverage; direct URL only"
     },
     {
       "name": "247Sports — UTEP",
@@ -205,7 +285,15 @@
       "url": "https://www.mwcconnection.com/wyoming-cowboys-football",
       "type": "fan_aggregator",
       "rss": "https://www.mwcconnection.com/rss/index.xml",
+      "title_filter": ["wyoming", "cowboys"],
       "notes": "SBNation MWC hub — Wyoming coverage with season previews and game analysis"
+    },
+    {
+      "name": "WyoSports — Wyoming Football",
+      "url": "https://www.wyomingnews.com/wyosports/university_of_wyoming/football/",
+      "type": "beat_writer",
+      "rss": null,
+      "notes": "Wyoming Tribune Eagle sports section — free/partial paywall, confirmed active beat coverage including spring practice, portal, coaching; direct URL only"
     },
     {
       "name": "247Sports — Wyoming",

@@ -5,6 +5,7 @@
       "url": "https://www.hustlebelt.com/akron-zips",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["akron", "zips"],
       "notes": "SBNation MAC hub — confirmed very active through March 2026; deep game recaps and power rankings for every MAC team"
     },
     {
@@ -28,6 +29,7 @@
       "url": "https://www.hustlebelt.com/ball-state-cardinals",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["ball state", "cardinals"],
       "notes": "SBNation MAC hub — confirmed active with weekly game recaps and preseason previews for Ball State"
     },
     {
@@ -44,6 +46,7 @@
       "url": "https://www.hustlebelt.com/bowling-green-falcons",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["bowling green", "falcons"],
       "notes": "SBNation MAC hub — confirmed active; covers Eddie George era and Battle of I-75 rivalry with Toledo"
     },
     {
@@ -59,6 +62,22 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "BCSN Nation — BGSU",
+      "url": "https://www.bcsnnation.com",
+      "type": "local_news",
+      "rss": "https://www.bcsnnation.com/feed/",
+      "title_filter": ["bowling green", "bgsu", "falcons"],
+      "notes": "NW Ohio local sports site — confirmed RSS active; covers BGSU football, UT, and local high school sports"
+    },
+    {
+      "name": "Toledo Blade — BGSU",
+      "url": "https://www.toledoblade.com/sports/college",
+      "type": "local_news",
+      "rss": "https://www.toledoblade.com/rss",
+      "title_filter": ["bowling green", "bgsu", "falcons"],
+      "notes": "Local daily newspaper; dedicated BGSU section confirmed; piano paywall on bodies but headlines in RSS"
     }
   ],
   "buffalo": [
@@ -67,6 +86,7 @@
       "url": "https://www.hustlebelt.com/buffalo-bulls",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["buffalo", "bulls"],
       "notes": "SBNation MAC hub — confirmed active with regular Bulls coverage"
     },
     {
@@ -90,6 +110,7 @@
       "url": "https://www.hustlebelt.com/central-michigan-chippewas",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["central michigan", "cmu", "chippewas"],
       "notes": "SBNation MAC hub — confirmed active with CMU coverage under first-year coach Matt Drinkall"
     },
     {
@@ -113,6 +134,7 @@
       "url": "https://www.hustlebelt.com/eastern-michigan-eagles",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["eastern michigan", "emu", "eagles"],
       "notes": "SBNation MAC hub — confirmed active with EMU coverage"
     },
     {
@@ -136,6 +158,7 @@
       "url": "https://www.hustlebelt.com/kent-state-golden-flashes",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["kent state", "golden flashes"],
       "notes": "SBNation MAC hub — confirmed active with Kent State coverage"
     },
     {
@@ -159,6 +182,7 @@
       "url": "https://www.hustlebelt.com/umass-minutemen",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["umass", "minutemen", "massachusetts"],
       "notes": "SBNation MAC hub — confirmed active; covers UMass in first full MAC season (0-12 in 2025)"
     },
     {
@@ -182,6 +206,7 @@
       "url": "https://www.hustlebelt.com/miami-redhawks",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["miami ohio", "miami oh", "redhawks"],
       "notes": "SBNation MAC hub — confirmed active; Miami (OH) is a perennial contender and gets strong coverage"
     },
     {
@@ -205,6 +230,7 @@
       "url": "https://www.hustlebelt.com/ohio-bobcats",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["ohio bobcats", "ohio university"],
       "notes": "SBNation MAC hub — confirmed active; Ohio won 2025 MAC title and gets strong regular coverage"
     },
     {
@@ -228,6 +254,7 @@
       "url": "https://sactownsports.com/ncaa/sacramento-state-football/",
       "type": "beat_writer",
       "rss": "https://sactownsports.com/feed/",
+      "title_filter": ["sacramento state", "sac state", "hornets"],
       "notes": "Primary Sac State athletics coverage site — confirmed very active through March 2026 with FBS transition, MAC schedule, and AD interviews"
     },
     {
@@ -235,6 +262,7 @@
       "url": "https://www.hustlebelt.com/sacramento-state-hornets",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["sacramento state", "sac state", "hornets"],
       "notes": "SBNation MAC hub — new Sac State coverage for inaugural 2026 FBS season; MACbbs already has a Sacramento State team forum"
     },
     {
@@ -251,6 +279,7 @@
       "url": "https://www.hustlebelt.com/toledo-rockets",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["toledo", "rockets"],
       "notes": "SBNation MAC hub — confirmed very active; Toledo is a MAC powerhouse and gets detailed weekly coverage"
     },
     {
@@ -266,6 +295,22 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "BCSN Nation — Toledo",
+      "url": "https://www.bcsnnation.com",
+      "type": "local_news",
+      "rss": "https://www.bcsnnation.com/feed/",
+      "title_filter": ["toledo", "rockets"],
+      "notes": "NW Ohio local sports site — confirmed RSS active; covers UT football, BGSU, and Toledo Mud Hens"
+    },
+    {
+      "name": "Toledo Blade — College Sports",
+      "url": "https://www.toledoblade.com/sports/college",
+      "type": "local_news",
+      "rss": "https://www.toledoblade.com/rss",
+      "title_filter": ["toledo", "rockets"],
+      "notes": "Local daily newspaper; dedicated UT and BGSU sections confirmed; piano paywall on bodies but headlines in RSS"
     }
   ],
   "western-michigan": [
@@ -274,6 +319,7 @@
       "url": "https://www.hustlebelt.com/western-michigan-broncos",
       "type": "fan_aggregator",
       "rss": "https://www.hustlebelt.com/rss/index.xml",
+      "title_filter": ["western michigan", "wmu", "broncos"],
       "notes": "SBNation MAC hub — confirmed active; WMU is 2025 MAC champion and gets strong coverage"
     },
     {

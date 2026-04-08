@@ -144,6 +144,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Big Red Louie",
+      "url": "https://bigredlouie.com/",
+      "type": "fan_aggregator",
+      "rss": "https://bigredlouie.com/feed/",
+      "notes": "Independent Louisville fan site — confirmed active RSS April 2026; covers football recruiting, transfers, and program analysis"
     }
   ],
   "miami": [
@@ -258,6 +265,7 @@
       "url": "https://www.underdogdynasty.com/southern-methodist-university-mustangs",
       "type": "beat_writer",
       "rss": "https://www.underdogdynasty.com/feed",
+      "title_filter": ["smu", "mustangs"],
       "notes": "AAC/ACC-focused site with dedicated SMU football coverage — confirmed active 2025"
     },
     {

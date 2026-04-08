@@ -112,6 +112,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Spokesman-Review — WSU Football",
+      "url": "https://www.spokesman.com/sports/",
+      "type": "local_news",
+      "rss": "https://www.spokesman.com/feeds/stories/wsu-football/",
+      "notes": "Spokane daily newspaper — dedicated WSU football RSS feed confirmed active April 2026; team-specific feed, no title_filter needed"
     }
   ]
 }
