@@ -380,6 +380,71 @@ def build_power_ranks(conn, team, season):
     return data
 
 
+def build_sp_plus(conn, team, season):
+    """SandPratings (Bill Connelly's SP+) — rating_overall, offenseRating,
+    defenseRating, stRating, plus national ranks computed via COUNT+1.
+
+    SP+ convention: overall/offense/ST higher = better; defense LOWER = better
+    (defense SP+ is expressed as points allowed relative to average).
+
+    Tries preseason rating for `season` first (typically published by April);
+    falls back to prior season's final rating if preseason row isn't in yet.
+    """
+    row = query_one(conn, """
+        SELECT year, rating_overall, offenseRating, defenseRating, stRating
+        FROM SandPratings
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (team, season))
+    sp_year = season
+    if not row:
+        # fall back to prior season
+        row = query_one(conn, """
+            SELECT year, rating_overall, offenseRating, defenseRating, stRating
+            FROM SandPratings
+            WHERE team = %s AND year = %s
+            LIMIT 1
+        """, (team, season - 1))
+        sp_year = season - 1
+    if not row:
+        return {}
+
+    data = {
+        'sp_plus_year':            sp_year,
+        'sp_plus_overall':         fnum(row.get('rating_overall')),
+        'sp_plus_offense':         fnum(row.get('offenseRating')),
+        'sp_plus_defense':         fnum(row.get('defenseRating')),
+        'sp_plus_special_teams':   fnum(row.get('stRating')),
+    }
+
+    if row.get('rating_overall') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM SandPratings
+            WHERE year = %s AND rating_overall > %s
+        """, (sp_year, row['rating_overall']))
+        data['sp_plus_overall_rank'] = inum(r.get('rnk')) if r else None
+    if row.get('offenseRating') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM SandPratings
+            WHERE year = %s AND offenseRating > %s
+        """, (sp_year, row['offenseRating']))
+        data['sp_plus_offense_rank'] = inum(r.get('rnk')) if r else None
+    if row.get('defenseRating') is not None:
+        # lower defenseRating = better defense in SP+
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM SandPratings
+            WHERE year = %s AND defenseRating < %s
+        """, (sp_year, row['defenseRating']))
+        data['sp_plus_defense_rank'] = inum(r.get('rnk')) if r else None
+    if row.get('stRating') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM SandPratings
+            WHERE year = %s AND stRating > %s
+        """, (sp_year, row['stRating']))
+        data['sp_plus_special_teams_rank'] = inum(r.get('rnk')) if r else None
+    return data
+
+
 def build_preview(conn, team, season):
     """team_preview — returning production, portal class count, blue chip, QB."""
     row = query_one(conn, """
@@ -848,6 +913,7 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     # Pull all sections
     context.update(build_header(conn, url_param, SEASON))
     context.update(build_power_ranks(conn, url_param, SEASON))
+    context.update(build_sp_plus(conn, url_param, SEASON))
     context.update(build_preview(conn, url_param, SEASON))
     context.update(build_coaching(conn, url_param, SEASON))
 
@@ -887,6 +953,14 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
               f"rank=#{context.get('power_rank')} "
               f"off=#{context.get('offense_power_rank')} "
               f"def=#{context.get('defense_power_rank')}")
+        if context.get('sp_plus_overall') is not None:
+            print(f"  sp+ ({context.get('sp_plus_year')}): "
+                  f"overall={context.get('sp_plus_overall')} (#{context.get('sp_plus_overall_rank')}) "
+                  f"off={context.get('sp_plus_offense')} (#{context.get('sp_plus_offense_rank')}) "
+                  f"def={context.get('sp_plus_defense')} (#{context.get('sp_plus_defense_rank')}) "
+                  f"st={context.get('sp_plus_special_teams')} (#{context.get('sp_plus_special_teams_rank')})")
+        else:
+            print(f"  sp+: (no SandPratings row for team)")
         print(f"  hc={context.get('head_coach')} ({context.get('coach_years','')}) "
               f"oc={context.get('offensive_coordinator')} (#{context.get('offensive_coordinator_rank')}) "
               f"dc={context.get('defensive_coordinator')} (#{context.get('defensive_coordinator_rank')})")
