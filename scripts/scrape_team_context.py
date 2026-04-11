@@ -775,7 +775,12 @@ def scrape_teamroster(page, url_param, debug=False):
                 rows.forEach(row => {
                     const p = { position_group: group };
 
-                    // Player cell — name, jersey, class, espn id
+                    // Player cell — name, jersey, class, player_id
+                    // The ESPN player id in the profile link doubles as the
+                    // puntandrally DB player_id (they're the same integer).
+                    // We use the link rather than the admin-only "Gone" button
+                    // because the button is only rendered for authenticated
+                    // editors and scraping happens unauthenticated.
                     const playerCell = row.querySelector('td.player');
                     if (playerCell) {
                         const numEl  = playerCell.querySelector('.jersey-badge .num');
@@ -790,11 +795,16 @@ def scrape_teamroster(page, url_param, debug=False):
                             p.name = name.replace(/\s+/g, ' ').trim();
                             const href = link.getAttribute('href') || '';
                             const em = href.match(/\/id\/(\d+)/);
-                            if (em) p.espn_id = em[1];
+                            if (em) {
+                                p.player_id = em[1];
+                                p.espn_id   = em[1];  // same value, exposed for clarity
+                            }
                         }
                     }
 
-                    // Canonical player_id from action button (DB join key)
+                    // Fallback: if the admin "Gone" button IS present (e.g. an
+                    // authenticated scrape in the future), prefer its data-player-id
+                    // as the canonical source over the ESPN link.
                     const btn = row.querySelector('td.action button[data-player-id]');
                     if (btn) p.player_id = btn.getAttribute('data-player-id');
 
@@ -804,6 +814,10 @@ def scrape_teamroster(page, url_param, debug=False):
 
                     // Any td with a class ending in "Grade" — position-specific,
                     // capture whatever is present (passGrade/runGrade/recGrade/blockGrade/etc.)
+                    // The badge element has two classes: "grade-badge" (the styling
+                    // hook) and "grade-X" where X is the letter. We must exclude
+                    // "grade-badge" itself from the letter lookup, otherwise it
+                    // wins the .find() and we'd read "badge" as the grade.
                     row.querySelectorAll('td[class]').forEach(td => {
                         const gradeClass = Array.from(td.classList)
                             .find(c => c.endsWith('Grade'));
@@ -811,11 +825,11 @@ def scrape_teamroster(page, url_param, debug=False):
                         const badge = td.querySelector('.grade-badge');
                         if (!badge) return;
                         const letterClass = Array.from(badge.classList)
-                            .find(c => c.startsWith('grade-'));
+                            .find(c => c.startsWith('grade-') && c !== 'grade-badge');
                         const letter = letterClass
                             ? letterClass.replace('grade-', '')
                             : badge.textContent.trim();
-                        p[gradeClass] = letter;
+                        if (letter) p[gradeClass] = letter;
                     });
 
                     // PPA rank
