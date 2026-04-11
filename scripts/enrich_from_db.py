@@ -308,7 +308,7 @@ def get_best_players(conn, team, season):
         FROM roster_best_players
         WHERE year = %s AND team = %s
         ORDER BY points DESC
-        LIMIT 12
+        LIMIT 20
     """, (season, team))
 
     if not rows:
