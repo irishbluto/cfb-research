@@ -414,6 +414,21 @@ def build_preview(conn, team, season):
     # starting_qb_note for backwards compatibility with research_agent.py
     if data['starting_qb_name']:
         data['starting_qb_note'] = data['starting_qb_name']
+
+    # Bill Connelly's returning production (separate methodology) — kept
+    # alongside team_preview's numbers so the agent can compare both sources.
+    # Connelly tends to weight skill-position production heavier; team_preview
+    # uses raw snap-back rates. Divergence between the two is meaningful signal.
+    billc = query_one(conn, """
+        SELECT overall, off, def
+        FROM returning_production_billc
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (team, season))
+    if billc:
+        data['billc_returning_production_pct'] = inum(billc.get('overall'))
+        data['billc_returning_offense_pct']    = inum(billc.get('off'))
+        data['billc_returning_defense_pct']    = inum(billc.get('def'))
     return data
 
 
@@ -880,11 +895,17 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
             print(f"  NEW HC: was {prev_hc}")
         print(f"  vegas={context.get('vegas_win_total')} proj={context.get('projected_record')} "
               f"(#{context.get('projected_record_rank')}) sos=#{context.get('sos_rank')}")
-        print(f"  ret_prod: overall={context.get('returning_production_pct')}% "
+        print(f"  ret_prod (team_preview): overall={context.get('returning_production_pct')}% "
               f"off={context.get('returning_offense_pct')}% "
               f"def={context.get('returning_defense_pct')}% "
               f"starters={context.get('returning_starters')} "
               f"(off {context.get('returning_starters_off')}/def {context.get('returning_starters_def')})")
+        if context.get('billc_returning_production_pct') is not None:
+            print(f"  ret_prod (billc):        overall={context.get('billc_returning_production_pct')}% "
+                  f"off={context.get('billc_returning_offense_pct')}% "
+                  f"def={context.get('billc_returning_defense_pct')}%")
+        else:
+            print(f"  ret_prod (billc):        (no row for {context.get('team_name') or 'team'} {SEASON})")
         print(f"  qb={context.get('starting_qb_name')} qb_back={context.get('qb_back')}")
         print(f"  portal: in={len(context.get('portal_in', []))} out={len(context.get('portal_out', []))} "
               f"(team_preview add={context.get('portal_class_count')} loss={context.get('portal_loss_count')})")
