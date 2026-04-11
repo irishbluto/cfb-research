@@ -186,6 +186,16 @@ def build_prompt(slug, context, channels, no_youtube=False):
     four_yr     = context.get('four_yr_record', '')
     close_game_record = context.get('one_score_games', '')
     close_game_record_overall = context.get('one_score_games_under_coach', '')
+    # Note explains the None case (first-year coach, or FCS→FBS transition where
+    # no under-coach games exist in the table). Surfaced in the prompt so the
+    # agent doesn't silently gloss over the missing record.
+    close_game_note = context.get('one_score_games_under_coach_note', '')
+    if close_game_record_overall:
+        close_game_overall_display = close_game_record_overall
+    elif close_game_note:
+        close_game_overall_display = f"n/a ({close_game_note})"
+    else:
+        close_game_overall_display = "n/a"
     off_rank    = context.get('offense_power_rank')
     def_rank    = context.get('defense_power_rank')
     adv_season  = context.get('db_enriched_at', '')
@@ -467,7 +477,7 @@ Conference: {conference}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
 {f"Previous Staff (2025) — HC: {prev_coach} | OC: {prev_oc} | DC: {prev_dc}" if prev_coach else "Previous coaching staff: Not in DB — do NOT name or guess any former coaches or coordinators"}
 2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
-2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_record_overall}
+2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_overall_display}
 4-Year Record: {four_yr}
 Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}
 PPA: Offense #{ppa_off} | Defense #{ppa_def}

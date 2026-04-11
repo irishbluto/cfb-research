@@ -1024,13 +1024,32 @@ def build_one_score_games(conn, team, season):
             if end_yr is None:
                 end_yr = last_yr
             end_yr = min(end_yr, last_yr)
-            if start_yr <= end_yr:
+            # Always expose the coach name + hired year so the agent knows a
+            # first-year hire has no under-coach history (vs. a silent None
+            # that looks like missing data).
+            data['one_score_games_under_coach_name']  = coach.get('headcoach') or ''
+            data['one_score_games_under_coach_start'] = start_yr
+            if start_yr > end_yr:
+                # First-year coach — no completed seasons under him yet.
+                data['one_score_games_under_coach']     = None
+                data['one_score_games_under_coach_end'] = None
+                data['one_score_games_under_coach_note'] = (
+                    f"First-year head coach (hired {start_yr}); "
+                    f"no prior one-score data under him."
+                )
+            else:
                 rec, w, l = _one_score_record(start_yr, end_yr)
-                if rec:
-                    data['one_score_games_under_coach']        = rec
-                    data['one_score_games_under_coach_start']  = start_yr
-                    data['one_score_games_under_coach_end']    = end_yr
-                    data['one_score_games_under_coach_name']   = coach.get('headcoach') or ''
+                data['one_score_games_under_coach']     = rec  # may be None if 0-0
+                data['one_score_games_under_coach_end'] = end_yr
+                if rec is None:
+                    # Has completed seasons but no one-score games at all
+                    # (rare — e.g. FCS→FBS transitions where games table
+                    # doesn't have the prior years). Surface the window so
+                    # the agent can reason about why it's empty.
+                    data['one_score_games_under_coach_note'] = (
+                        f"No one-score games found in games table for "
+                        f"{start_yr}-{end_yr} under this coach."
+                    )
     return data
 
 
