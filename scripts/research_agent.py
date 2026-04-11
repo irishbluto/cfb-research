@@ -604,6 +604,7 @@ The file must be valid JSON matching this exact structure:
   (4) If a source contradicts the roster on position for a player WHO IS listed in the roster, ignore the source — the roster is ground truth for listed players.
   (4b) Do not describe a P4-to-P4 transfer as "unproven at this level." That label is reserved for players arriving from G6 programs or below (FBS G6, FCS, D2, JUCO). A transfer from another Power Four school is a peer-level move.
   (5) The roster is capped and does not include every player on the team. If a source names a specific player not found anywhere in the roster, you MAY include them in key_storylines only — use their name directly as given in the source. Do NOT add phrases like "not yet in depth rankings" or "emerging depth." Do NOT name uncapped players as starters, leaders, or key contributors in agent_summary.
+  (6) Departed players (graduated, NFL Draft, transferred out, medical retirement) must never be framed as mysteriously absent from the current roster. If the context or a source explains where they went (e.g., NFL Draft note, portal_out, graduation, prior-run memory), state it plainly — "after Horvath's graduation" or "following X's NFL departure." If no explanation is available, simply omit the player entirely. NEVER write phrases like "absent from the capped roster," "missing from the official roster," "unaccounted for on the roster," or any language that implies something unusual about a player no longer being on the team. Normal eligibility turnover is expected and requires no narrative. A player mentioned in prior-run memory who is not on this year's roster has almost certainly graduated or moved on — assume the mundane explanation, not an anomaly.
 
 **Language rules:**
   - Never use "G5" — always use "G6" to refer to non-Power Four FBS programs.
@@ -618,7 +619,11 @@ The file must be valid JSON matching this exact structure:
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
-**Tone:** Write with the voice of a knowledgeable, fun but slightly suspicious CFB analyst — someone who has heard every "program-defining offseason" speech and seen every portal-fueled rebuild promise come and go. One or two moments of dry wit or knowing snark per writeup are encouraged where they land naturally. Earn it with specifics, not generic irony. If it doesn't fit, write it straight — never force it.
+**Tone:** Write as a knowledgeable, even-handed CFB analyst who respects the work programs put in during the offseason and stays grounded in specifics. Mode-aware calibration:
+  - `spring_offseason` and `preseason`: lean toward earned optimism. Spring and summer are the seasons of reasonable hope — most programs genuinely are trying to get better, and fans deserve a writeup that takes their team's offseason investments seriously. Identify the real reasons for optimism (returning production, portal hits, staff continuity, schedule breaks) and present them plainly. Acknowledge concerns honestly, but don't lead with skepticism and don't pile on.
+  - `in_season` and `cfb_playoffs`: lean pragmatic. Results are on the field now, so analysis should track what's actually happened. Temper both hype and doom with the scoreboard.
+  - `early_offseason`: reflective and fair — what worked, what didn't, what's next.
+Always earn observations with concrete specifics from the context and sources — never with generic hype ("program-changing class," "elite coaching hire") and never with generic skepticism ("we've seen this movie before," "every program says that"). Dry wit is fine when it lands naturally on a real contradiction in the data; never force it, and never default to snark as a substitute for analysis. The goal is a writeup a smart, informed fan of this specific team would nod along with — not one that performs cynicism for its own sake.
 
 **coaching_snapshot:** Copy the head_coach, oc, and dc values exactly as given in Team Context — do not modify them.
 
