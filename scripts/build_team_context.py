@@ -702,6 +702,43 @@ def build_recruiting(conn, team, season):
     }
 
 
+def build_recruiting_summary(conn, team, season):
+    """Team-level recruiting class summary from the `recruiting` table.
+
+    Joins on `url_param` (e.g. 'Toledo', 'Ohio State', 'Sacramento State'),
+    which matches the bare-school-name format stored in recruiting.school.
+    Ignores rank=0 rows (a known CFBD API data-quality glitch). Exposes
+    `recruiting_class_rank` as the key research_agent.py reads, plus a few
+    breakdown fields the agent can use to flag notable classes (size, star
+    counts, composite points)."""
+    row = query_one(conn, """
+        SELECT `rank`, commits, five_stars, four_stars, three_stars,
+               avg_rating, points
+        FROM recruiting
+        WHERE school = %s AND year = %s AND `rank` > 0
+        LIMIT 1
+    """, (team, season))
+    if not row:
+        return {
+            'recruiting_class_rank':       None,
+            'recruiting_class_commits':    None,
+            'recruiting_class_five_stars': None,
+            'recruiting_class_four_stars': None,
+            'recruiting_class_three_stars':None,
+            'recruiting_class_avg_rating': None,
+            'recruiting_class_points':     None,
+        }
+    return {
+        'recruiting_class_rank':       inum(row.get('rank')),
+        'recruiting_class_commits':    inum(row.get('commits')),
+        'recruiting_class_five_stars': inum(row.get('five_stars')),
+        'recruiting_class_four_stars': inum(row.get('four_stars')),
+        'recruiting_class_three_stars':inum(row.get('three_stars')),
+        'recruiting_class_avg_rating': fnum(row.get('avg_rating'), 2),
+        'recruiting_class_points':     fnum(row.get('points'), 2),
+    }
+
+
 def build_best_players(conn, team, season):
     """player_ratings: points = Prod Rating (0-100). Replaces the Preview-tab top_performers scrape."""
     rows = query_all(conn, """
@@ -929,6 +966,7 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     context.update(build_notes(conn, url_param, SEASON))
     context.update(build_portal(conn, url_param, SEASON))
     context.update(build_recruiting(conn, url_param, SEASON))
+    context.update(build_recruiting_summary(conn, url_param, SEASON))
     context.update(build_best_players(conn, url_param, SEASON))
     context.update(build_composite(conn, url_param, ADV_SEASON))
     context.update(build_advanced_stats(conn, url_param, ADV_SEASON))
@@ -983,7 +1021,11 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
         print(f"  qb={context.get('starting_qb_name')} qb_back={context.get('qb_back')}")
         print(f"  portal: in={len(context.get('portal_in', []))} out={len(context.get('portal_out', []))} "
               f"(team_preview add={context.get('portal_class_count')} loss={context.get('portal_loss_count')})")
-        print(f"  recruits={len(context.get('recruiting_class_2026', []))}")
+        print(f"  recruits={len(context.get('recruiting_class_2026', []))} "
+              f"(class rank #{context.get('recruiting_class_rank')}, "
+              f"{context.get('recruiting_class_commits')} commits, "
+              f"{context.get('recruiting_class_four_stars')}x4* "
+              f"{context.get('recruiting_class_five_stars')}x5*)")
         print(f"  best_players={len(context.get('best_players', []))}  "
               f"top={[p['player_name'] for p in context.get('best_players', [])[:5]]}")
         st = context.get('schedule_tiers', {})
