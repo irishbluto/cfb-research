@@ -7,7 +7,24 @@ waiting for each to complete before proceeding to the next.
 
 Pipeline steps:
   1. scrape_team_context.py     — scrapes puntandrally.com team pages
-  2. enrich_from_db.py          — adds DB stats to context JSON
+                                  (currently still scrapes teamroster + schedule;
+                                  the teamprofile/portals/croots pages are
+                                  redundant now that step 2 is DB-first and
+                                  will be removed once build_team_context.py
+                                  is validated across a full conference run)
+  2. build_team_context.py      — DB-first context builder (REPLACES the old
+                                  enrich_from_db.py). Pulls power ratings,
+                                  SP+ (SandPratings), team_preview returning
+                                  production, Bill Connelly returning prod,
+                                  coaching staff + ranks, schedule tiers,
+                                  team notes, portal, recruiting, best players,
+                                  advanced stats, composite, last-season
+                                  scoring/record — all directly from the
+                                  puntandrally MariaDB. Merges into the JSON
+                                  produced by step 1 so full_roster,
+                                  schedule_2026, and any manually-curated
+                                  fields (agent_notes, beat_writers, etc.)
+                                  are preserved.
   3. youtube_fetcher.py         — fetches YouTube videos (daily cache)
   4. written_sources_fetcher.py — fetches RSS/articles with body prefetch
   5. research_agent.py          — runs Claude agent per team → JSON output
@@ -15,10 +32,17 @@ Pipeline steps:
                                   for use as prior-run context on subsequent runs
                                   (fast, no API calls; skipped if step 5 was skipped)
 
+Note: enrich_from_db.py is deprecated as of 2026-04-11 and no longer part of
+the pipeline. It remains on disk for reference / rollback until
+build_team_context.py has been validated across all 138 FBS teams.
+
 Step control flags:
   --no-research   Run steps 1–4 only; skip research agent and memory writer
   --skip-fetch    Skip steps 3–4 (YouTube + written sources); use existing cache
-  --fetch-only    Run steps 3–4 only; skip scrape, enrich, research, and memory
+  --fetch-only    Run steps 3–4 only; skip scrape, build context, research, and memory
+  --skip-scrape   Skip step 1 (scrape) but still run step 2 (build context).
+                  Use when roster + schedule are already current and you only
+                  want to refresh the DB-derived context fields.
 
 Pass-through flags:
   --days N        Lookback window in days for YouTube + written sources (default: 14)
@@ -36,17 +60,21 @@ USAGE EXAMPLES
 # Single team, full pipeline
     python3 scripts/run_pipeline.py --team alabama
 
-# Steps 1–4 only — scrape/enrich/fetch without running the agent
+# Steps 1–4 only — scrape/build/fetch without running the agent
 # Useful to review context quality before committing to a full agent run
     python3 scripts/run_pipeline.py --conf acc --no-research
 
-# Steps 5–6 only — re-run agent on fresh data (scrape/enrich/fetch already done today)
+# Steps 5–6 only — re-run agent on fresh data (scrape/build/fetch already done today)
 # Most common re-run pattern: use when you've already fetched today
     python3 scripts/run_pipeline.py --conf sec --skip-fetch
 
 # Steps 3–4 only — refresh YouTube + articles without scraping or running agent
 # Use when context is current but caches are stale
     python3 scripts/run_pipeline.py --conf big10 --fetch-only
+
+# Refresh ONLY DB-derived context (step 2) — skip scrape, keep rosters/schedules as-is
+# Use after a stats push (power ratings, composite, advanced stats updated)
+    python3 scripts/run_pipeline.py --conf sec --skip-scrape --no-research
 
 # Extend lookback window (e.g. first run of the season, or after a long gap)
     python3 scripts/run_pipeline.py --conf mwc --days 30
@@ -137,7 +165,9 @@ def main():
     parser.add_argument('--skip-fetch',  action='store_true',
                         help='Skip steps 3–4 (use existing YouTube/article cache)')
     parser.add_argument('--fetch-only',  action='store_true',
-                        help='Run steps 3–4 only; skip scrape, enrich, and research')
+                        help='Run steps 3–4 only; skip scrape, build context, and research')
+    parser.add_argument('--skip-scrape', action='store_true',
+                        help='Skip step 1 (scrape) but still run step 2 (build team context)')
 
     # Pass-through options for individual scripts
     parser.add_argument('--days',       type=int, default=14,
@@ -154,6 +184,8 @@ def main():
         parser.error("--fetch-only and --skip-fetch cannot be used together")
     if args.fetch_only and args.no_research:
         parser.error("--fetch-only already skips research; --no-research is redundant")
+    if args.fetch_only and args.skip_scrape:
+        parser.error("--fetch-only already skips scrape; --skip-scrape is redundant")
 
 
     # ---------------------------------------------------------------------------
@@ -169,8 +201,8 @@ def main():
         run_label   = f"conference: {args.conf.upper()}"
         log_tag     = args.conf.replace('-', '_')
 
-    run_scrape   = not args.fetch_only
-    run_enrich   = not args.fetch_only
+    run_scrape   = not args.fetch_only and not args.skip_scrape
+    run_build    = not args.fetch_only
     run_youtube  = not args.skip_fetch
     run_written  = not args.skip_fetch
     run_research = not args.no_research and not args.fetch_only
@@ -182,7 +214,7 @@ def main():
     run_memory = run_research  # only write memory when research ran
 
     if run_scrape:   steps_desc.append('1.scrape')
-    if run_enrich:   steps_desc.append('2.enrich')
+    if run_build:    steps_desc.append('2.build')
     if run_youtube:  steps_desc.append('3.youtube')
     if run_written:  steps_desc.append('4.written')
     if run_research: steps_desc.append('5.research')
@@ -208,16 +240,18 @@ def main():
         step_results.append({'step': name, 'ok': ok, 'elapsed_secs': round(elapsed)})
         return ok
 
-    # Step 1 — Scrape
+    # Step 1 — Scrape (roster + schedule; will be trimmed once build_team_context
+    # is validated across all teams and the teamprofile/portals/croots scraping
+    # can be retired)
     if run_scrape:
         if not step("1. Scrape team context", "scrape_team_context.py"):
             print("\n[ABORT] Scrape failed — stopping pipeline.", flush=True)
             sys.exit(1)
 
-    # Step 2 — Enrich
-    if run_enrich:
-        if not step("2. Enrich from DB", "enrich_from_db.py"):
-            print("\n[ABORT] DB enrichment failed — stopping pipeline.", flush=True)
+    # Step 2 — Build team context (DB-first; replaces enrich_from_db.py)
+    if run_build:
+        if not step("2. Build team context (DB-first)", "build_team_context.py"):
+            print("\n[ABORT] Build team context failed — stopping pipeline.", flush=True)
             sys.exit(1)
 
     # Step 3 — YouTube (non-fatal: missing videos shouldn't block the agent)
