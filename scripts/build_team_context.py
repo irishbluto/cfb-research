@@ -343,10 +343,15 @@ def build_header(conn, team, season):
 
 
 def build_power_ranks(conn, team, season):
-    """powerrating table — rating (overall), orating, drating only.
-    bluechipratio/schedulerating/powerrating/perfrating are deprecated."""
+    """powerrating table — rating (overall), orating, drating, bluechipratio.
+    schedulerating/powerrating/perfrating columns remain deprecated.
+
+    bluechipratio is stored as a decimal (0.74 = 74%); we scale to int percent
+    for display and also compute a national blue_chip_rank via COUNT+1.
+    This is the authoritative source for blue_chip_pct — do not re-derive from
+    team_preview.bluechip_ratio (removed 2026-04-11 to prevent format drift)."""
     row = query_one(conn, """
-        SELECT rating, orating, drating
+        SELECT rating, orating, drating, bluechipratio
         FROM powerrating
         WHERE team = %s AND year = %s
         LIMIT 1
@@ -377,6 +382,68 @@ def build_power_ranks(conn, team, season):
             WHERE year = %s AND drating < %s
         """, (season, row['drating']))
         data['defense_power_rank'] = inum(r.get('rnk')) if r else None
+    if row.get('bluechipratio') is not None:
+        # Stored as decimal (0.74 for 74%) — convert to int percent for display
+        data['blue_chip_pct'] = int(round(float(row['bluechipratio']) * 100))
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM powerrating
+            WHERE year = %s AND bluechipratio > %s
+        """, (season, row['bluechipratio']))
+        data['blue_chip_rank'] = inum(r.get('rnk')) if r else None
+    return data
+
+
+def build_talent_ranks(conn, team, season):
+    """team_talent — 247Sports composite talent scores, overall/off/def.
+
+    Higher talent score = better. National ranks computed via COUNT+1.
+    Includes offense_talent_rank and defense_talent_rank in addition to
+    the overall talent_rank so the research agent can spot lopsided rosters
+    (e.g. top-30 offense talent but top-70 defense talent).
+
+    Falls back to prior season if the current season row isn't populated yet
+    (team_talent typically updates in summer once the 247 composite rolls)."""
+    row = query_one(conn, """
+        SELECT year, talent, offense_talent, defense_talent
+        FROM team_talent
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (team, season))
+    tt_year = season
+    if not row:
+        row = query_one(conn, """
+            SELECT year, talent, offense_talent, defense_talent
+            FROM team_talent
+            WHERE team = %s AND year = %s
+            LIMIT 1
+        """, (team, season - 1))
+        tt_year = season - 1
+    if not row:
+        return {}
+    data = {
+        'talent_year':          tt_year,
+        'talent_score':         fnum(row.get('talent')),
+        'offense_talent_score': fnum(row.get('offense_talent')),
+        'defense_talent_score': fnum(row.get('defense_talent')),
+    }
+    if row.get('talent') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM team_talent
+            WHERE year = %s AND talent > %s
+        """, (tt_year, row['talent']))
+        data['talent_rank'] = inum(r.get('rnk')) if r else None
+    if row.get('offense_talent') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM team_talent
+            WHERE year = %s AND offense_talent > %s
+        """, (tt_year, row['offense_talent']))
+        data['offense_talent_rank'] = inum(r.get('rnk')) if r else None
+    if row.get('defense_talent') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM team_talent
+            WHERE year = %s AND defense_talent > %s
+        """, (tt_year, row['defense_talent']))
+        data['defense_talent_rank'] = inum(r.get('rnk')) if r else None
     return data
 
 
@@ -473,9 +540,19 @@ def build_preview(conn, team, season):
         'oc_back':                   row.get('oc_back') or "",
         'dc_back':                   row.get('dc_back') or "",
     }
-    if row.get('bluechip_ratio') is not None:
-        bc = float(row['bluechip_ratio'])
-        data['blue_chip_pct'] = int(round(bc))
+    # NOTE: blue_chip_pct is now sourced from powerrating.bluechipratio in
+    # build_power_ranks() (stored as decimal, e.g. 0.74 → 74). The old
+    # team_preview.bluechip_ratio path was removed 2026-04-11 because the
+    # format was ambiguous and some rows were stale/incorrect (Toledo=1).
+
+    # Portal class rank: COUNT+1 of teams with more portal_add this season.
+    if row.get('portal_add') is not None:
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM team_preview
+            WHERE season = %s AND portal_add > %s
+        """, (season, row['portal_add']))
+        data['portal_class_rank'] = inum(r.get('rnk')) if r else None
+
     # starting_qb_note for backwards compatibility with research_agent.py
     if data['starting_qb_name']:
         data['starting_qb_note'] = data['starting_qb_name']
@@ -862,6 +939,99 @@ def build_last_season_scoring(conn, team, season):
     return data
 
 
+def build_one_score_games(conn, team, season):
+    """One-score (margin <= 8) games W-L for the prior completed season AND
+    cumulative under the current head coach. Mirrors PHP getOneScoreRecordByTeam
+    and getOneScoreRecordUnderCurrentHeadCoach. One-score performance is widely
+    used as a luck/regression indicator — extreme records (e.g. 8-1 or 1-7) tend
+    to revert toward .500 the next year.
+
+    Coach start season uses coachingstaff.yearhired for the current season's
+    headcoach row. Capped at the max season actually present in the games table
+    so we don't double-count an incomplete current year.
+    """
+    data = {}
+
+    def _one_score_record(start_yr, end_yr):
+        row = query_one(conn, """
+            SELECT
+              SUM(CASE
+                  WHEN home_team = %s
+                       AND CAST(home_points AS SIGNED) > CAST(away_points AS SIGNED)
+                       AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                       THEN 1
+                  WHEN away_team = %s
+                       AND CAST(away_points AS SIGNED) > CAST(home_points AS SIGNED)
+                       AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                       THEN 1
+                  ELSE 0 END) AS wins,
+              SUM(CASE
+                  WHEN home_team = %s
+                       AND CAST(home_points AS SIGNED) < CAST(away_points AS SIGNED)
+                       AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                       THEN 1
+                  WHEN away_team = %s
+                       AND CAST(away_points AS SIGNED) < CAST(home_points AS SIGNED)
+                       AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                       THEN 1
+                  ELSE 0 END) AS losses
+            FROM games
+            WHERE (home_team = %s OR away_team = %s)
+              AND season BETWEEN %s AND %s
+              AND home_points IS NOT NULL AND away_points IS NOT NULL
+              AND season_type = 'regular'
+        """, (team, team, team, team, team, team, start_yr, end_yr))
+        if not row:
+            return None, 0, 0
+        w = inum(row.get('wins')) or 0
+        l = inum(row.get('losses')) or 0
+        if not (w or l):
+            return None, 0, 0
+        return f"{w}-{l}", w, l
+
+    # Last completed season
+    last_yr = season - 1
+    rec, w, l = _one_score_record(last_yr, last_yr)
+    if rec:
+        data['one_score_games']         = rec
+        data['one_score_games_year']    = last_yr
+        data['one_score_games_wins']    = w
+        data['one_score_games_losses']  = l
+
+    # Under current head coach: yearhired → most recent completed season
+    coach = query_one(conn, """
+        SELECT headcoach, yearhired
+        FROM coachingstaff
+        WHERE school = %s AND year = %s
+        LIMIT 1
+    """, (team, season))
+    if coach and coach.get('yearhired'):
+        try:
+            start_yr = int(coach['yearhired'])
+        except (ValueError, TypeError):
+            start_yr = None
+        if start_yr:
+            # Cap end at max season actually present in games for this team
+            max_row = query_one(conn, """
+                SELECT MAX(season) AS max_season FROM games
+                WHERE (home_team = %s OR away_team = %s)
+                  AND home_points IS NOT NULL AND away_points IS NOT NULL
+                  AND season_type = 'regular'
+            """, (team, team))
+            end_yr = inum(max_row.get('max_season')) if max_row else None
+            if end_yr is None:
+                end_yr = last_yr
+            end_yr = min(end_yr, last_yr)
+            if start_yr <= end_yr:
+                rec, w, l = _one_score_record(start_yr, end_yr)
+                if rec:
+                    data['one_score_games_under_coach']        = rec
+                    data['one_score_games_under_coach_start']  = start_yr
+                    data['one_score_games_under_coach_end']    = end_yr
+                    data['one_score_games_under_coach_name']   = coach.get('headcoach') or ''
+    return data
+
+
 def build_last_season_record(conn, team, season):
     """Prior season W-L from games table; also computes 2024 record."""
     data = {}
@@ -889,10 +1059,31 @@ def build_last_season_record(conn, team, season):
     last = _record(season - 1)
     if last:
         data['last_season_record'] = last
-        data['record_2025']        = last
+        data[f'record_{season - 1}'] = last
     prev = _record(season - 2)
     if prev:
-        data['record_2024'] = prev
+        data[f'record_{season - 2}'] = prev
+
+    # four_yr_record: aggregate W-L over the prior four completed seasons
+    # (season-1 through season-4). Skips years with no games rather than
+    # counting them as 0-0. Agent uses this for multi-year trend framing.
+    total_w = 0
+    total_l = 0
+    years_counted = []
+    for yr in range(season - 1, season - 5, -1):
+        rec = _record(yr)
+        if not rec:
+            continue
+        try:
+            w_s, l_s = rec.split('-')
+            total_w += int(w_s)
+            total_l += int(l_s)
+            years_counted.append(yr)
+        except (ValueError, AttributeError):
+            continue
+    if years_counted:
+        data['four_yr_record'] = f"{total_w}-{total_l}"
+        data['four_yr_record_years'] = years_counted
     return data
 
 
@@ -950,6 +1141,7 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     # Pull all sections
     context.update(build_header(conn, url_param, SEASON))
     context.update(build_power_ranks(conn, url_param, SEASON))
+    context.update(build_talent_ranks(conn, url_param, SEASON))
     context.update(build_sp_plus(conn, url_param, SEASON))
     context.update(build_preview(conn, url_param, SEASON))
     context.update(build_coaching(conn, url_param, SEASON))
@@ -972,6 +1164,14 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     context.update(build_advanced_stats(conn, url_param, ADV_SEASON))
     context.update(build_last_season_scoring(conn, url_param, SEASON))
     context.update(build_last_season_record(conn, url_param, SEASON))
+    context.update(build_one_score_games(conn, url_param, SEASON))
+
+    # Derive top_portal_additions + top_recruits from already-fetched lists.
+    # Both source lists are ORDER BY rating DESC, so the first 5 are the best.
+    # Cheap to compute, gives the research agent a pre-ranked shortlist so it
+    # doesn't have to re-sort the full portal/recruiting arrays in-prompt.
+    context['top_portal_additions'] = context.get('portal_in', [])[:5]
+    context['top_recruits']         = context.get('recruiting_class_2026', [])[:5]
 
     # search_keywords: team + head coach + top 5 best players
     keywords = [team_name]
@@ -1040,7 +1240,18 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
         print(f"  scoring: home {context.get('scoring_home_ppg')}ppg ({context.get('scoring_home_margin')}) "
               f"road {context.get('scoring_road_ppg')}ppg ({context.get('scoring_road_margin')})")
         print(f"  last_season={context.get('last_season_record')} "
+              f"4yr={context.get('four_yr_record')} "
               f"roster_preserved={len(context.get('full_roster', []))}")
+        print(f"  talent: rank=#{context.get('talent_rank')} "
+              f"off=#{context.get('offense_talent_rank')} "
+              f"def=#{context.get('defense_talent_rank')} "
+              f"bluechip={context.get('blue_chip_pct')}% (#{context.get('blue_chip_rank')})")
+        print(f"  one_score: {context.get('one_score_games')} ({context.get('one_score_games_year')}) "
+              f"under_coach={context.get('one_score_games_under_coach')} "
+              f"({context.get('one_score_games_under_coach_start')}-{context.get('one_score_games_under_coach_end')})")
+        print(f"  portal_class_rank=#{context.get('portal_class_rank')} "
+              f"top_portal={len(context.get('top_portal_additions', []))} "
+              f"top_recruits={len(context.get('top_recruits', []))}")
 
 
 # ---------------------------------------------------------------------------
