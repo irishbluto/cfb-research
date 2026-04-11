@@ -723,85 +723,172 @@ def extract_recruiting_summary(page, debug=False):
 # ---------------------------------------------------------------------------
 
 def scrape_teamroster(page, url_param, debug=False):
+    """
+    Parses the rebuilt teamroster.php (2026-04 redesign).
+
+    The page now renders BOTH a table and a card grid for the same players
+    inside each `.tr-section`. We parse only the table side via structured
+    DOM selectors — the old inner_text line parser is incompatible with the
+    new markup (it saw each player twice in scrambled order).
+
+    New markup gives us structured per-column classes, so we can extract
+    far more than the old parser could:
+      - player_id (canonical, from action button data-player-id — enables DB joins)
+      - espn_id (from ESPN profile link)
+      - name, jersey, class (elig year)
+      - position_group
+      - height_weight
+      - position-specific grades: passGrade, runGrade, recGrade, blockGrade, etc.
+        (whichever cells the row actually has)
+      - ppa_rank (from #NNN text)
+      - snaps, snap_pct
+      - rating (recruiting/portal rating — may be 0 for long-tenured players)
+      - prod_rating (NEW — player production rating, None if "—")
+      - origin (HS recruit class, NA, or transfer origin)
+      - pass_stats / rush_stats / rec_stats (raw stat line strings, optional)
+    """
     url = f"{BASE_URL}/teamroster.php?team={encode(url_param)}"
     if not load_page(page, url, debug):
         return []
 
-    body  = page.inner_text("body")
-    lines = [l.strip() for l in body.split('\n') if l.strip()]
+    # Wait for at least one section to render — page is server-side HTML so
+    # this should be instant, but guards against slow loads.
+    try:
+        page.wait_for_selector('.tr-wrap .tr-section', timeout=10000)
+    except PlaywrightTimeout:
+        if debug:
+            print(f"  [roster] no .tr-section found — page structure may have changed")
+        return []
 
-    POSITION_GROUPS = {
-        'Quarterbacks', 'Running Backs', 'Wide Receivers', 'Tight Ends',
-        'Offensive Line', 'Defensive Line', 'Linebackers', 'Cornerbacks',
-        'Safeties', 'Special Teams', 'Defensive Backs', 'Edge Rushers',
-        'Fullbacks', 'Kickers', 'Punters', 'Long Snappers',
-    }
-    jersey_pat = re.compile(r'^#(\d{1,3})$')
-    hw_pat     = re.compile(r"\d+['\u2019]\d+\"?/\d+")
+    players = page.evaluate(r"""
+        () => {
+            const out = [];
+            const sections = document.querySelectorAll('.tr-wrap .tr-section');
+            sections.forEach(section => {
+                const titleEl = section.querySelector('.tr-section-title');
+                if (!titleEl) return;
+                const group = titleEl.textContent.trim();
+                // Only parse the TABLE side — the .tr-cards-grid sibling duplicates the data
+                const rows = section.querySelectorAll(
+                    '.tr-section-body > table.tr-table > tbody > tr'
+                );
+                rows.forEach(row => {
+                    const p = { position_group: group };
 
-    players = []
-    current_group  = ""
-    pending_jersey = None
+                    // Player cell — name, jersey, class, espn id
+                    const playerCell = row.querySelector('td.player');
+                    if (playerCell) {
+                        const numEl  = playerCell.querySelector('.jersey-badge .num');
+                        const eligEl = playerCell.querySelector('.elig-badge');
+                        const link   = playerCell.querySelector('a');
+                        if (numEl)  p.jersey = numEl.textContent.trim().replace(/^#/, '');
+                        if (eligEl) p.class  = eligEl.textContent.trim();
+                        if (link) {
+                            let name = link.textContent;
+                            if (numEl)  name = name.replace(numEl.textContent, '');
+                            if (eligEl) name = name.replace(eligEl.textContent, '');
+                            p.name = name.replace(/\s+/g, ' ').trim();
+                            const href = link.getAttribute('href') || '';
+                            const em = href.match(/\/id\/(\d+)/);
+                            if (em) p.espn_id = em[1];
+                        }
+                    }
 
-    for line in lines:
-        if 'PLAYER' in line and 'H/W' in line:
-            pending_jersey = None; continue
-        if line in POSITION_GROUPS:
-            current_group = line; pending_jersey = None; continue
-        jm = jersey_pat.match(line)
-        if jm:
-            pending_jersey = jm.group(1); continue
+                    // Canonical player_id from action button (DB join key)
+                    const btn = row.querySelector('td.action button[data-player-id]');
+                    if (btn) p.player_id = btn.getAttribute('data-player-id');
 
-        hw_m = hw_pat.search(line)
-        if not hw_m or not current_group:
-            if pending_jersey and not jersey_pat.match(line):
-                pending_jersey = None
-            continue
+                    // Height/weight
+                    const hwCell = row.querySelector('td.hw');
+                    if (hwCell) p.height_weight = hwCell.textContent.trim();
 
-        hw     = hw_m.group(0)
-        prefix = re.sub(r'\s*\([A-Z]{1,4}\)\s*', ' ', line[:hw_m.start()]).strip()
-        tokens = prefix.split()
-        CLASS_YEARS = {'FR','SO','JR','SR','GR','RS FR','RS SO','RS JR','RS SR'}
-        class_yr = ""; name = prefix
+                    // Any td with a class ending in "Grade" — position-specific,
+                    // capture whatever is present (passGrade/runGrade/recGrade/blockGrade/etc.)
+                    row.querySelectorAll('td[class]').forEach(td => {
+                        const gradeClass = Array.from(td.classList)
+                            .find(c => c.endsWith('Grade'));
+                        if (!gradeClass) return;
+                        const badge = td.querySelector('.grade-badge');
+                        if (!badge) return;
+                        const letterClass = Array.from(badge.classList)
+                            .find(c => c.startsWith('grade-'));
+                        const letter = letterClass
+                            ? letterClass.replace('grade-', '')
+                            : badge.textContent.trim();
+                        p[gradeClass] = letter;
+                    });
 
-        if tokens and tokens[-1].upper() in CLASS_YEARS:
-            class_yr = tokens[-1].upper(); name = ' '.join(tokens[:-1]).strip()
-        elif len(tokens) >= 2:
-            two = f"{tokens[-2].upper()} {tokens[-1].upper()}"
-            if two in CLASS_YEARS:
-                class_yr = two; name = ' '.join(tokens[:-2]).strip()
+                    // PPA rank
+                    const ppaCell = row.querySelector('td.ppa');
+                    if (ppaCell) {
+                        const txt = ppaCell.textContent.trim();
+                        const m = txt.match(/#?(\d+)/);
+                        if (m) p.ppa_rank = parseInt(m[1], 10);
+                    }
 
-        name = name.rstrip('. ')
-        if not name or not re.match(r'^[A-Z]', name):
-            pending_jersey = None; continue
+                    // Snaps — "655 (70%)"
+                    const snapsCell = row.querySelector('td.snaps');
+                    if (snapsCell) {
+                        const txt = snapsCell.textContent.trim();
+                        const m = txt.match(/(\d+)\s*\((\d+(?:\.\d+)?)%\)/);
+                        if (m) {
+                            p.snaps    = parseInt(m[1], 10);
+                            p.snap_pct = parseFloat(m[2]);
+                        }
+                    }
 
-        rest     = line[hw_m.end():].strip()
-        origin_m = re.search(r"([A-Z0-9\*\s]{2,}\(['\u2019]\d{2}['\u2019]\))", rest)
-        origin   = origin_m.group(1).strip() if origin_m else ("NA" if re.search(r'\bNA\b', rest) else "")
-        rating   = None
-        rs       = rest[:origin_m.start()].strip() if origin_m else rest
-        floats   = re.findall(r'\b(\d+\.\d{2,4})\b', rs)
-        if floats:
-            try: rating = float(floats[-1])
-            except: pass
+                    // Recruiting/portal rating — inside nested <span class="rating">
+                    const ratingCell = row.querySelector('td.rating');
+                    if (ratingCell) {
+                        const inner = ratingCell.querySelector('span.rating');
+                        if (inner) {
+                            const f = parseFloat(inner.textContent.trim());
+                            if (!isNaN(f)) p.rating = f;
+                        }
+                    }
 
-        snap_m   = re.search(r'(\d+)\s+\((\d+(?:\.\d+)?)%\)', rest)
-        snaps    = int(snap_m.group(1))    if snap_m else None
-        snap_pct = float(snap_m.group(2)) if snap_m else None
+                    // Prod Rating — integer, or "—" when missing
+                    const prodCell = row.querySelector('td.playerRating');
+                    if (prodCell) {
+                        const val = prodCell.querySelector('.playerRatingVal');
+                        if (val) {
+                            const n = parseInt(val.textContent.trim(), 10);
+                            if (!isNaN(n)) p.prod_rating = n;
+                        }
+                    }
 
-        players.append({
-            'name': name, 'jersey': pending_jersey or "",
-            'class': class_yr, 'position_group': current_group,
-            'height_weight': hw, 'snaps': snaps, 'snap_pct': snap_pct,
-            'rating': rating, 'origin': origin,
-        })
-        pending_jersey = None
+                    // Origin (HS class, NA, or portal origin)
+                    const origCell = row.querySelector('td.origin');
+                    if (origCell) {
+                        const txt = origCell.textContent.trim();
+                        if (txt) p.origin = txt;
+                    }
+
+                    // Raw stat line strings — useful as research context
+                    ['pass', 'rush', 'rec'].forEach(key => {
+                        const cell = row.querySelector(`td.${key}`);
+                        if (cell) {
+                            const txt = cell.textContent.trim();
+                            if (txt) p[key + '_stats'] = txt;
+                        }
+                    });
+
+                    if (p.name) out.push(p);
+                });
+            });
+            return out;
+        }
+    """)
 
     if debug:
         print(f"  [roster] {len(players)} players parsed")
         for p in players[:4]:
-            print(f"    #{p['jersey']:<3} {p['name']:<28} {p['class']:<6} "
-                  f"{p['position_group']:<18} r={p['rating']} o={p['origin']}")
+            grades = ' '.join(f"{k.replace('Grade','')}:{v}"
+                              for k, v in p.items() if k.endswith('Grade'))
+            print(f"    #{p.get('jersey',''):<3} {p.get('name',''):<28} "
+                  f"{p.get('class',''):<4} {p.get('position_group',''):<18} "
+                  f"prod={p.get('prod_rating')} snaps={p.get('snaps')} "
+                  f"id={p.get('player_id')} {grades}")
     return players
 
 # ---------------------------------------------------------------------------
