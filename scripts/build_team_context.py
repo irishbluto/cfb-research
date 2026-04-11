@@ -403,10 +403,12 @@ def build_talent_ranks(conn, team, season):
 
     Falls back to prior season if the current season row isn't populated yet
     (team_talent typically updates in summer once the 247 composite rolls)."""
+    # team_talent keys on `school`, not `team` (same bare-school-name format
+    # used by recruiting.school — e.g. "Toledo", "Ohio State", "Sacramento State").
     row = query_one(conn, """
         SELECT year, talent, offense_talent, defense_talent
         FROM team_talent
-        WHERE team = %s AND year = %s
+        WHERE school = %s AND year = %s
         LIMIT 1
     """, (team, season))
     tt_year = season
@@ -414,7 +416,7 @@ def build_talent_ranks(conn, team, season):
         row = query_one(conn, """
             SELECT year, talent, offense_talent, defense_talent
             FROM team_talent
-            WHERE team = %s AND year = %s
+            WHERE school = %s AND year = %s
             LIMIT 1
         """, (team, season - 1))
         tt_year = season - 1
