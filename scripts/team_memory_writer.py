@@ -26,6 +26,7 @@ OUTPUT_DIR  = BASE_DIR / "research"
 MEMORY_DIR  = BASE_DIR / "team_memory"
 
 CURRENT_SEASON = 2026
+SLUG_TO_CONF = {}  # Built after CONFERENCE_TEAMS is imported in main()
 MAX_ACTIVE_STORYLINES = 10
 STALE_AFTER_RUNS = 3       # mark stale if not updated in N runs
 RESOLVE_AFTER_RUNS = 5     # resolve if stale and still not updated after N total
@@ -290,7 +291,7 @@ def write_team_memory(slug, db):
     # 9. Upsert team_memory row
     # ------------------------------------------------------------------
     team_name = data.get("team", slug)
-    conference = data.get("conference", "")
+    conference = SLUG_TO_CONF.get(slug, "")
     mode = data.get("mode", "")
 
     cur.execute(
@@ -405,6 +406,12 @@ def main():
     except ImportError as e:
         logging.error(f"Could not import CONFERENCE_TEAMS: {e}")
         sys.exit(1)
+
+    # Build reverse lookup: slug → conference abbreviation
+    global SLUG_TO_CONF
+    for conf_key, slugs in CONFERENCE_TEAMS.items():
+        for s in slugs:
+            SLUG_TO_CONF[s] = conf_key.upper()
 
     if args.team:
         teams = [args.team]
