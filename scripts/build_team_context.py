@@ -322,17 +322,18 @@ def build_header(conn, team, season):
         el = int(round(float(p['expectedconflosses'])))
         data['expected_conf_record'] = f"{ew}-{el}"
 
-    # SOS from powerrating.schedulerating (higher = harder schedule)
+    # SOS from schedulebreakdown — use latest-week row
     sb = query_one(conn, """
         SELECT schedulerating
-        FROM powerrating
+        FROM schedulebreakdown
         WHERE team = %s AND year = %s
+        ORDER BY week DESC
         LIMIT 1
     """, (team, season))
     if sb and sb.get('schedulerating') is not None:
         rnk = query_one(conn, """
-            SELECT COUNT(*) + 1 AS rnk
-            FROM powerrating
+            SELECT COUNT(DISTINCT team) + 1 AS rnk
+            FROM schedulebreakdown
             WHERE year = %s AND schedulerating > %s
         """, (season, sb['schedulerating']))
         data['sos_rank']   = inum(rnk.get('rnk')) if rnk else None
