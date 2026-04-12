@@ -196,6 +196,29 @@ def build_prompt(slug, context, channels, no_youtube=False):
         close_game_overall_display = f"n/a ({close_game_note})"
     else:
         close_game_overall_display = "n/a"
+
+    # Turnover margin + regression flags
+    to_margin = context.get('turnover_margin')
+    to_forced = context.get('turnovers_forced')
+    to_committed = context.get('turnovers_committed')
+    to_rank   = context.get('turnover_margin_rank')
+    if to_margin is not None:
+        sign = '+' if to_margin > 0 else ''
+        turnover_display = (f"{sign}{to_margin} (#{to_rank}) — "
+                           f"forced {to_forced}, committed {to_committed}")
+    else:
+        turnover_display = "n/a"
+    turnover_luck_flag = context.get('turnover_luck_flag', '')
+    one_score_regression_flag = context.get('one_score_regression_flag', '')
+
+    # Build combined regression note for the prompt
+    regression_notes = []
+    if one_score_regression_flag:
+        regression_notes.append(one_score_regression_flag)
+    if turnover_luck_flag:
+        regression_notes.append(turnover_luck_flag)
+    regression_display = ' | '.join(regression_notes) if regression_notes else 'None identified'
+
     off_rank    = context.get('offense_power_rank')
     def_rank    = context.get('defense_power_rank')
     adv_season  = context.get('db_enriched_at', '')
@@ -478,6 +501,8 @@ Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('
 {f"Previous Staff (2025) — HC: {prev_coach} | OC: {prev_oc} | DC: {prev_dc}" if prev_coach else "Previous coaching staff: Not in DB — do NOT name or guess any former coaches or coordinators"}
 2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
 2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_overall_display}
+2025 Turnover Margin: {turnover_display}
+Regression Flags: {regression_display}
 4-Year Record: {four_yr}
 Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}
 PPA: Offense #{ppa_off} | Defense #{ppa_def}
@@ -629,6 +654,8 @@ The file must be valid JSON matching this exact structure:
   - Historical claims (a coach's record against specific opponents, program milestones, conference standings history) must come from the provided context or a cited source — never from training knowledge alone.
 
 **QB experience rule (strictly enforced):** The "QB Situation" field in Team Context is the authoritative source on the quarterback's status and experience. If context identifies a QB as a returning starter, never describe them as "unproven," "untested," or someone who "hasn't proved it" — not from sources, and not as your own editorial synthesis. This prohibition is absolute: do not generate this framing yourself even if no source says it. You may report a spring injury, a competition, or a concern about depth accurately — but those facts stand alone. Do not attach editorial conclusions about a returning starter's track record that the context data contradicts.
+
+**Regression analysis:** If the Regression Flags field above is not "None identified," incorporate those flags into your analysis as a key storyline or within agent_summary. One-score game records are one of the strongest regression indicators in college football — most one-score games even out over time, so a team that went 6-1 is a strong candidate to regress in close games the following season, while a team that went 1-6 is a strong candidate to improve. Frame one-score regression with confidence. Turnover margin is a less reliable indicator — some defenses genuinely create turnovers through scheme and talent, and some offenses have persistent ball-security problems, so extreme turnover margins don't always revert. Frame turnover regression as "worth monitoring" rather than an expectation. If BOTH a one-score flag and a turnover flag point in the same direction (e.g., team won lots of close games AND had an unsustainably high turnover margin), that strengthens the regression case and should be treated as a major storyline.
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 

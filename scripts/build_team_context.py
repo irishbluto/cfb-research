@@ -1053,6 +1053,79 @@ def build_one_score_games(conn, team, season):
     return data
 
 
+def build_turnover_margin(conn, team, season):
+    """Turnover margin for the prior completed season from seasonstats.
+    Also computes national rank (COUNT+1, higher margin = better).
+
+    seasonstats uses `school` column (not `team`).
+    Relevant statnames:
+        turnovers         — turnovers committed by the team
+        turnoversOpponent — turnovers forced (committed by opponents)
+    Margin = forced - committed.  Positive = good, negative = bad.
+    """
+    data = {}
+    last_yr = season - 1
+
+    committed = query_one(conn, """
+        SELECT statvalue FROM seasonstats
+        WHERE school = %s AND season = %s AND statname = 'turnovers'
+        LIMIT 1
+    """, (team, last_yr))
+
+    forced = query_one(conn, """
+        SELECT statvalue FROM seasonstats
+        WHERE school = %s AND season = %s AND statname = 'turnoversOpponent'
+        LIMIT 1
+    """, (team, last_yr))
+
+    if committed and forced:
+        try:
+            to_committed = int(float(committed['statvalue']))
+            to_forced    = int(float(forced['statvalue']))
+        except (ValueError, TypeError):
+            return data
+        margin = to_forced - to_committed
+        data['turnover_margin']     = margin
+        data['turnovers_committed'] = to_committed
+        data['turnovers_forced']    = to_forced
+        data['turnover_margin_year'] = last_yr
+
+        # National rank — higher margin is better, so count teams with margin > ours
+        # We compute margin inline in the subquery.
+        rnk = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM (
+                SELECT f.school,
+                       CAST(f.statvalue AS SIGNED) - CAST(c.statvalue AS SIGNED) AS margin
+                FROM seasonstats f
+                JOIN seasonstats c
+                  ON c.school = f.school AND c.season = f.season
+                 AND c.statname = 'turnovers'
+                WHERE f.season = %s AND f.statname = 'turnoversOpponent'
+            ) sub
+            WHERE sub.margin > %s
+        """, (last_yr, margin))
+        data['turnover_margin_rank'] = inum(rnk.get('rnk')) if rnk else None
+
+        # Turnover regression flag: extreme margins *may* regress, but this
+        # is less reliable than one-score records — some defenses genuinely
+        # create turnovers and some offenses genuinely give the ball away.
+        # Use higher thresholds than one-score and softer language.
+        if margin >= 12:
+            data['turnover_luck_flag'] = (
+                f"Very high turnover margin (+{margin}, #{data.get('turnover_margin_rank')}) "
+                f"— worth monitoring, as extreme margins often regress, though "
+                f"elite defenses can sustain above-average forced turnovers."
+            )
+        elif margin <= -8:
+            data['turnover_luck_flag'] = (
+                f"Very poor turnover margin ({margin}, #{data.get('turnover_margin_rank')}) "
+                f"— worth monitoring, as extreme negative margins often improve, "
+                f"though some offenses have persistent ball-security issues."
+            )
+
+    return data
+
+
 def build_last_season_record(conn, team, season):
     """Prior season W-L from games table; also computes 2024 record."""
     data = {}
@@ -1193,6 +1266,29 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     context.update(build_last_season_scoring(conn, url_param, SEASON))
     context.update(build_last_season_record(conn, url_param, SEASON))
     context.update(build_one_score_games(conn, url_param, SEASON))
+    context.update(build_turnover_margin(conn, url_param, SEASON))
+
+    # --- Regression flags (derived from fields already on context) ----------
+    # One-score: extreme records in close games tend to regress toward .500.
+    # Flag if last season's one-score record was ≥ 5 games played and win%
+    # was above 75% or below 25%.
+    os_w = context.get('one_score_games_wins', 0)
+    os_l = context.get('one_score_games_losses', 0)
+    os_total = os_w + os_l
+    if os_total >= 5:
+        os_wpct = os_w / os_total
+        if os_wpct >= 0.75:
+            context['one_score_regression_flag'] = (
+                f"Won {os_w} of {os_total} one-score games in "
+                f"{context.get('one_score_games_year', '?')} — historically "
+                f"unsustainable; expect regression toward .500 in close games."
+            )
+        elif os_wpct <= 0.25:
+            context['one_score_regression_flag'] = (
+                f"Won only {os_w} of {os_total} one-score games in "
+                f"{context.get('one_score_games_year', '?')} — historically "
+                f"tends to improve; possible positive regression candidate."
+            )
 
     # Derive top_portal_additions + top_recruits from already-fetched lists.
     # Both source lists are ORDER BY rating DESC, so the first 5 are the best.
@@ -1277,6 +1373,19 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
         print(f"  one_score: {context.get('one_score_games')} ({context.get('one_score_games_year')}) "
               f"under_coach={context.get('one_score_games_under_coach')} "
               f"({context.get('one_score_games_under_coach_start')}-{context.get('one_score_games_under_coach_end')})")
+        to_m = context.get('turnover_margin')
+        if to_m is not None:
+            sign = '+' if to_m > 0 else ''
+            print(f"  turnover_margin: {sign}{to_m} (#{context.get('turnover_margin_rank')}) "
+                  f"forced={context.get('turnovers_forced')} committed={context.get('turnovers_committed')}")
+        else:
+            print(f"  turnover_margin: n/a")
+        regression_flags = []
+        if context.get('one_score_regression_flag'):
+            regression_flags.append('one_score')
+        if context.get('turnover_luck_flag'):
+            regression_flags.append('turnover')
+        print(f"  regression_flags: {', '.join(regression_flags) if regression_flags else 'none'}")
         print(f"  portal_class_rank=#{context.get('portal_class_rank')} "
               f"top_portal={len(context.get('top_portal_additions', []))} "
               f"top_recruits={len(context.get('top_recruits', []))}")
