@@ -291,7 +291,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
         notes_block += "Staff/schedule notes:\n"
         notes_block += "\n".join(f"  - {n}" for n in staff_notes) + "\n"
 
-    # Build prior memory block for prompt injection
+    # Build prior memory block for prompt injection (v2 — storyline threads)
     memory_block = ""
     if prior_memory:
         run_label   = f"run #{prior_memory.get('run_count', '?')}"
@@ -301,17 +301,44 @@ def build_prompt(slug, context, channels, no_youtube=False):
         inj_flags   = prior_memory.get('prior_injury_flags', [])
         flags       = prior_memory.get('agent_flags', {})
         recheck     = flags.get('low_confidence', []) + flags.get('watch_for_next_run', [])
+        threads     = prior_memory.get('storyline_threads', [])
+
+        # Build storyline thread summaries (most recent update per thread)
+        thread_lines = []
+        for t in threads:
+            updates = t.get("updates", [])
+            latest = updates[-1]["note"] if updates else t.get("theme", "")
+            age_note = ""
+            if t.get("first_seen") and t.get("last_updated") and t["first_seen"] != t["last_updated"]:
+                age_note = f" (tracking since {t['first_seen']})"
+            status_tag = ""
+            if t.get("status") == "stale":
+                status_tag = " [STALE — verify if still relevant]"
+            source_tag = ""
+            if t.get("source_type") == "coaching_diff":
+                source_tag = " [COACHING CHANGE]"
+            thread_lines.append(f"  - {latest}{age_note}{status_tag}{source_tag}")
+
+        # Use thread summaries if available, fall back to flat prior_storylines for backward compat
+        if thread_lines:
+            storylines_section = f"""Tracked storyline threads:
+{chr(10).join(thread_lines)}"""
+        elif storylines:
+            storylines_section = f"""Prior key storylines:
+{chr(10).join(f"  - {s}" for s in storylines)}"""
+        else:
+            storylines_section = "Tracked storyline threads:\n  (none yet — this is the first run)"
 
         memory_block = f"""=== PRIOR RUN NOTES ({last_run} — {run_label}, mode: {prior_mode}) ===
 Use these as your starting point. Confirm, update, or contradict them based on new sources.
+Storylines marked [STALE] may have resolved — check and either confirm or drop them.
 
 Prior overall sentiment: {prior_memory.get('prior_sentiment', 'unknown')}
 
 Prior agent summary:
   {prior_memory.get('prior_summary', '(none)')}
 
-Prior key storylines:
-{chr(10).join(f"  - {s}" for s in storylines) if storylines else "  (none recorded)"}
+{storylines_section}
 {f"{chr(10)}Prior injury flags:{chr(10)}{chr(10).join(f'  - {i}' for i in inj_flags)}" if inj_flags else ""}
 High-confidence from prior run (likely still valid — verify if new sources contradict):
   {', '.join(flags.get('high_confidence', [])) or '(none recorded)'}
@@ -658,6 +685,8 @@ The file must be valid JSON matching this exact structure:
 **Regression analysis:** If the Regression Flags field above is not "None identified," incorporate those flags into your analysis as a key storyline or within agent_summary. One-score game records are one of the strongest regression indicators in college football — most one-score games even out over time, so a team that went 6-1 is a strong candidate to regress in close games the following season, while a team that went 1-6 is a strong candidate to improve. Frame one-score regression with confidence. Turnover margin is a less reliable indicator — some defenses genuinely create turnovers through scheme and talent, and some offenses have persistent ball-security problems, so extreme turnover margins don't always revert. Frame turnover regression as "worth monitoring" rather than an expectation. If BOTH a one-score flag and a turnover flag point in the same direction (e.g., team won lots of close games AND had an unsustainably high turnover margin), that strengthens the regression case and should be treated as a major storyline.
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
+
+**Storyline continuity:** If prior run notes include tracked storyline threads, your key_storylines should update those threads where possible — use similar language and keywords so the memory system can match them across runs. If a tracked storyline has resolved (e.g. QB battle decided, coaching hire confirmed), you may drop it from key_storylines and it will age out naturally. If a storyline marked [STALE] is still relevant based on your sources, include it again to keep it active. Do NOT invent storyline updates — only update a thread if your current sources have new information.
 
 **Tone:** Write as a knowledgeable, even-handed CFB analyst who respects the work programs put in during the offseason and stays grounded in specifics. Mode-aware calibration:
   - `spring_offseason` and `preseason`: lean toward earned optimism. Spring and summer are the seasons of reasonable hope — most programs genuinely are trying to get better, and fans deserve a writeup that takes their team's offseason investments seriously. Identify the real reasons for optimism (returning production, portal hits, staff continuity, schedule breaks) and present them plainly. Acknowledge concerns honestly, but don't lead with skepticism and don't pile on.
