@@ -15,7 +15,7 @@ Usage:
     python3 scripts/team_memory_writer.py --all             # all configured teams
 """
 
-import json, sys, logging, argparse, os
+import json, sys, logging, argparse, os, re
 from datetime import datetime
 from pathlib import Path
 
@@ -101,6 +101,11 @@ def match_storyline(new_text, active_threads):
 # ---------------------------------------------------------------------------
 # Coaching diff
 # ---------------------------------------------------------------------------
+def _normalize_coach(name):
+    """Strip coordinator ranking annotations like (#67) for comparison."""
+    return re.sub(r'\s*\(#\d+\)', '', name).strip()
+
+
 def detect_coaching_changes(old_hc, old_oc, old_dc, new_snapshot):
     """Compare old coaching staff against new snapshot, return list of change descriptions."""
     changes = []
@@ -108,11 +113,11 @@ def detect_coaching_changes(old_hc, old_oc, old_dc, new_snapshot):
     new_oc = new_snapshot.get("oc", "")
     new_dc = new_snapshot.get("dc", "")
 
-    if old_hc and new_hc and old_hc != new_hc:
+    if old_hc and new_hc and _normalize_coach(old_hc) != _normalize_coach(new_hc):
         changes.append(("HC change: {} → {}".format(old_hc, new_hc), "head_coach"))
-    if old_oc and new_oc and old_oc != new_oc:
+    if old_oc and new_oc and _normalize_coach(old_oc) != _normalize_coach(new_oc):
         changes.append(("OC change: {} → {}".format(old_oc, new_oc), "oc"))
-    if old_dc and new_dc and old_dc != new_dc:
+    if old_dc and new_dc and _normalize_coach(old_dc) != _normalize_coach(new_dc):
         changes.append(("DC change: {} → {}".format(old_dc, new_dc), "dc"))
 
     return changes
