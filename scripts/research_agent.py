@@ -250,7 +250,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
         mode_focus = "portal activity, recruiting, coaching changes, spring practice previews"
     elif month in (4, 5, 6):
         mode = "spring_offseason"
-        mode_focus = "spring practice results, depth chart battles, transfer portal updates"
+        mode_focus = "spring practice results, depth chart battles, injury news, expectations and predictions"
     elif month in (7, 8):
         mode = "preseason"
         mode_focus = "fall camp, depth chart, injury news, expectations and predictions"
@@ -660,6 +660,7 @@ The file must be valid JSON matching this exact structure:
 **Football players only (disqualifying error if wrong):** Every player named in key_storylines or agent_summary must be a verified football player. Before naming any player, confirm they appear in the full_roster block OR that the source explicitly describes them in a football context (spring practice, depth chart, football transfer portal, etc.) AND does not reference basketball, baseball, or another sport in the same context. If both conditions are not met, skip the player entirely. This applies even when a source uses football-sounding language (e.g., "DT," "chasing a recruit") — always verify the sport is football. When in doubt, omit.
 
 **Player rules (strictly enforced):**
+  (1a) Name–summary consistency: if you named a specific player in key_storylines (following the rules below), you SHOULD also name them in agent_summary when referencing that same storyline. Do not strip a verified name down to a generic descriptor ("a true freshman receiver," "a spring transfer," "a portal addition") in the summary after you've already identified them by name in storylines — that makes the summary less useful than the storylines feeding it. Specificity travels up.
   (1) Name players as leaders or standouts ONLY from the Key Players list — not from sources. When discussing any position group (whether as a strength, concern, or storyline), if a player from that group appears in the Key Players list, they MUST be mentioned — do not construct a positional narrative that omits the most prominent established player in favor of newcomers, depth questions, or concerns. The top returning player at a position is the anchor; depth issues are secondary context.
   (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position_group in the Roster block. If it doesn't match, remove the name entirely.
   (3) `portal_in` contains ONLY this offseason's new transfers — prior-cycle transfers are already integrated as returning players and do NOT appear in portal_in. If a player is on the roster but not in portal_in, treat them as a returner regardless of what any article says about their transfer history. Never label a player a "transfer" or "newcomer" based on an article alone — portal_in is the authoritative list of new arrivals. A player not on portal_out is still on the team.
@@ -675,7 +676,9 @@ The file must be valid JSON matching this exact structure:
   - Never use "G5" — always use "G6" to refer to non-Power Four FBS programs.
   - Do not use conference divisions, like SEC East or Big Ten West.  Conferences no longer split into divisions in 2026.
   - Do not use superlatives ("most significant," "largest," "most dominant," "highest-ever") without a cited source making that exact claim. "The most significant roster overhaul in the country" requires a source — if you don't have one, cut it.
-  - P4 ranking context: there are 69 Power Four teams. Top 17 = elite (top quarter); 18-35 = above average; 36-52 = below average; 53-69 = bottom quarter. A team ranked #38 is "slightly below average" — calibrate language precisely.
+  - Conference tier (2026): The Power Four (P4) is SEC, Big Ten, ACC, Big 12, plus Notre Dame (FBS Independent) — 69 teams. Everything else is Group of Six (G6): PAC-12, AAC, Sun Belt, MWC, MAC, CUSA, and UConn. The PAC-12 is a G6 conference in 2026 — never call it or its members "Power Four" or place them "among the P4 field."
+  - P4 ranking context (P4 teams only): there are 69 Power Four teams. Top 17 = elite (top quarter); 18-35 = above average; 36-52 = below average; 53-69 = bottom quarter. A team ranked #38 is "slightly below average" — calibrate language precisely. Do NOT apply these bands to a G6 team.
+  - G6 ranking context (G6 teams only): the `power_rank` field is an FBS-wide rank across 138 teams. For a G6 team, frame their standing against the full 138-team FBS field (top third ≈ #1-46, middle third ≈ #47-92, bottom third ≈ #93-138) AND/OR relative to the ~69-team G6 pool (a G6 team in the FBS top 50 is near the top of G6). A G6 team ranked #49 FBS-overall is in the upper third of FBS and an upper-tier G6 program — never "below average" against a P4 frame.
   - Never use "dead last," "last place," or "last" to describe a specific rank unless it equals the total number of teams in that pool. In FBS, #138 is last. In P4, #69 is last. A team ranked #100 has 38 teams below them — do not call it last.
   - Blue chip ratio is only meaningful for programs competing for the College Football Playoff and national titles. Do not reference blue chip % for G6 programs — it is near zero for nearly all of them and adds no analytical value.
   - Historical claims (a coach's record against specific opponents, program milestones, conference standings history) must come from the provided context or a cited source — never from training knowledge alone.
