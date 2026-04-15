@@ -105,23 +105,6 @@
       "notes": "Recruiting and portal tracking"
     }
   ],
-  "louisiana-tech": [
-    {
-      "name": "Underdog Dynasty — Louisiana Tech",
-      "url": "https://www.underdogdynasty.com/louisiana-tech-bulldogs",
-      "type": "fan_aggregator",
-      "rss": "https://www.underdogdynasty.com/rss/current.xml",
-      "title_filter": ["louisiana tech", "la tech"],
-      "notes": "SBNation CUSA hub — confirmed active; La Tech in limbo (Sun Belt exit likely 2026 or 2027) but schedule released for CUSA in 2026; include unless confirmed departed"
-    },
-    {
-      "name": "247Sports — Louisiana Tech",
-      "url": "https://247sports.com/college/louisiana-tech/",
-      "type": "beat_writer",
-      "rss": null,
-      "notes": "Recruiting and portal tracking; useful regardless of which conference La Tech plays in"
-    }
-  ],
   "middle-tennessee": [
     {
       "name": "Underdog Dynasty — Middle Tennessee",

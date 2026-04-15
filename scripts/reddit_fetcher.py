@@ -149,6 +149,7 @@ TEAM_SUBREDDITS = {
     "georgia-state":      "GeorgiaState",
     "james-madison":      "JMU",
     "louisiana":          "RaginCajuns",
+    "louisiana-tech":     "LouisianaTech",
     "marshall":           "MarshallFootball",  # r/WeAreMarshall score:0 sidebar ("West Virginia")
     "old-dominion":       None,            # r/ODUMonarchs empty
     "south-alabama":      None,            # r/SouthAlabama empty; r/JaguarFB score:0 sidebar
@@ -186,7 +187,6 @@ TEAM_SUBREDDITS = {
     "jacksonville-state": None,            # no working sub found
     "kennesaw-state":     None,            # r/KennesawState score:0 sidebar
     "liberty":            None,            # r/Liberty + r/LibertyFootball both empty
-    "louisiana-tech":     "LouisianaTech",
     "middle-tennessee":   None,            # r/MTSU score:0 sidebar
     "missouri-state":     None,            # r/MissouriStateFootball = Missouri state sub (wrong)
     "new-mexico-state":   None,            # r/AggiesFootball = Texas A&M fan site; r/NewMexicoState 404

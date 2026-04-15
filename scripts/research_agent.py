@@ -88,8 +88,8 @@ AAC_TEAMS = [
 
 SBC_TEAMS = [
     "app-state", "arkansas-state", "coastal-carolina", "georgia-southern",
-    "georgia-state", "james-madison", "louisiana", "marshall", "old-dominion",
-    "south-alabama", "southern-miss", "troy", "ul-monroe",
+    "georgia-state", "james-madison", "louisiana", "louisiana-tech", "marshall",
+    "old-dominion", "south-alabama", "southern-miss", "troy", "ul-monroe",
 ]
 
 MWC_TEAMS = [
@@ -105,7 +105,7 @@ MAC_TEAMS = [
 
 CUSA_TEAMS = [
     "delaware", "fiu", "jacksonville-state", "kennesaw-state", "liberty",
-    "louisiana-tech", "middle-tennessee", "missouri-state", "new-mexico-state",
+    "middle-tennessee", "missouri-state", "new-mexico-state",
     "sam-houston", "western-kentucky",
 ]
 
@@ -515,10 +515,10 @@ Big 12 (16): Arizona, Arizona State, Baylor, BYU, Cincinnati, Colorado, Houston,
 PAC-12 (8): Boise State, Colorado State, Fresno State, Oregon State, San Diego State, Texas State, Utah State, Washington State
 FBS Independents (2): Notre Dame, UConn
 AAC (14): Army, Charlotte, East Carolina, Florida Atlantic, Memphis, Navy, North Texas, Rice, South Florida, Temple, Tulane, Tulsa, UAB, UTSA
-Sun Belt (13): App State, Arkansas State, Coastal Carolina, Georgia Southern, Georgia State, James Madison, Louisiana, Marshall, Old Dominion, South Alabama, Southern Miss, Troy, UL Monroe
+Sun Belt (14): App State, Arkansas State, Coastal Carolina, Georgia Southern, Georgia State, James Madison, Louisiana, Louisiana Tech, Marshall, Old Dominion, South Alabama, Southern Miss, Troy, UL Monroe
 MWC (10): Air Force, Hawaii, Nevada, New Mexico, North Dakota State, Northern Illinois, San Jose State, UNLV, UTEP, Wyoming
 MAC (13): Akron, Ball State, Bowling Green, Buffalo, Central Michigan, Eastern Michigan, Kent State, Massachusetts, Miami OH, Ohio, Sacramento State, Toledo, Western Michigan
-CUSA (11): Delaware, FIU, Jacksonville State, Kennesaw State, Liberty, Louisiana Tech, Middle Tennessee, Missouri State, New Mexico State, Sam Houston, Western Kentucky
+CUSA (10): Delaware, FIU, Jacksonville State, Kennesaw State, Liberty, Middle Tennessee, Missouri State, New Mexico State, Sam Houston, Western Kentucky
 
 ## Team Context (use this to guide what to look for)
 

@@ -139,6 +139,7 @@ SBC_TEAMS = [
     ("Georgia State Panthers",     "Georgia State",    "georgia-state"),
     ("James Madison Dukes",        "James Madison",    "james-madison"),
     ("Louisiana Ragin' Cajuns",    "Louisiana",        "louisiana"),
+    ("Louisiana Tech Bulldogs",    "Louisiana Tech",   "louisiana-tech"),
     ("Marshall Thundering Herd",   "Marshall",         "marshall"),
     ("Old Dominion Monarchs",      "Old Dominion",     "old-dominion"),
     ("South Alabama Jaguars",      "South Alabama",    "south-alabama"),
@@ -182,7 +183,6 @@ CUSA_TEAMS = [
     ("Jacksonville State Gamecocks",   "Jacksonville State","jacksonville-state"),
     ("Kennesaw State Owls",            "Kennesaw State",    "kennesaw-state"),
     ("Liberty Flames",                 "Liberty",           "liberty"),
-    ("Louisiana Tech Bulldogs",        "Louisiana Tech",    "louisiana-tech"),
     ("Middle Tennessee Blue Raiders",  "Middle Tennessee",  "middle-tennessee"),
     ("Missouri State Bears",           "Missouri State",    "missouri-state"),
     ("New Mexico State Aggies",        "New Mexico State",  "new-mexico-state"),
@@ -335,7 +335,7 @@ def scrape_teamroster(page, url_param, debug=False):
       - origin (HS recruit class, NA, or transfer origin)
       - pass_stats / rush_stats / rec_stats (raw stat line strings, optional)
     """
-    url = f"{BASE_URL}/teamroster.php?team={encode(url_param)}"
+    url = f"{BASE_URL}/teamroster.php?showall=Y&team={encode(url_param)}"
     if not load_page(page, url, debug):
         return []
 

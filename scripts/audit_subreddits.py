@@ -46,14 +46,14 @@ CONFERENCES = {
                "navy","north-texas","rice","south-florida","temple","tulane",
                "tulsa","uab","utsa"],
     "sbc":    ["app-state","arkansas-state","coastal-carolina","georgia-southern",
-               "georgia-state","james-madison","louisiana","marshall","old-dominion",
-               "south-alabama","southern-miss","troy","ul-monroe"],
+               "georgia-state","james-madison","louisiana","louisiana-tech","marshall",
+               "old-dominion","south-alabama","southern-miss","troy","ul-monroe"],
     "mwc":    ["air-force","hawaii","nevada","new-mexico","north-dakota-state",
                "northern-illinois","san-jose-state","unlv","utep","wyoming"],
     "mac":    ["akron","ball-state","bowling-green","buffalo","central-michigan",
                "eastern-michigan","kent-state","massachusetts","miami-oh","ohio",
                "toledo","western-michigan"],
-    "cusa":   ["fiu","jacksonville-state","kennesaw-state","liberty","louisiana-tech",
+    "cusa":   ["fiu","jacksonville-state","kennesaw-state","liberty",
                "middle-tennessee","missouri-state","new-mexico-state","sam-houston","western-kentucky"],
 }
 
