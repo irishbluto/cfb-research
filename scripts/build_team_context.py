@@ -547,13 +547,24 @@ def build_preview(conn, team, season):
     # team_preview.bluechip_ratio path was removed 2026-04-11 because the
     # format was ambiguous and some rows were stale/incorrect (Toledo=1).
 
-    # Portal class rank: COUNT+1 of teams with more portal_add this season.
-    if row.get('portal_add') is not None:
-        r = query_one(conn, """
-            SELECT COUNT(*) + 1 AS rnk FROM team_preview
-            WHERE season = %s AND portal_add > %s
-        """, (season, row['portal_add']))
-        data['portal_class_rank'] = inum(r.get('rnk')) if r else None
+    # Portal class rank: authoritative composite rank from transferportal_team
+    # (247/Rivals/On3-style ranking weighted by avg_rating + points — NOT volume
+    # of adds). Replaces the old team_preview.portal_add volume rank (2026-04-14),
+    # which surfaced misleadingly strong ranks for teams with lots of low-rated
+    # adds. Example: UTEP 2026 had 24 adds (volume rank #52) but composite #122.
+    # Also surface avg_rating and points so the agent has the underlying signal.
+    r = query_one(conn, """
+        SELECT `rank`, avg_rating, points, commits
+        FROM transferportal_team
+        WHERE school = %s AND year = %s
+        LIMIT 1
+    """, (team, season))
+    if r:
+        data['portal_class_rank']       = inum(r.get('rank'))
+        data['portal_class_avg_rating'] = fnum(r.get('avg_rating'))
+        data['portal_class_points']     = fnum(r.get('points'))
+    else:
+        data['portal_class_rank'] = None
 
     # starting_qb_note for backwards compatibility with research_agent.py
     if data['starting_qb_name']:
