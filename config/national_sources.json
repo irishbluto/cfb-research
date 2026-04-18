@@ -1,0 +1,84 @@
+{
+  "written": [
+    {
+      "name": "ESPN CFB",
+      "rss": "https://www.espn.com/espn/rss/ncf/news",
+      "author_filter": ["Pete Thamel", "Bill Connelly", "Dan Wetzel"],
+      "linkable": true,
+      "prefetch": true,
+      "notes": "Filter by dc:creator — Wetzel new to ESPN from Yahoo, CFB content expected closer to fall"
+    },
+    {
+      "name": "CBS Sports CFB",
+      "rss": "https://www.cbssports.com/rss/headlines/college-football/",
+      "author_filter": ["Brandon Marcello"],
+      "linkable": true,
+      "prefetch": true,
+      "notes": "Filter by dc:creator"
+    },
+    {
+      "name": "SI — Pat Forde",
+      "rss": "https://rss.app/feeds/w9OJS3nimUzA3ksq.xml",
+      "author_filter": null,
+      "linkable": true,
+      "prefetch": false,
+      "notes": "RSS.app feed — already Forde-specific. SI is in SKIP_PREFETCH_DOMAINS."
+    },
+    {
+      "name": "The Athletic CFB",
+      "rss": "https://www.nytimes.com/athletic/rss/college-football/",
+      "author_filter": null,
+      "linkable": false,
+      "prefetch": false,
+      "notes": "Paywall — input only, never link to readers. Vannini and Feldman are primary targets."
+    },
+    {
+      "name": "Bruce Feldman (The Athletic)",
+      "rss": "https://rss.app/feeds/2dTOPpTtvqUJUF6W.xml",
+      "author_filter": null,
+      "linkable": false,
+      "prefetch": false,
+      "notes": "RSS.app dedicated feed — paywall, input only"
+    }
+  ],
+  "youtube": [
+    {
+      "name": "Josh Pate — Late Kick",
+      "channel_id": "UCg-q_MDeWQrjizr1VPLEpYg",
+      "linkable": true,
+      "notes": "National CFB takes, rankings, predictions"
+    },
+    {
+      "name": "Cover 3 (CBS Sports)",
+      "channel_id": "UCODwphyohBn9u8-FVWfbQ7g",
+      "linkable": true,
+      "notes": "CBS national CFB coverage — Barton Simmons, Tom Fornelli, Chip Patterson"
+    },
+    {
+      "name": "G5 Hive",
+      "channel_id": "UCoO3AY84x8AlloAgQ___Sig",
+      "linkable": true,
+      "notes": "G6 perspective — ensures national view isn't P4-only"
+    }
+  ],
+  "podcasts": [
+    {
+      "name": "College Football Enquirer",
+      "rss": "https://feeds.simplecast.com/9Unh1yK9",
+      "linkable": true,
+      "notes": "Staples/Godfrey/Dellenger — rich descriptions with timestamps"
+    },
+    {
+      "name": "Split Zone Duo",
+      "rss": "https://api.substack.com/feed/podcast/2043967.rss",
+      "linkable": true,
+      "notes": "Kirshner/Johnson — detailed timestamped descriptions; free for most content"
+    },
+    {
+      "name": "The Hard Count",
+      "rss": "https://feeds.simplecast.com/6Hh74M0D",
+      "linkable": true,
+      "notes": "J.D. PicKell — moderate descriptions (2-3 sentences + topic highlights)"
+    }
+  ]
+}
