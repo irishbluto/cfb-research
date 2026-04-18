@@ -55,6 +55,17 @@ if "$PYTHON" "${BASE_DIR}/scripts/run_national_landscape.py" --days 7 >> "$CRON_
     else
         log "  WARN: landscape_latest.json not found after pipeline run"
     fi
+
+    # --- Refresh Hostinger PHP cache so index.php picks up new data ---
+    log "  Refreshing Hostinger cache..."
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+        "https://www.puntandrally.com/index.php?refresh_landscape=letsBu1LdSh1t" \
+        --max-time 30 2>/dev/null || echo "000")
+    if [ "$http_code" = "200" ]; then
+        log "  Cache refreshed (HTTP $http_code)"
+    else
+        log "  WARN: cache refresh returned HTTP $http_code (site may still serve stale data until TTL expires)"
+    fi
 else
     exit_code=$?
     log "FAIL: pipeline exited with code $exit_code"
