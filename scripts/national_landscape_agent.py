@@ -202,6 +202,7 @@ Write valid JSON matching this exact structure:
       ]
     }}
   ],
+  "teams_discussed": ["Alabama", "Florida", "Michigan"],
   "meta": {{
     "sources_processed": {stats.get('total', 0)},
     "written_count": {stats.get('written_count', 0)},
@@ -230,6 +231,12 @@ stories so the memory system can match them across runs. Drop resolved stories n
 **Transfer portal (2026 rule change):** Single window in early January. No post-spring
 portal window. Do not write that players are "expected to enter the portal" during
 spring/summer/in-season — that framing is factually wrong under 2026 rules.
+
+**teams_discussed field:** List the 4-8 FBS teams most prominently discussed in the writeup
+and storylines. Use the OFFICIAL school name as it appears in standard FBS team lists:
+"Alabama", "Florida", "Michigan", "Florida State", "Notre Dame", "Georgia", "Utah", etc.
+Use short-form names: "Miami" not "Miami (FL)", "Mississippi State" not "Miss State".
+Order by prominence (most discussed first). Only include FBS teams, not conferences or people.
 
 **No superlatives without a source:** "Most significant," "largest," "most dominant" —
 these require a source making that exact claim. Cut them if you don't have one.
