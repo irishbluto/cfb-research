@@ -371,7 +371,7 @@ def write_team_memory(slug, db):
         "prior_summary":     data.get("agent_summary", ""),
         "prior_sentiment":   data.get("overall_sentiment", ""),
         "prior_storylines":  data.get("key_storylines", [])[:5],
-        "prior_injury_flags": data.get("injury_flags", [])[:3],
+        "prior_injury_flags": data.get("injury_flags", [])[:10],
         "coaching_snapshot": coaching,
         "agent_flags":       agent_flags,
         "storyline_threads": storyline_threads,

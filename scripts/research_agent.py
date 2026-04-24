@@ -631,7 +631,7 @@ The file must be valid JSON matching this exact structure:
     "storyline 3"
   ],
   "injury_flags": [
-    "any injuries not already in context file"
+    "Player Name (Position): injury/status — timeline; corroboration note (see Injury reporting rules — comprehensive list, merged from Injury notes + discovered sources)"
   ],
   "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
@@ -694,6 +694,28 @@ The file must be valid JSON matching this exact structure:
 **QB experience rule (strictly enforced):** The "QB Situation" field in Team Context is the authoritative source on the quarterback's status and experience. If context identifies a QB as a returning starter, never describe them as "unproven," "untested," or someone who "hasn't proved it" — not from sources, and not as your own editorial synthesis. This prohibition is absolute: do not generate this framing yourself even if no source says it. You may report a spring injury, a competition, or a concern about depth accurately — but those facts stand alone. Do not attach editorial conclusions about a returning starter's track record that the context data contradicts.
 
 **Regression analysis:** If the Regression Flags field above is not "None identified," incorporate those flags into your analysis as a key storyline or within agent_summary. One-score game records are one of the strongest regression indicators in college football — most one-score games even out over time, so a team that went 6-1 is a strong candidate to regress in close games the following season, while a team that went 1-6 is a strong candidate to improve. Frame one-score regression with confidence. Turnover margin is a less reliable indicator — some defenses genuinely create turnovers through scheme and talent, and some offenses have persistent ball-security problems, so extreme turnover margins don't always revert. Frame turnover regression as "worth monitoring" rather than an expectation. If BOTH a one-score flag and a turnover flag point in the same direction (e.g., team won lots of close games AND had an unsustainably high turnover margin), that strengthens the regression case and should be treated as a major storyline.
+
+**Injury reporting (comprehensive list — strictly enforced):** The `injury_flags` array must be a COMPREHENSIVE roster-health snapshot for the 2026 season, not a net-new-findings list. Build it by merging two sources and deduplicating:
+  1. Every entry in the "Injury notes" block above (context-sourced — already verified in the data layer; include them all).
+  2. Any additional injuries surfaced in YouTube, written sources, Reddit, or web search.
+Each player appears exactly ONCE. If a player is covered by both sources, merge into the single most complete entry.
+
+Notable threshold (mode-aware — use the current Research Mode above):
+  - Any mode: season-ending injuries, surgeries with multi-month recovery, any reported "out indefinitely" or "expected to miss significant time."
+  - `spring_offseason` / `preseason`: injuries that may affect fall camp availability or Week 1 status — include even if the timeline sounds hopeful.
+  - `in_season` / `cfb_playoffs`: any player who may miss the upcoming game (week-to-week or worse). Include day-to-day status for listed starters when a beat writer has flagged it by name.
+  - `early_offseason`: lingering surgeries from the prior season; this list is usually short.
+Exclude routine bumps and bruises, and exclude players who have fully recovered.
+
+Resolution rule: DO NOT carry a player forward from the prior_injury_flags shown in the prior run notes unless current sources OR the Injury notes above confirm the injury is still active. Cleared players drop off the list naturally. If a timeline has shifted or the injury has worsened, update the entry to reflect the newest reporting — beat writers will usually catch those changes.
+
+Format convention: Each entry should follow the pattern `"Player Name (Position): injury/status — timeline or expected impact; corroboration note if applicable"`. Accuracy beats rigid formatting — if a source's phrasing is more precise, keep it. Examples:
+  - "Kyngstonn Viliamu-Asa (LB): knee — out through September 6 Wisconsin opener; corroborated across multiple beat outlets"
+  - "Drayk Bowen (LB): hip labrum surgery — targeting early-June full clearance; on track for fall camp"
+  - "Quincy Porter (WR): undisclosed — missed entire spring; no return timeline reported"
+  - "Jagusah (OL): undisclosed — possibly out for 2026 season; flagged in team notes, not yet corroborated by beat coverage"
+
+If there are genuinely no notable injuries on the roster (rare — most common in early offseason for healthy programs), return an empty array `[]`. Do not include placeholder entries like "no specific injury flags."
 
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
