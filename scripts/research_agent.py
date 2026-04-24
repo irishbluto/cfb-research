@@ -27,10 +27,6 @@ Usage:
     # Check quota before deciding which mode to use
     python3 scripts/youtube_fetcher.py --quota
 
-Active conferences: sec, big10, acc, big12, fbsind
-Inactive (uncomment in CONFERENCE_TEAMS to enable):
-    pac12, aac, sbc, mwc, mac, cusa
-
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
 """
@@ -132,7 +128,17 @@ CONFERENCE_TEAMS = {
 }
 
 # How many days before a research file is considered stale and needs refresh
-STALE_DAYS = 7
+STALE_DAYS = 6
+
+# ---------------------------------------------------------------------------
+# Retry configuration
+# ---------------------------------------------------------------------------
+# Research agent failures are often transient (Anthropic API hiccup, tool
+# timeout, JSON parse flake). One automatic retry catches most of these
+# without requiring manual intervention. Timeouts and unexpected exceptions
+# skip the retry — those are rarely transient.
+MAX_ATTEMPTS = 2    # initial attempt + (MAX_ATTEMPTS - 1) retries
+RETRY_DELAY  = 30   # seconds between attempts
 
 # ---------------------------------------------------------------------------
 # Logging setup
@@ -756,46 +762,60 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
     if debug:
         logging.info(f"Running: {' '.join(cmd[:3])} [prompt length: {len(prompt)}]")
 
-    start = time.time()
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=900,   # 15 minute timeout per team
-            cwd=str(BASE_DIR),
-        )
-        elapsed = round(time.time() - start, 1)
+    # Retry loop — initial attempt + (MAX_ATTEMPTS - 1) retries on transient failure.
+    # Timeouts and unexpected exceptions break out early (rarely transient).
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        if attempt > 1:
+            logging.info(f"  [{slug}] Retry {attempt - 1}/{MAX_ATTEMPTS - 1} — waiting {RETRY_DELAY}s")
+            time.sleep(RETRY_DELAY)
 
-        if result.returncode == 0:
-            # Check if output file was actually written
-            output_file = OUTPUT_DIR / f"{slug}_latest.json"
-            if output_file.exists():
-                try:
-                    with open(output_file) as f:
-                        json.load(f)  # validate JSON
-                    logging.info(f"  ✓ {slug} — valid JSON written ({elapsed}s)")
-                    return True
-                except json.JSONDecodeError as e:
-                    logging.error(f"  ✗ {slug} — invalid JSON in output: {e}")
-                    return False
+        start = time.time()
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=900,   # 15 minute timeout per team
+                cwd=str(BASE_DIR),
+            )
+            elapsed = round(time.time() - start, 1)
+
+            if result.returncode == 0:
+                # Check if output file was actually written
+                output_file = OUTPUT_DIR / f"{slug}_latest.json"
+                if output_file.exists():
+                    try:
+                        with open(output_file) as f:
+                            json.load(f)  # validate JSON
+                        logging.info(f"  ✓ {slug} — valid JSON written ({elapsed}s)")
+                        return True
+                    except json.JSONDecodeError as e:
+                        logging.error(f"  ✗ {slug} — invalid JSON in output: {e}")
+                        # fall through to retry
+                else:
+                    logging.warning(f"  ✗ {slug} — agent ran but no output file written ({elapsed}s)")
+                    if debug:
+                        logging.debug(f"  Agent stdout: {result.stdout[:500]}")
+                    # fall through to retry
             else:
-                logging.warning(f"  ✗ {slug} — agent ran but no output file written ({elapsed}s)")
-                if debug:
-                    logging.debug(f"  Agent stdout: {result.stdout[:500]}")
-                return False
-        else:
-            logging.error(f"  ✗ {slug} — agent exited with code {result.returncode} ({elapsed}s)")
-            if result.stderr:
-                logging.error(f"  stderr: {result.stderr[:300]}")
+                logging.error(f"  ✗ {slug} — agent exited with code {result.returncode} ({elapsed}s)")
+                if result.stderr:
+                    logging.error(f"  stderr: {result.stderr[:500]}")
+                if result.stdout:
+                    # Tail of stdout often carries the real error from the Claude CLI
+                    tail = result.stdout[-500:] if len(result.stdout) > 500 else result.stdout
+                    logging.error(f"  stdout tail: {tail}")
+                # fall through to retry
+
+        except subprocess.TimeoutExpired:
+            logging.error(f"  ✗ {slug} — timed out after 900s (no retry)")
+            return False
+        except Exception as e:
+            logging.error(f"  ✗ {slug} — unexpected error: {e} (no retry)")
             return False
 
-    except subprocess.TimeoutExpired:
-        logging.error(f"  ✗ {slug} — timed out after 900s")
-        return False
-    except Exception as e:
-        logging.error(f"  ✗ {slug} — unexpected error: {e}")
-        return False
+    logging.error(f"  ✗ {slug} — all {MAX_ATTEMPTS} attempts failed")
+    return False
 
 # ---------------------------------------------------------------------------
 # Entry point
