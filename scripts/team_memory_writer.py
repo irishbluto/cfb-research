@@ -76,23 +76,33 @@ def tokenize(text):
     return {w for w in words if w not in STOPWORDS and len(w) > 1}
 
 
-def match_storyline(new_text, active_threads):
+def match_storyline(new_text, matchable_threads, threshold=0.35, min_overlap=2):
     """
-    Find the best matching active thread for a new storyline.
+    Find the best matching thread (active OR stale) for a new storyline.
     Returns the thread dict if matched, else None.
-    Match requires >50% of the theme's tokens to appear in the new text.
+
+    Asymmetric token overlap: scores how much of the existing theme's vocabulary
+    survives into the new text. Match requires:
+      - score >= threshold (default 0.35), AND
+      - at least min_overlap shared tokens (default 2; guards against single-
+        word false positives on short themes).
+
+    Caller reactivates stale matches by setting status='active' on the row.
     """
     new_tokens = tokenize(new_text)
     best_match = None
     best_score = 0.0
 
-    for thread in active_threads:
+    for thread in matchable_threads:
         theme_tokens = tokenize(thread["theme"])
         if not theme_tokens:
             continue
-        overlap = len(theme_tokens & new_tokens) / len(theme_tokens)
-        if overlap > 0.5 and overlap > best_score:
-            best_score = overlap
+        shared = theme_tokens & new_tokens
+        if len(shared) < min_overlap:
+            continue
+        score = len(shared) / len(theme_tokens)
+        if score >= threshold and score > best_score:
+            best_score = score
             best_match = thread
 
     return best_match
@@ -171,15 +181,19 @@ def write_team_memory(slug, db):
         )
 
     # ------------------------------------------------------------------
-    # 3. Load active storyline threads from DB
+    # 3. Load matchable storyline threads from DB (active + stale)
+    # Stale threads are included so a continuing storyline whose phrasing
+    # drifted between runs can match and reactivate the existing thread,
+    # rather than spawning a duplicate. Reactivation happens in the UPDATE
+    # path inside step 4.
     # ------------------------------------------------------------------
     cur.execute(
-        "SELECT * FROM team_memory_storylines WHERE slug = %s AND status = 'active' AND season = %s",
+        "SELECT * FROM team_memory_storylines WHERE slug = %s AND status IN ('active','stale') AND season = %s",
         (slug, CURRENT_SEASON)
     )
-    active_threads = cur.fetchall()
+    matchable_threads = cur.fetchall()
     # Parse the JSON updates column
-    for t in active_threads:
+    for t in matchable_threads:
         try:
             t["_updates"] = json.loads(t["updates"]) if isinstance(t["updates"], str) else t["updates"]
         except Exception:
@@ -192,7 +206,7 @@ def write_team_memory(slug, db):
     matched_ids = set()
 
     for storyline_text in new_storylines:
-        match = match_storyline(storyline_text, active_threads)
+        match = match_storyline(storyline_text, matchable_threads)
         if match and match["id"] not in matched_ids:
             # Update existing thread
             matched_ids.add(match["id"])
@@ -201,7 +215,7 @@ def write_team_memory(slug, db):
             # Keep last 8 updates max to control token cost
             updates = updates[-8:]
             cur.execute(
-                "UPDATE team_memory_storylines SET updates = %s, last_updated = %s WHERE id = %s",
+                "UPDATE team_memory_storylines SET updates = %s, last_updated = %s, status = 'active' WHERE id = %s",
                 (json.dumps(updates), today, match["id"])
             )
         else:
@@ -381,8 +395,10 @@ def write_team_memory(slug, db):
     try:
         with open(MEMORY_DIR / f"{slug}.json", 'w') as f:
             json.dump(cache, f, indent=2)
+        active_count = sum(1 for t in storyline_threads if t.get("status") == "active")
+        stale_count = len(storyline_threads) - active_count
         logging.info(f"  ✓ {slug} — memory written (run #{run_count}, mode: {mode}, "
-                     f"{len(storyline_threads)} active threads)")
+                     f"{active_count} active / {stale_count} stale)")
         return True
     except Exception as e:
         logging.error(f"  [{slug}] Failed to write cache file: {e}")
