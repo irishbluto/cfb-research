@@ -4,8 +4,8 @@
 # Cron wrapper for the national landscape pipeline.
 # Runs fetch + Claude synthesis, writes landscape_latest.json.
 #
-# Schedule: Mon & Thu at 8 AM Eastern (crontab in UTC)
-# Crontab:  0 12 * * 1,4  /cfb-research/scripts/cron_national_landscape.sh
+# Schedule: Sun & Wed at 8 AM Eastern (crontab in UTC)
+# Crontab:  0 12 * * 0,3  /cfb-research/scripts/cron_national_landscape.sh
 #
 # Logs: /cfb-research/logs/national_pipeline_*.log  (per-run)
 #       /cfb-research/logs/cron_national.log         (cron wrapper)
