@@ -39,6 +39,14 @@
       "notes": "ABC affiliate in Jonesboro, AR — free, confirmed active A-State coverage; direct URL only"
     },
     {
+      "name": "KARK — Arkansas State",
+      "url": "https://www.kark.com/sports/",
+      "type": "local_tv",
+      "rss": "https://www.kark.com/sports/feed/",
+      "title_filter": ["Arkansas State", "Red Wolves", "A-State"],
+      "notes": "Little Rock NBC (Nexstar) — broad statewide sports feed; title_filter scopes to Arkansas State football; complements Jonesboro-local KAIT 8"
+    },
+    {
       "name": "247Sports — Arkansas State",
       "url": "https://247sports.com/college/arkansas-state/",
       "type": "beat_writer",
@@ -55,6 +63,14 @@
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
     },
     {
+      "name": "WBTW — Coastal Carolina",
+      "url": "https://www.wbtw.com/sports/",
+      "type": "local_tv",
+      "rss": "https://www.wbtw.com/sports/feed/",
+      "title_filter": ["Coastal Carolina", "Chanticleers", "CCU"],
+      "notes": "Myrtle Beach CBS (Nexstar) — broad sports feed; title_filter scopes to CCU; avoid filtering on bare 'Coastal' (collides with weather copy)"
+    },
+    {
       "name": "247Sports — Coastal Carolina",
       "url": "https://247sports.com/college/coastal-carolina/",
       "type": "beat_writer",
@@ -69,6 +85,14 @@
       "type": "podcast",
       "rss": "https://feeds.megaphone.fm/LKN2439186676",
       "notes": "Daily Sun Belt conference pod — covers all 14 teams."
+    },
+    {
+      "name": "WSAV — Georgia Southern",
+      "url": "https://www.wsav.com/sports/",
+      "type": "local_tv",
+      "rss": "https://www.wsav.com/sports/feed/",
+      "title_filter": ["Georgia Southern"],
+      "notes": "Savannah NBC (Nexstar) — broad sports feed; title_filter limited to 'Georgia Southern' to avoid Eagles/GSU collisions with other programs"
     },
     {
       "name": "247Sports — Georgia Southern",
@@ -239,6 +263,14 @@
       "type": "beat_writer",
       "rss": "https://www.al.com/arc/outboundfeeds/rss/category/usa/",
       "notes": "AL.com South Alabama section — Arc Publishing RSS pattern (same as Alabama/Auburn/UAB entries); free content"
+    },
+    {
+      "name": "WKRG — South Alabama",
+      "url": "https://www.wkrg.com/sports/",
+      "type": "local_tv",
+      "rss": "https://www.wkrg.com/sports/feed/",
+      "title_filter": ["South Alabama"],
+      "notes": "Mobile CBS (Nexstar) — broad sports feed; title_filter limited to 'South Alabama' to avoid Jaguars collisions (NFL Jacksonville, FCS Southern)"
     },
     {
       "name": "247Sports — South Alabama",
