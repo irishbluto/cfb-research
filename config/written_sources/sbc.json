@@ -166,6 +166,12 @@
   ],
   "louisiana-tech": [
     {
+      "name": "KTAL News — LA Tech",
+      "url": "https://www.ktalnews.com/sports/local-sports/la-tech/",
+      "type": "local_tv",
+      "rss": "https://www.ktalnews.com/sports/local-sports/la-tech/feed/"
+    },
+    {
       "name": "Locked On Sun Belt Podcast",
       "url": "https://lockedonpodcasts.com/podcasts/locked-on-sun-belt/",
       "type": "podcast",
