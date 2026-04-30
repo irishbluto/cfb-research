@@ -11,7 +11,7 @@
     {
       "name": "CBS Sports CFB",
       "rss": "https://www.cbssports.com/rss/headlines/college-football/",
-      "author_filter": ["Brandon Marcello"],
+      "author_filter": ["Brandon Marcello", "Tom Fornelli"],
       "linkable": true,
       "prefetch": true,
       "notes": "Filter by dc:creator"
@@ -31,14 +31,6 @@
       "linkable": false,
       "prefetch": false,
       "notes": "Paywall — input only, never link to readers. Vannini and Feldman are primary targets."
-    },
-    {
-      "name": "Bruce Feldman (The Athletic)",
-      "rss": "https://rss.app/feeds/2dTOPpTtvqUJUF6W.xml",
-      "author_filter": null,
-      "linkable": false,
-      "prefetch": false,
-      "notes": "RSS.app dedicated feed — paywall, input only"
     }
   ],
   "youtube": [
@@ -53,6 +45,12 @@
       "channel_id": "UCODwphyohBn9u8-FVWfbQ7g",
       "linkable": true,
       "notes": "CBS national CFB coverage — Barton Simmons, Tom Fornelli, Chip Patterson"
+    },
+    {
+      "name": "The Solid Verbal",
+      "channel_id": "UCQx6z2ANPbj2Sg4w42NScpw",
+      "linkable": true,
+      "notes": "National CFB coverage - Ty Hildenbrandt and Dan Rubenstein"
     },
     {
       "name": "G5 Hive",
