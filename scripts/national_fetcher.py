@@ -175,6 +175,32 @@ def _fetch_rss_items(source, days=7, max_items=5, source_type='written'):
     return articles
 
 # ---------------------------------------------------------------------------
+# Direct URL listing — fallback when rss is null (e.g. author archive pages
+# on sites that no longer publish RSS, like Yahoo Sports). Emits a single
+# placeholder item; the prefetch step pulls the page text so the agent can
+# read recent headlines from it.
+# ---------------------------------------------------------------------------
+
+def _fetch_url_listing(source, source_type='written'):
+    """For sources without an RSS feed, emit one placeholder item pointing
+    at the author/section URL. Prefetch will fill in body_text from the page."""
+    name = source['name']
+    url  = source.get('url') or source.get('rss') or ''
+    if not url:
+        return [{'source': name, 'error': True,
+                 'message': "No url or rss configured"}]
+    return [{
+        'source':    name,
+        'type':      source_type,
+        'headline':  f"Recent articles from {name}",
+        'url':       url,
+        'author':    '',
+        'published': '',
+        'summary':   source.get('notes', ''),
+        'linkable':  source.get('linkable', True),
+    }]
+
+# ---------------------------------------------------------------------------
 # Article body prefetch — same pattern as written_sources_fetcher.py
 # ---------------------------------------------------------------------------
 
@@ -362,8 +388,13 @@ def fetch_national_sources(days=7, max_per_source=5, prefetch=True,
     for source in config.get('written', []):
         name = source.get('name', 'Unknown')
         print(f"  [{name}]", end='', flush=True)
-        items = _fetch_rss_items(source, days=days, max_items=max_per_source,
-                                 source_type='written')
+        if source.get('rss'):
+            items = _fetch_rss_items(source, days=days, max_items=max_per_source,
+                                     source_type='written')
+        else:
+            # No RSS — direct URL listing (e.g. author archive page).
+            # Prefetch step pulls page text for the agent to scan.
+            items = _fetch_url_listing(source, source_type='written')
         real = [a for a in items if not a.get('error') and not a.get('no_recent')]
         print(f" -> {len(real)} articles")
         written_results.extend(items)

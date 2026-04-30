@@ -31,6 +31,15 @@
       "linkable": false,
       "prefetch": false,
       "notes": "Paywall — input only, never link to readers. Vannini and Feldman are primary targets."
+    },
+    {
+      "name": "Yahoo — Ross Dellenger",
+      "rss": null,
+      "url": "https://sports.yahoo.com/author/ross-dellenger/",
+      "author_filter": null,
+      "linkable": true,
+      "prefetch": true,
+      "notes": "Yahoo killed public RSS — direct author archive page. Permission granted by Dellenger; covers CFB national stories."
     }
   ],
   "youtube": [
