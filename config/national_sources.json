@@ -25,6 +25,14 @@
       "notes": "RSS.app feed — already Forde-specific. SI is in SKIP_PREFETCH_DOMAINS."
     },
     {
+      "name": "Yahoo — Ross Dellenger",
+      "rss": "https://rss.app/feeds/XXXXXXXXXX.xml",
+      "author_filter": null,
+      "linkable": true,
+      "prefetch": true,
+      "notes": "RSS.app feed — already Dellenger-specific. Yahoo not paywalled."
+    },
+    {
       "name": "The Athletic CFB",
       "rss": "https://www.nytimes.com/athletic/rss/college-football/",
       "author_filter": null,
