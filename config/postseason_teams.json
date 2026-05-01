@@ -1,0 +1,6 @@
+{
+  "_comment": "Manual list of teams to refresh during postseason mode (Dec 6 – Jan 25). cron_team_research.sh reads this on Mon/Thu in postseason mode and runs run_pipeline.py --team <slug> for each. Update this each year in early December once the CFP field + headline bowls are set. Use research-slug form (lowercase-hyphenated, e.g. 'ohio-state', 'texas-am'). Empty list = no teams will run on postseason days, refresh URL still fires.",
+  "_updated": "2026-04-30",
+  "_season": null,
+  "teams": []
+}

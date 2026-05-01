@@ -50,17 +50,25 @@ def setup_logging():
 # ---------------------------------------------------------------------------
 
 def get_mode():
-    month = datetime.now().month
-    if month == 1:
-        return "cfb_playoffs", "college football playoffs, postseason, portal window, recruiting, coaching changes"
-    elif month in (2, 3):
+    """Calendar-day mode boundaries (mirrors research_agent.py + cron_team_research.sh).
+    early_offseason  : Jan 26 – Mar 31
+    spring_offseason : Apr 1  – Jun 30
+    preseason        : Jul 1  – Aug 28
+    in_season        : Aug 29 – Dec 5
+    postseason       : Dec 6  – Jan 25
+    """
+    now   = datetime.now()
+    month = now.month
+    day   = now.day
+    if (month == 12 and day >= 6) or (month == 1 and day <= 25):
+        return "postseason", "college football playoffs, bowl games, portal window, recruiting, coaching changes"
+    if (month == 1 and day >= 26) or month in (2, 3):
         return "early_offseason", "portal activity, coaching changes, recruiting, spring practice previews"
-    elif month in (4, 5, 6):
+    if month in (4, 5, 6):
         return "spring_offseason", "spring practice results, portal analysis, recruiting, expectations and predictions"
-    elif month in (7, 8):
+    if month == 7 or (month == 8 and day <= 28):
         return "preseason", "fall camp, depth charts, preseason polls, predictions, conference previews"
-    else:
-        return "in_season", "weekly results, rankings, playoff picture, Heisman race, injury impacts"
+    return "in_season", "weekly results, rankings, playoff picture, Heisman race, injury impacts"
 
 # ---------------------------------------------------------------------------
 # Load prior memory

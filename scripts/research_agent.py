@@ -245,19 +245,29 @@ def build_prompt(slug, context, channels, no_youtube=False):
             pass  # Corrupt memory file — proceed without it
 
     # ---------------------------------------------------------------------------
-    # Research mode — determined early so roster caps can reference it
+    # Research mode — determined early so roster caps can reference it.
+    # Calendar-day boundaries (matches scripts/cron_team_research.sh dispatcher):
+    #   early_offseason:  Jan 26 – Mar 31
+    #   spring_offseason: Apr 1  – Jun 30
+    #   preseason:        Jul 1  – Aug 28
+    #   in_season:        Aug 29 – Dec 5
+    #   postseason:       Dec 6  – Jan 25  (includes CFP, bowl season, portal window)
+    # 2027 future build: replace these constants with first/last game lookups
+    # against the games table so season windows track real schedule, not calendar.
     # ---------------------------------------------------------------------------
-    month = datetime.now().month
-    if month == 1:
-        mode = "cfb_playoffs"
-        mode_focus = "college football playoffs, injury updates, weekly game prep, postseason news, portal activity, recruiting, coaching changes"
-    elif month in (2, 3):
+    _now   = datetime.now()
+    _month = _now.month
+    _day   = _now.day
+    if (_month == 12 and _day >= 6) or (_month == 1 and _day <= 25):
+        mode = "postseason"
+        mode_focus = "college football playoffs, bowl games, injury updates, weekly game prep, portal window activity, recruiting, coaching changes"
+    elif (_month == 1 and _day >= 26) or _month in (2, 3):
         mode = "early_offseason"
         mode_focus = "portal activity, recruiting, coaching changes, spring practice previews"
-    elif month in (4, 5, 6):
+    elif _month in (4, 5, 6):
         mode = "spring_offseason"
         mode_focus = "spring practice results, depth chart battles, injury news, expectations and predictions"
-    elif month in (7, 8):
+    elif _month == 7 or (_month == 8 and _day <= 28):
         mode = "preseason"
         mode_focus = "fall camp, depth chart, injury news, expectations and predictions"
     else:
@@ -271,7 +281,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
     # Keys match position_group values in team_context full_roster.
     # Fallback cap of 5 applies to any group not listed here.
     # ---------------------------------------------------------------------------
-    _IN_SEASON_MODES = {'in_season', 'cfb_playoffs'}
+    _IN_SEASON_MODES = {'in_season', 'postseason'}
     ROSTER_CAPS = {
         'Quarterbacks':    3 if mode in _IN_SEASON_MODES else 5,
         'Running Backs':   5,
@@ -723,7 +733,7 @@ Each player appears exactly ONCE. If a player is covered by both sources, merge 
 Notable threshold (mode-aware — use the current Research Mode above):
   - Any mode: season-ending injuries, surgeries with multi-month recovery, any reported "out indefinitely" or "expected to miss significant time."
   - `spring_offseason` / `preseason`: injuries that may affect fall camp availability or Week 1 status — include even if the timeline sounds hopeful.
-  - `in_season` / `cfb_playoffs`: any player who may miss the upcoming game (week-to-week or worse). Include day-to-day status for listed starters when a beat writer has flagged it by name.
+  - `in_season` / `postseason`: any player who may miss the upcoming game (week-to-week or worse). Include day-to-day status for listed starters when a beat writer has flagged it by name.
   - `early_offseason`: lingering surgeries from the prior season; this list is usually short.
 Exclude routine bumps and bruises, and exclude players who have fully recovered.
 
@@ -745,7 +755,7 @@ If there are genuinely no notable injuries on the roster (rare — most common i
 
 **Tone:** Write as a knowledgeable, even-handed CFB analyst who respects the work programs put in during the offseason and stays grounded in specifics. Mode-aware calibration:
   - `spring_offseason` and `preseason`: lean toward earned optimism. Spring and summer are the seasons of reasonable hope — most programs genuinely are trying to get better, and fans deserve a writeup that takes their team's offseason investments seriously. Identify the real reasons for optimism (returning production, portal hits, staff continuity, schedule breaks) and present them plainly. Acknowledge concerns honestly, but don't lead with skepticism and don't pile on.
-  - `in_season` and `cfb_playoffs`: lean pragmatic. Results are on the field now, so analysis should track what's actually happened. Temper both hype and doom with the scoreboard.
+  - `in_season` and `postseason`: lean pragmatic. Results are on the field now, so analysis should track what's actually happened. Temper both hype and doom with the scoreboard.
   - `early_offseason`: reflective and fair — what worked, what didn't, what's next.
 Always earn observations with concrete specifics from the context and sources — never with generic hype ("program-changing class," "elite coaching hire") and never with generic skepticism ("we've seen this movie before," "every program says that"). Dry wit is fine when it lands naturally on a real contradiction in the data; never force it, and never default to snark as a substitute for analysis. The goal is a writeup a smart, informed fan of this specific team would nod along with — not one that performs cynicism for its own sake.
 
