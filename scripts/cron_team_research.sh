@@ -302,13 +302,30 @@ log "PIPELINE: $SUCCESS ok, $FAIL failed"
 # caches. Wasteful for a single-conference slot (only ~14-18 teams
 # actually have new data), but keeps the wiring simple. Future
 # improvement: add ?refresh_conf=<slug> param to test.php.
+#
+# Cache-bust gotcha (2026-05-01): the static URL above was being
+# served from Cloudflare's edge cache — curl returned 200 in the
+# same second it fired, but the origin PHP never ran, and Hostinger
+# cache files stayed stale. Every invocation now appends a unix
+# timestamp + sends explicit no-cache headers to force CF to pass
+# through to origin.
 # ---------------------------------------------------------------
 log "  Refreshing Hostinger team-research cache..."
+TS=$(date +%s)
+START_T=$(date +%s)
 http_code=$(curl -s -o /dev/null -w "%{http_code}" \
-    "$REFRESH_URL" \
+    -H "Cache-Control: no-cache, no-store, must-revalidate" \
+    -H "Pragma: no-cache" \
+    -H "Expires: 0" \
+    "${REFRESH_URL}&_=${TS}" \
     --max-time 600 2>/dev/null || echo "000")
+ELAPSED=$(( $(date +%s) - START_T ))
 if [ "$http_code" = "200" ]; then
-    log "  Cache refreshed (HTTP $http_code)"
+    if [ "$ELAPSED" -lt 5 ]; then
+        log "  WARN: cache refresh returned HTTP 200 in ${ELAPSED}s — likely a CDN cache hit, origin didn't actually run. Bump CF cache rules for /research/test.php."
+    else
+        log "  Cache refreshed (HTTP $http_code, ${ELAPSED}s)"
+    fi
 else
     log "  WARN: cache refresh returned HTTP $http_code (caches will fall back to TTL)"
 fi
