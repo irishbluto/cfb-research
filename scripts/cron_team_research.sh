@@ -31,6 +31,13 @@
 
 set -euo pipefail
 
+# All date math (mode + day-of-week) must be in Eastern time so the
+# schedule lines up with the user's mental model. VPS clock is UTC,
+# which would flip mode/DOW boundaries 4–5 hours early. Pinning here
+# means the script behaves identically whether run by cron, by hand,
+# or via SSH at any hour. Survives EDT↔EST transitions automatically.
+export TZ="America/New_York"
+
 BASE_DIR="/cfb-research"
 LOG_DIR="${BASE_DIR}/logs"
 CRON_LOG="${LOG_DIR}/cron_team_research.log"
