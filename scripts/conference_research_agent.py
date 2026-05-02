@@ -175,37 +175,41 @@ def _fmt_top_players(top_players):
 
 
 def _fmt_top_recruits(top_recruits):
-    """Top 10 recruits — 247 ratings (display .XX)."""
+    """Top 10 recruits — rating_label is for prose; .XX/stars are for ranking."""
     lines = []
     for i, r in enumerate(top_recruits, start=1):
         rating = r.get('rating')
         rating_str = f"{rating:.2f}".lstrip('0') if isinstance(rating, (int, float)) else "?"
         stars = r.get('stars')
         stars_str = "★" * stars if isinstance(stars, int) else ""
+        label = r.get('rating_label', '')
+        label_str = f" [{label}]" if label else ""
         loc = r.get('location', '')
         loc_str = f" · {loc}" if loc else ""
         lines.append(
             f"{i}. {r.get('name', '?')} "
             f"({r.get('position', '?')}, {r.get('team', '?')})"
-            f" · {rating_str} {stars_str}{loc_str}"
+            f" · {rating_str} {stars_str}{label_str}{loc_str}"
         )
     return "\n".join(lines)
 
 
 def _fmt_top_portal(top_portal):
-    """Top 10 portal additions — 247 ratings (display .XX)."""
+    """Top 10 portal additions — rating_label is for prose; .XX/stars are for ranking."""
     lines = []
     for i, p in enumerate(top_portal, start=1):
         rating = p.get('rating')
         rating_str = f"{rating:.2f}".lstrip('0') if isinstance(rating, (int, float)) else "?"
         stars = p.get('stars')
         stars_str = "★" * stars if isinstance(stars, int) else ""
+        label = p.get('rating_label', '')
+        label_str = f" [{label}]" if label else ""
         origin = p.get('origin', '')
         origin_str = f" from {origin}" if origin else ""
         lines.append(
             f"{i}. {p.get('name', '?')} "
             f"({p.get('position', '?')}, {p.get('team', '?')})"
-            f" · {rating_str} {stars_str}{origin_str}"
+            f" · {rating_str} {stars_str}{label_str}{origin_str}"
         )
     return "\n".join(lines)
 
@@ -222,6 +226,17 @@ def _fmt_history(history, conf_schedule_length=None):
     if not years:
         return "(no history available)"
 
+    # Window label first — the agent must reference this when comparing the
+    # multi-year conf record against any other multi-year stat (e.g. CFP).
+    window_label = history.get('window_label', '')
+    window_years = history.get('window_years', len(years))
+    window_line = ""
+    if window_label:
+        window_line = (f"Window: {window_label} ({window_years} seasons). "
+                       f"When citing these totals, name this window — and never "
+                       f"compare it to a different-window stat in the same "
+                       f"sentence without flagging the difference.\n")
+
     sched = conf_schedule_length or {}
     sched_line = ""
     if sched:
@@ -231,12 +246,15 @@ def _fmt_history(history, conf_schedule_length=None):
             bits.append(f"{y}={g}")
         sched_line = "Conference games per team by year: " + ", ".join(bits) + "\n"
 
+    # Combine window + sched as a single preamble above the table
+    preamble = window_line + sched_line
+
     # Build a fixed-width table: Team | each year | Sum
     name_w = 28
     cell_w = 6
     header = "Team".ljust(name_w) + "".join(str(y).rjust(cell_w) for y in years) + "Sum".rjust(cell_w + 2)
     rule   = "-" * len(header)
-    rows = [sched_line + header, rule]
+    rows = [preamble + header, rule]
 
     for r in history.get('records', []):
         team = (r.get('url_param', '') or '?').ljust(name_w)
@@ -482,12 +500,18 @@ Production Numbers are Punt & Rally's own production rating (NOT 247Sports). Sta
 {players_block}
 
 ### Top 10 Recruits (2026 class)
-Individual recruit ratings ARE 247 ratings (decimal scale).
+Each entry shows the 247 decimal, the star count, and a [rating_label] in brackets
+(e.g. [five-star], [high-end four-star]). In prose, USE THE LABEL — readers don't
+decode 247 decimals. Never write ".98-rated"; write "five-star" or "top-ranked"
+instead. The decimal and stars are for ranking purposes only.
 
 {recruits_block}
 
 ### Top 10 Portal Additions (2026 cycle)
-Individual portal ratings ARE 247 ratings (decimal scale).
+Same rating-label convention as recruits: use the [label] in prose, not the decimal.
+Portal additions are NEW arrivals from another program — never frame a portal player
+as "returning," "back," or a "returning anchor." If their team is the destination,
+they are joining for the first time.
 
 {portal_block}
 
@@ -685,7 +709,37 @@ If prior-run notes (above) include tracked storyline threads, your `key_storylin
 
 """
 
-    prompt += """### Tone — Phil Steele meets Banner Society
+    prompt += """### Projections vs. outcomes — the season validates, you set the scene
+
+Power ratings, projected wins, projected standings, talent ranks, and SOS ranks are
+PRESEASON PROJECTIONS — forecasts the season will validate or refute, not settled
+outcomes. Frame them that way. Every team is one QB or key-position injury away from
+a lost season; conference dynamics shift week to week.
+
+Avoid:
+- "X is a lock to win the conference."
+- "Y is the obvious No. 1."
+- Treating a power rating as iron-clad ("their #3 power rating means…").
+- Treating a projected win total as a floor or a band ("each capable of nine wins").
+  Projected wins are central tendencies, not bounded ranges — the realistic downside
+  for any team is a season-ending injury at QB.
+- Comparing stats from different time windows in the same sentence without flagging
+  the windows. Concrete example to AVOID: "32-5 in conference and 0-2 in CFP" —
+  that pairs a 4-year stat with a 2-year stat. Either say so explicitly ("32-5 in
+  conference over the last four years and 0-2 in the CFP across the last two") or
+  don't juxtapose them.
+
+For league-specific calibration of what "good" looks like (e.g. a 9-win bar, a CFP
+expectation, what a "tremendous season" means in this league), defer to the EDITOR
+NOTES conference_note above. Don't apply universal win-total framing to a specific
+league without that calibration.
+
+Use projections as SETUP ("the data has Georgia first, but…"), not as VERDICT. The
+games settle the rest.
+
+"""
+
+prompt += """### Tone — Phil Steele meets Banner Society
 
 Write with the voice of a smart, slightly weary CFB lifer who has seen every variation of "this is the year" and remains delighted by the sport anyway. Phil Steele's appetite for the specific data point crossed with Banner Society's wry affection for the genre. Be willing to be funny — dry-witty, observational, occasionally biting — but **every joke has to land on a real contradiction, a real tendency, or a specific data point.** No generic snark.
 

@@ -1,8 +1,8 @@
 {
   "_doc": "Editor steering notes for the conference preview agent. Authoritative — these override prior knowledge and any conflicting context-data interpretation. Keep each note to 1–3 short sentences. Empty strings are dropped silently. Loaded by build_conference_context.py from /cfb-research/writer_notes/<season>/<conf>.json.",
   "_usage": [
-    "conference_note: a sentence or two about the conference as a whole — the meta-narrative for the year (e.g., 'The realignment dust has settled but the talent gap between the top three and the rest is still widening.').",
-    "team_notes.<slug>: a sentence or two about that specific team — what the data won't tell the agent (a coaching change, a critical transfer, an injury, an off-field story, the angle the writeup should take).",
+    "conference_note: 1–3 sentences with two purposes — (a) the meta-narrative for the year (e.g., 'The realignment dust has settled but the talent gap between the top three and the rest is still widening.'), and (b) calibration the agent needs to right-size confidence: what 'good' looks like in this league. SEC example: 'In modern SEC: 7-1 in conf typically reaches the title game; 9-0 has never happened. 9 overall wins is a historic season.' MAC example: 'In the MAC, 8 conference wins is championship caliber; 6-2 contends.' Combine narrative + calibration when both matter.",
+    "team_notes.<slug>: 1–3 sentences about that specific team — what the data won't tell the agent (a coaching change, a critical transfer, an injury, an off-field story, the angle the writeup should take).",
     "Slugs match the canonical team slugs in build_team_context.py / scrape_team_context.py."
   ],
   "season": 2026,
@@ -11,19 +11,19 @@
   "team_notes": {
     "alabama": "QB1 Keelon Russell vs Austin Mack unresolved, HC DeBoer's new contract helps ease tensions.",
     "arkansas": "New HC Silverfield hasn't won over fans, QB1 KJ Jackson vs AJ Hill key storyline.",
-    "auburn": "Fans starving for new HC Alex Golesh to fix the offense and program; DC Durkin back is key but strange.",
+    "auburn": "Fans starving for new HC Alex Golesh to fix the offense and program; DC Durkin back is key but strange. QB Brown from South Florida (along with 12 others with Golesh & staff) key storyline",
     "florida": "New HC Jon Sumrall popular, QB1 Aaron Philo vs Tramell Jones Jr. key storyline.",
     "georgia": "SEC back-to-back champs, but 0-2 in CFP the last two years is disappointing — not a lock to win the SEC.",
     "kentucky": "Renewed hope with new HC Stein, especially on offense after the Stoops era went stale.",
-    "lsu": "Baker retained as DC, big for defense; QB Leavitt injury recovery key storyline.",
+    "lsu": "Kiffin a proven Offensive mastermind, returns to play vs Ole Miss in Week 3. Blake Baker retained as DC, big for defense; QB Leavitt recovery from foot injury last October (while at Arizona State) key.",
     "mississippi-state": "Prev HC Zach Arnett back as DC; QB Taylor key to fans hope of escaping the SEC cellar.",
-    "missouri": "QB Austin Simmons (Ole Miss transfer) is the big storyline; defense is a big rebuild job under popular DC Batoon.",
+    "missouri": "QB Austin Simmons (transferred IN from Ole Miss — new arrival, NOT returning) is the big storyline; defense is a big rebuild job under popular DC Corey Batoon.",
     "oklahoma": "Offense has been the big problem, run game especially. QB1 Mateer wasn't the same last year after a thumb injury.",
-    "ole-miss": "Coming off best season maybe ever; want HC Golding to prove he's better than Lane Kiffin (left for LSU last year).",
+    "ole-miss": "Coming off best season maybe ever; want HC Golding to prove he's better than Lane Kiffin (left for LSU last year). Ole Miss hosts LSU in week 3, one of CFBs most anticipated matchups.",
     "south-carolina": "HC Beamer underappreciated but last year was bad. Rebuilt OL, but injuries already a problem at OT.",
-    "tennessee": "QB1 battle Faizon Brandon vs George MacIntyre. Portal DE Chaz Coleman missed spring for mental health and may not play this year.",
+    "tennessee": "MacIntyre projected to open as starter, but 5★ Faizon Brandon competing for the job — treat as unsettled across all sections of the writeup. Portal DE Chaz Coleman missed spring for mental health and may not play this year.",
     "texas": "Defining year for HC Sark and the program; they've been building to make a deep CFP run in '26 with QB Manning & portal signings. OL the big question on team.",
-    "texas-am": "Last year's 0-2 ending was hard on fans, but HC Elko is popular even if this year is just decent / transitional.",
+    "texas-am": "Last year's 0-2 ending was hard on fans, but HC Elko is popular even if this year is just decent / transitional. LB and team captain Sanford injured in spring will miss season. ",
     "vanderbilt": "All-everything QB Pavia graduated after best two Vandy seasons maybe ever — can they win without him?"
   }
 }

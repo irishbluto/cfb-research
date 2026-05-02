@@ -308,6 +308,53 @@ def build_top_players(team_contexts, limit=15):
     return pool[:limit]
 
 
+# ---------------------------------------------------------------------------
+# Recruit / portal rating → natural-language label
+# ---------------------------------------------------------------------------
+
+def _rating_to_label(rating, stars=None):
+    """
+    Translate a 247-style rating into natural-language framing the agent
+    can drop straight into prose. Stars take precedence when present;
+    rating bands are the fallback. Returns "" when neither is informative.
+
+    Why this lives in the data layer: the agent should never write '.98' in
+    prose — readers don't decode 247 decimals. Doing the translation once,
+    deterministically, eliminates a class of tone bugs without another rule.
+    """
+    try:
+        s = int(stars) if stars is not None else None
+    except (TypeError, ValueError):
+        s = None
+    try:
+        r = float(rating) if rating is not None else None
+    except (TypeError, ValueError):
+        r = None
+
+    # Prefer stars when present
+    if s == 5:
+        return "five-star"
+    if s == 4 and r is not None and r >= 0.94:
+        return "high-end four-star"
+    if s == 4:
+        return "four-star"
+    if s == 3:
+        return "three-star"
+    if s == 2:
+        return "two-star"
+    # Fallback to rating bands when stars are missing/zero
+    if r is not None:
+        if r >= 0.98:
+            return "five-star"
+        if r >= 0.94:
+            return "high-end four-star"
+        if r >= 0.89:
+            return "four-star"
+        if r >= 0.79:
+            return "three-star"
+    return ""
+
+
 def build_top_recruits(team_contexts, limit=10):
     """
     Top-N recruits in the conference, sorted by 247 rating DESC then stars DESC.
@@ -325,6 +372,7 @@ def build_top_recruits(team_contexts, limit=10):
                 'position':       r.get('position', ''),
                 'stars':          r.get('stars'),
                 'rating':         r.get('rating'),
+                'rating_label':   _rating_to_label(r.get('rating'), r.get('stars')),
                 'height_weight':  r.get('height_weight', ''),
                 'location':       r.get('location', ''),
                 'high_school':    r.get('high_school', ''),
@@ -356,6 +404,7 @@ def build_top_portal(team_contexts, limit=10):
                 'position':       p.get('position', ''),
                 'stars':          p.get('stars'),
                 'rating':         p.get('rating'),
+                'rating_label':   _rating_to_label(p.get('rating'), p.get('stars')),
                 'origin':         p.get('school', ''),    # 'school' = origin in portal_in dedupe
                 'eligibility':    p.get('eligibility', ''),
                 'transfer_date':  p.get('transferDate', ''),
@@ -440,9 +489,16 @@ def build_history(conn, conf_games_name, member_url_params,
             'total_conf_losses': total_l,
         })
 
+    # Explicit window label so the agent never compares this multi-year stat
+    # against a different-window stat without flagging the difference.
+    window_label = (f"{start_season}–{end_season}"
+                    if end_season > start_season else f"{start_season}")
+
     return {
-        'years':   list(range(start_season, end_season + 1)),
-        'records': history_rows,
+        'years':         list(range(start_season, end_season + 1)),
+        'window_label':  window_label,
+        'window_years':  end_season - start_season + 1,
+        'records':       history_rows,
     }
 
 

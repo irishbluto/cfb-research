@@ -1,0 +1,23 @@
+{
+  "_doc": "Editor steering notes for the conference preview agent. Authoritative — these override prior knowledge and any conflicting context-data interpretation. Keep each note to 1–3 short sentences. Empty strings are dropped silently. Loaded by build_conference_context.py from /cfb-research/writer_notes/<season>/<conf>.json.",
+  "_usage": [
+    "conference_note: 1–3 sentences with two purposes — (a) the meta-narrative for the year (e.g., 'The realignment dust has settled but the talent gap between the top three and the rest is still widening.'), and (b) calibration the agent needs to right-size confidence: what 'good' looks like in this league. SEC example: 'In modern SEC: 7-1 in conf typically reaches the title game; 9-0 has never happened. 9 overall wins is a historic season.' MAC example: 'In the MAC, 8 conference wins is championship caliber; 6-2 contends.' Combine narrative + calibration when both matter.",
+    "team_notes.<slug>: 1–3 sentences about that specific team — what the data won't tell the agent (a coaching change, a critical transfer, an injury, an off-field story, the angle the writeup should take).",
+    "Slugs match the canonical team slugs in build_team_context.py / scrape_team_context.py."
+  ],
+  "season": 2026,
+  "conference": "mwc",
+  "conference_note": "",
+  "team_notes": {
+    "air-force": "",
+    "hawaii": "",
+    "nevada": "",
+    "new-mexico": "",
+    "north-dakota-state": "",
+    "northern-illinois": "",
+    "san-jose-state": "",
+    "unlv": "",
+    "utep": "",
+    "wyoming": ""
+  }
+}
