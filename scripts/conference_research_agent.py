@@ -606,6 +606,55 @@ Each blurb is a paragraph (60–110 words). Don't just compress the conference e
     return prompt, mode
 
 # ---------------------------------------------------------------------------
+# Merge the deterministic data layer into the agent's prose output so the
+# public URL serves a single self-contained JSON. Called after a successful
+# Claude run; never overwrites Claude's contributions, only adds data fields.
+# ---------------------------------------------------------------------------
+DATA_FIELDS_TO_MERGE = (
+    'standings', 'top_players', 'top_recruits', 'top_portal',
+    'history', 'marquee_ooc',
+)
+
+
+def merge_context_into_preview(conf_slug):
+    """Copy deterministic data from conference_context/<slug>.json into
+    conference_previews/<slug>.json. Returns True on success."""
+    preview_path = CONF_PREVIEWS / f"{conf_slug}.json"
+    context_path = CONF_CONTEXT / f"{conf_slug}.json"
+
+    if not preview_path.exists() or not context_path.exists():
+        logging.error(f"  [{conf_slug}] merge: missing input "
+                      f"(preview={preview_path.exists()}, context={context_path.exists()})")
+        return False
+
+    try:
+        preview = json.loads(preview_path.read_text())
+        context = json.loads(context_path.read_text())
+    except Exception as e:
+        logging.error(f"  [{conf_slug}] merge: parse error: {e}")
+        return False
+
+    for field in DATA_FIELDS_TO_MERGE:
+        if field in context:
+            preview[field] = context[field]
+
+    # Surface the conference_context build timestamp so the page can show
+    # data freshness independently of when the agent ran.
+    if 'built_at' in context:
+        preview.setdefault('meta', {})['context_built_at'] = context['built_at']
+
+    # Carry forward missing_teams (the agent already saw it via the prompt
+    # and may have echoed it into meta, but the canonical list is here).
+    if 'missing_teams' in context:
+        preview.setdefault('meta', {})['missing_teams'] = context['missing_teams']
+
+    preview_path.write_text(json.dumps(preview, indent=2, ensure_ascii=False, default=str))
+    logging.info(f"  [{conf_slug}] merge: ✔ merged "
+                 f"{len([f for f in DATA_FIELDS_TO_MERGE if f in context])} data fields")
+    return True
+
+
+# ---------------------------------------------------------------------------
 # Run Claude agent (mirrors national_landscape_agent.py pattern)
 # ---------------------------------------------------------------------------
 def run_agent(conf_slug, prompt, dry_run=False):
@@ -661,6 +710,11 @@ def run_agent(conf_slug, prompt, dry_run=False):
                         f"  [{conf_slug}] ✔ valid JSON ({elapsed}s) — "
                         f"{blurb_count} blurbs, {storyline_count} storylines"
                     )
+                    # Merge in the deterministic data layer so the public URL
+                    # is a single source of truth (PHP only fetches one file).
+                    if not merge_context_into_preview(conf_slug):
+                        logging.warning(f"  [{conf_slug}] ⚠ merge step failed — "
+                                        f"preview JSON has prose only, no data layer")
                     return True
                 except json.JSONDecodeError as e:
                     logging.error(f"  [{conf_slug}] ✗ invalid JSON: {e}")
