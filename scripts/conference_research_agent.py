@@ -146,15 +146,28 @@ def _fmt_standings(standings):
 
 
 def _fmt_top_players(top_players):
-    """Top 15 players by Production Numbers (P&R proprietary, NOT 247)."""
+    """Top 15 players by Production Numbers (P&R proprietary, NOT 247).
+
+    Provenance marker is appended so the agent never frames a portal addition
+    as a returning anchor (the Jackson Harris bug):
+      [NEW – portal]   -> player is in this team's portal_in this offseason
+      [NEW – freshman] -> player is in this team's recruiting_class_2026
+      (no marker)      -> returning player from the prior season's roster
+    """
     lines = []
     for i, p in enumerate(top_players, start=1):
         statsline = p.get('statsline', '')
         stat_str  = f" — {statsline}" if statsline else ""
+        if p.get('is_portal_in'):
+            tag = "  [NEW – portal]"
+        elif p.get('is_recruit'):
+            tag = "  [NEW – freshman]"
+        else:
+            tag = ""
         lines.append(
             f"{i}. {p.get('player_name', '?')} "
             f"({p.get('position', '?')}, {p.get('team', '?')})"
-            f" · prod {p.get('points', 0)}{stat_str}"
+            f" · prod {p.get('points', 0)}{stat_str}{tag}"
         )
     return "\n".join(lines)
 
@@ -195,17 +208,39 @@ def _fmt_top_portal(top_portal):
     return "\n".join(lines)
 
 
-def _fmt_history(history):
+def _fmt_history(history, conf_schedule_length=None):
+    """4-yr conference records with per-year schedule length and totals column.
+
+    The schedule-length row above the table is critical: it bounds the maximum
+    possible conference wins per year so the agent can't claim "9 conf wins in
+    2024" for an SEC team that only played 8. Totals column is pre-computed so
+    the agent doesn't have to do arithmetic (and get it wrong).
+    """
     years = history.get('years', [])
     if not years:
         return "(no history available)"
-    header = "Team".ljust(28) + "  ".join(str(y) for y in years)
-    rows = [header, "-" * len(header)]
+
+    sched = conf_schedule_length or {}
+    sched_line = ""
+    if sched:
+        bits = []
+        for y in years:
+            g = sched.get(y, sched.get(str(y), '?'))
+            bits.append(f"{y}={g}")
+        sched_line = "Conference games per team by year: " + ", ".join(bits) + "\n"
+
+    # Build a fixed-width table: Team | each year | Sum
+    name_w = 28
+    cell_w = 6
+    header = "Team".ljust(name_w) + "".join(str(y).rjust(cell_w) for y in years) + "Sum".rjust(cell_w + 2)
+    rule   = "-" * len(header)
+    rows = [sched_line + header, rule]
+
     for r in history.get('records', []):
-        team = (r.get('url_param', '') or '?').ljust(28)
-        cells = "  ".join((r.get('seasons', {}).get(str(y), '—') or '—').rjust(4)
-                          for y in years)
-        rows.append(team + cells)
+        team = (r.get('url_param', '') or '?').ljust(name_w)
+        cells = "".join((r.get('seasons', {}).get(str(y), '—') or '—').rjust(cell_w) for y in years)
+        total = f"{r.get('total_conf_wins', 0)}-{r.get('total_conf_losses', 0)}"
+        rows.append(team + cells + total.rjust(cell_w + 2))
     return "\n".join(rows)
 
 
@@ -329,13 +364,14 @@ def build_prompt(conf_slug, conf_context, conf_memory, national):
     history       = conf_context.get('history', {}) or {}
     marquee_ooc   = conf_context.get('marquee_ooc', []) or []
     missing_teams = conf_context.get('missing_teams', []) or []
+    conf_sched    = conf_context.get('conf_schedule_length', {}) or {}
 
     # Format blocks
     standings_block = _fmt_standings(standings)
     players_block   = _fmt_top_players(top_players)
     recruits_block  = _fmt_top_recruits(top_recruits)
     portal_block    = _fmt_top_portal(top_portal)
-    history_block   = _fmt_history(history)
+    history_block   = _fmt_history(history, conf_sched)
     ooc_block       = _fmt_marquee_ooc(marquee_ooc)
     memory_block    = _fmt_memory_block(conf_memory)
     national_block  = _fmt_national_block(national)
@@ -493,7 +529,11 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
 
   (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position in `top_players` or the recruit/portal blocks. If you can't verify, remove the name.
 
-  (3) `top_portal` is the authoritative list of new transfers IN. Never label a player a "transfer" or "newcomer" unless they appear there. A player named in `top_players` is a returning player.
+  (3) **Player provenance — strict (this fixes the Jackson Harris bug).** Each top_players entry is tagged with one of:
+        `[NEW – portal]`   = player is in this team's portal_in this offseason. Frame as a portal addition, NEVER as "returning anchor" / "veteran" / "established." Prior-school context is fine; current-school production is not yet established.
+        `[NEW – freshman]` = player is in this team's recruiting_class_2026. Frame as an incoming freshman, never as a returning player.
+        (no marker)        = returning player from the prior season. Returning-player framing is appropriate.
+      A name in top_players WITHOUT a marker is a returner. A name in top_players WITH a marker is a new arrival regardless of how high their Production Numbers rank — the production points were earned at a prior school. Do not write "returns as anchor" or similar for any name carrying a marker.
 
   (3b) **Portal-out symmetry (strict):** Never claim a player has "transferred out" or "is leaving the program" based on memory threads alone. The conference data shows incoming portal only — claims about outgoing transfers must be cut from the conference preview unless they appear in a prior-run thread WITH explicit football tagging.
 
@@ -520,6 +560,18 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
   - "Gauntlet" is reserved for runs of opponents power-ranked roughly #30 or better. A run of even-handed games (spreads ±6, mid-tier opponents) is a "challenging stretch," not a gauntlet.
   - When citing the `history` block, do not extend a streak beyond what the data shows. If a team has no record in a season (em-dash), it means they were not in this conference that year — say so plainly, do not pretend the dash is zero or imply a mystery.
 
+### History block fidelity (strictly enforced)
+
+  - The history table above shows each member's conference record by year **and a pre-computed Sum column** with their total conference W-L over the four years. **Use the Sum column.** Never re-add the records yourself — Claude is bad at multi-row arithmetic and gets it wrong (e.g., reading "3-5, 1-7, 3-5, 0-8" and writing "three combined wins" when the actual sum is 7-25).
+  - When you reference a team's recent W-L pattern, list the records explicitly — never paraphrase a pattern that doesn't match the rows. WRONG: "back-to-back 4-4 conference records" when the row shows 6-2 then 4-4. WRONG: "won three conference games combined over the past four seasons" when the Sum column shows 7. RIGHT: read the row and quote it ("Tennessee finished 6-2 in 2024 before sliding to 4-4 in 2025") or quote the Sum column ("Arkansas's 7-25 conference record over the last four seasons").
+
+### Conference schedule length (strictly enforced)
+
+  - The "Conference games per team by year" row above the history table is the ground truth for how many conference games each member played each season. A team CANNOT have more conference wins than the listed games for that year.
+  - Pre-2026 SEC was 8 games — never claim "9 conf wins per year over four seasons" or any equivalent for an SEC team prior to 2026. The 2026 season is the SEC's FIRST 9-game conference schedule.
+  - The PAC-12 had only 2 members in 2024 and 2025 (Oregon State, Washington State) — historical W-L for current PAC-12 members from prior conferences will mostly show em-dashes for those years; that is correct, do not invent records.
+  - Big Ten, Big 12 have been 9-game conference schedules across this window. AAC, Sun Belt, MWC (except 2024 = 7), MAC, CUSA have been 8-game. ACC has been 8-game and remains asymmetric in 2026 (some teams 8, some 9).
+
 ### Language rules (strictly enforced)
 
   - Never use "G5" — always use "G6" to refer to non-Power-Four FBS programs.
@@ -531,15 +583,23 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
   - Never use "dead last," "last place," or "last" to describe a specific rank unless it equals the total number of teams in that pool. In FBS, #138 is last. In P4, #69 is last.
   - **Blue chip ratio is only meaningful for programs competing for the College Football Playoff and national titles.** Do not reference blue-chip percentage for G6 programs — it is near zero for nearly all of them and adds no analytical value.
   - Historical claims (a coach's record against a specific opponent, program milestones, conference standings history) must come from the structured data above (especially `history`) or from a prior-run memory thread — never from training knowledge alone.
+  - **Word ban — strict.** Do not use the words "structure," "structural," or "infrastructure" anywhere in your output (essay, blurbs, storylines, summary). These words have been overused in prior writeups and add no analytical value. Replace with specific descriptions of what you mean: name the line ("offensive line," "secondary"), the depth chart, the returning production, the staff continuity, the system, the QB room — be concrete.
+  - **Anti-redundancy — essay vs blurbs.** The conference essay establishes the conference-wide picture; each per-team blurb adds team-specific texture the essay didn't cover. Do NOT recycle the same framing for the same team across both — if the essay says "LSU is one Brian Kelly press conference from a CFP appearance or a coaching change," LSU's blurb must say something else (the specific portal pieces, the front-seven question, the schedule sequence, etc.). A reader scrolling through both should learn something new in the blurb.
 
-### Production / Talent attribution (strictly enforced)
+### Production / Talent / Returning-Production attribution (strictly enforced)
 
   - "Production Numbers" (the `points` value in `top_players`) and "Talent rank" (in `standings`) are Punt & Rally's own analytical builds. **NEVER attribute them to 247Sports, On3, Rivals, or any external source.** Refer to them by name without provenance: "by Production Numbers, X is the conference's top player," or "the conference's #1 talent ranking sits with Y."
   - Recruit and portal individual ratings (the `rating` field in `top_recruits` and `top_portal`) ARE 247Sports ratings. Display them as `.XX` (two decimals).
+  - **Returning production definition (Punt & Rally's measure):** "Returning production" as used on this site INCLUDES returning players AND portal additions — it is a measure of how much production will be on the field for the upcoming season, NOT a snap-back rate or pure-returner percentage. So a team with 84% returning production may have a heavy portal class and still be 84% — the metric counts incoming transfers as production-on-the-field. Frame the percentage accordingly: do not say "X% of last year's roster is back" — the figure does not mean that. "X% returning production" or "X% of expected production returns" is correct.
+  - **Returning production source — strict.** The `returning_production` value in standings is Punt & Rally's calculation. NEVER cite Bill Connelly's returning production, ESPN's calculation, or any other source's number. NEVER reference Connelly by name in conjunction with a returning-production figure. The number you display or cite must be the value in the `standings` block, full stop.
 
-### QB experience rule
+### QB experience rule (strictly enforced)
 
-  Each team's `starting_qb_name` plus `qb_back` flag (Y = returning starter, N = new) is the authoritative source on the quarterback's status. If `qb_back` is Y, never describe them as "unproven," "untested," or someone who "hasn't proved it" — those framings are reserved for actual newcomers.
+  Each team's `starting_qb_name` plus `qb_back` flag (Y = returning starter, N = new) is the authoritative source on the quarterback's status.
+
+  - If `qb_back: Y`, the player started for THIS team last season. Never describe them as "unproven," "untested," "hasn't proved it," "inherits the program," "takes over," or "takes the reins" — all of those framings imply a new arrival. Use returning-starter framing: "back for another year," "in his second year as starter," or specific stats from the prior season.
+  - If `qb_back: N`, the player is a new starter (could be a portal addition, a freshman who beat out the returner, or a backup elevated). Frame accordingly using their actual provenance: portal addition (cross-check `top_portal`), recruit (cross-check `top_recruits`), or returning backup elevated.
+  - Concrete example to AVOID: "Gunner Stockton inherits a program that has averaged eight conference wins per year for the past four seasons." Stockton's `qb_back` is Y — he started last fall. Correct framing: "Gunner Stockton, back for his second year as the Georgia starter, takes a roster that's averaged…"
 
 """
 

@@ -90,6 +90,27 @@ CONF_GAMES_NAME = {
 # rarely marquee, so we accept the false positive for v1.
 P4_GAMES = {"SEC", "Big Ten", "ACC", "Big 12", "FBS Independents"}
 
+
+# ---------------------------------------------------------------------------
+# Conference schedule length — games per team per season.
+# This is the canonical reference. Use it to bound conference W-L claims
+# (a team CANNOT have more conf wins than games played that year). FBSIND
+# has no conference games. Updated 2026-05-02 from Jonathan's confirmation.
+# ---------------------------------------------------------------------------
+CONF_SCHEDULE_LENGTH = {
+    "sec":    {2022: 8, 2023: 8, 2024: 8, 2025: 8, 2026: 9},
+    "big10":  {2022: 9, 2023: 9, 2024: 9, 2025: 9, 2026: 9},
+    "acc":    {2022: 8, 2023: 8, 2024: 8, 2025: 8, 2026: "8 or 9"},  # 17 teams, asymmetric
+    "big12":  {2022: 9, 2023: 9, 2024: 9, 2025: 9, 2026: 9},
+    "pac12":  {2022: 9, 2023: 9, 2024: 1, 2025: 2, 2026: 8},  # realignment crater
+    "fbsind": {2022: 0, 2023: 0, 2024: 0, 2025: 0, 2026: 0},
+    "aac":    {2022: 8, 2023: 8, 2024: 8, 2025: 8, 2026: 8},
+    "sbc":    {2022: 8, 2023: 8, 2024: 8, 2025: 8, 2026: 8},
+    "mwc":    {2022: 8, 2023: 8, 2024: 7, 2025: 8, 2026: 8},  # 2024 anomaly: 7 games
+    "mac":    {2022: 8, 2023: 8, 2024: 8, 2025: 8, 2026: 8},
+    "cusa":   {2022: 8, 2023: 8, 2024: 8, 2025: 8, 2026: 8},
+}
+
 # Boolean-ish values seen historically in games.conference_game / neutral_site.
 TRUEISH  = ('Y', 'y', '1', 'true', 'TRUE', 'True', 't')
 FALSEISH = ('N', 'n', '0', 'false', 'FALSE', 'False', 'f')
@@ -194,21 +215,38 @@ def build_top_players(team_contexts, limit=15):
     Top-N players by Production Numbers (P&R's own production rating, stored
     in roster_best_players.points and surfaced via team_context.best_players[]).
     NEVER attribute to 247 — these are P&R-built numbers.
+
+    Each entry is also cross-referenced against the same team's portal_in[] and
+    recruiting_class_2026[] to set is_portal_in / is_recruit flags. The
+    research-agent prompt uses these to avoid framing portal additions as
+    "returning anchors" (the Jackson Harris bug).
     """
+    def _norm(s):
+        return ''.join(ch for ch in (s or '').lower() if ch.isalnum())
+
     pool = []
     for c in team_contexts:
         team, url_param, slug = _team_id_fields(c)
+        portal_names  = {_norm(p.get('name', '')) for p in (c.get('portal_in') or [])}
+        recruit_names = {_norm(r.get('name', '')) for r in (c.get('recruiting_class_2026') or [])}
+
         for p in c.get('best_players', []) or []:
-            if not p.get('player_name'):
+            name = p.get('player_name', '')
+            if not name:
                 continue
+            n = _norm(name)
+            is_portal_in = n in portal_names if n else False
+            is_recruit   = (n in recruit_names) if (n and not is_portal_in) else False
             pool.append({
-                'player_name': p.get('player_name', ''),
-                'position':    p.get('position', ''),
-                'points':      p.get('points', 0),
-                'statsline':   p.get('statsline', ''),
-                'team':        team,
+                'player_name':    name,
+                'position':       p.get('position', ''),
+                'points':         p.get('points', 0),
+                'statsline':      p.get('statsline', ''),
+                'team':           team,
                 'team_url_param': url_param,
-                'team_slug':   slug,
+                'team_slug':      slug,
+                'is_portal_in':   is_portal_in,
+                'is_recruit':     is_recruit,
             })
     pool.sort(key=lambda x: x.get('points', 0) or 0, reverse=True)
     return pool[:limit]
@@ -329,10 +367,22 @@ def build_history(conn, conf_games_name, member_url_params,
     history_rows = []
     for url_param in member_url_params:
         seasons = {}
+        total_w = 0
+        total_l = 0
         for yr in range(start_season, end_season + 1):
             wl = agg.get((url_param, yr))
-            seasons[str(yr)] = f"{wl[0]}-{wl[1]}" if wl else "—"
-        history_rows.append({'url_param': url_param, 'seasons': seasons})
+            if wl:
+                seasons[str(yr)] = f"{wl[0]}-{wl[1]}"
+                total_w += wl[0]
+                total_l += wl[1]
+            else:
+                seasons[str(yr)] = "—"
+        history_rows.append({
+            'url_param':       url_param,
+            'seasons':         seasons,
+            'total_conf_wins': total_w,    # sum across listed seasons (em-dashes excluded)
+            'total_conf_losses': total_l,
+        })
 
     return {
         'years':   list(range(start_season, end_season + 1)),
@@ -449,18 +499,19 @@ def build(conf_slug, debug=False):
         conn.close()
 
     out = {
-        'conference_slug':    conf_slug,
-        'conference_display': CONF_DISPLAY.get(conf_slug, conf_slug.upper()),
-        'season':             SEASON,
-        'built_at':           datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'team_count':         len(contexts),
-        'missing_teams':      missing,
-        'standings':          standings,
-        'top_players':        top_players,
-        'top_recruits':       top_recruits,
-        'top_portal':         top_portal,
-        'history':            history,
-        'marquee_ooc':        marquee_ooc,
+        'conference_slug':       conf_slug,
+        'conference_display':    CONF_DISPLAY.get(conf_slug, conf_slug.upper()),
+        'season':                SEASON,
+        'built_at':              datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'team_count':            len(contexts),
+        'missing_teams':         missing,
+        'conf_schedule_length':  CONF_SCHEDULE_LENGTH.get(conf_slug, {}),
+        'standings':             standings,
+        'top_players':           top_players,
+        'top_recruits':          top_recruits,
+        'top_portal':            top_portal,
+        'history':               history,
+        'marquee_ooc':           marquee_ooc,
     }
 
     CONF_CONTEXT.mkdir(exist_ok=True)
