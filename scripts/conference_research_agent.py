@@ -38,7 +38,9 @@ NATIONAL_DIR    = BASE_DIR / "national"
 LOG_DIR         = BASE_DIR / "logs"
 CLAUDE_BIN      = "/home/joleary/.local/bin/claude"
 
-AGENT_TIMEOUT_SECS = 900   # 15 min — large prompt, single synthesis
+AGENT_TIMEOUT_SECS = 1800  # 30 min — prompt grew to ~40KB after rule additions;
+                           # first run (smaller prompt) completed in 458s, so 30 min
+                           # gives generous headroom without inviting runaway runs.
 
 # Import canonical conference list from build_team_context.py
 sys.path.insert(0, str(BASE_DIR / "scripts"))
