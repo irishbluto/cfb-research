@@ -486,7 +486,8 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
 **Pre-flight verification (mandatory before returning JSON):** scan every player name in your output one final time. For each name, mentally tag the verification path you used: `[a top_players]`, `[a starting_qb]`, `[b recruits]`, `[b portal]`, or `[c memory thread]`. If you cannot tag a name with a specific path, REMOVE THE NAME from the output. There is zero penalty for omitting a player; there is a disqualifying penalty for naming a non-football player or fabricating positional context around an unverified name.
 
 """
-### Player rules (strictly enforced)
+
+    prompt += """### Player rules (strictly enforced)
 
   (1) Name players as leaders or standouts ONLY from `top_players` or the team's `starting_qb_name`. When discussing any team's strength at a position group in their blurb, if a `top_players` entry from that team plays that position, they MUST be named — do not construct a positional narrative that omits the most prominent established player.
 
@@ -511,7 +512,8 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
   (7) **Source fidelity on counts:** when stating a numeric count (transfers, returning starters), never attach a composition or unit claim the data doesn't support. The structured data carries the totals; do not invent breakdowns.
 
 """
-### Schedule rules (strictly enforced)
+
+    prompt += """### Schedule rules (strictly enforced)
 
   - The `marquee_ooc` block above carries the actual upcoming OOC games for this conference's members. Reference them as written — never override location, opponent, or week with your own knowledge.
   - **Season length:** the FBS regular season is 12 games for every team. The only 2026 exception is the PAC-12, whose eight members have 11 scheduled games while they experiment with a flexible final-weekend matchup format (the 12th game is TBD, not missing). NEVER write "13-game schedule," "14-game schedule," or any other number — bowls, conference championship games, and the College Football Playoff are POSTSEASON and are not part of the regular-season game count.
@@ -540,7 +542,8 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
   Each team's `starting_qb_name` plus `qb_back` flag (Y = returning starter, N = new) is the authoritative source on the quarterback's status. If `qb_back` is Y, never describe them as "unproven," "untested," or someone who "hasn't proved it" — those framings are reserved for actual newcomers.
 
 """
-### Storyline continuity + sport audit
+
+    prompt += """### Storyline continuity + sport audit
 
 If prior-run notes (above) include tracked storyline threads, your `key_storylines` should update those threads where the current data still supports them. Use similar keywords so the memory matcher can thread them across runs. If a tracked storyline has resolved (a coaching battle settled, a portal saga ended), drop it — it'll age out naturally.
 
@@ -553,7 +556,8 @@ If prior-run notes (above) include tracked storyline threads, your `key_storylin
   - When the `history` table shows a team's record evolving (improving, declining), reference that pattern by name only if the pattern is genuine — a 5-3, 5-3, 5-3, 5-3 line is not a "trend," it's stability.
 
 """
-### Tone — Phil Steele meets Banner Society
+
+    prompt += """### Tone — Phil Steele meets Banner Society
 
 Write with the voice of a smart, slightly weary CFB lifer who has seen every variation of "this is the year" and remains delighted by the sport anyway. Phil Steele's appetite for the specific data point crossed with Banner Society's wry affection for the genre. Be willing to be funny — dry-witty, observational, occasionally biting — but **every joke has to land on a real contradiction, a real tendency, or a specific data point.** No generic snark.
 
@@ -586,7 +590,8 @@ When in doubt, lean grounded. A funny line that feels forced is worse than a cle
 Each blurb is a paragraph (60–110 words). Don't just compress the conference essay's view of the team — the blurb is its own thing. Give the reader the team's central reality in three or four beats: what they have, what they're trying to do with it, what could go wrong, and the headline question. The voice should be the same as the essay (Phil Steele meets Banner Society), but blurbs lean slightly more analytical — fewer punchlines per word, more concrete texture.
 
 """
-### Output instructions
+
+    prompt += """### Output instructions
 
   - Write the JSON file as soon as you have enough — do not wait for perfection. No trailing commas, no comments inside the JSON, no markdown fences.
   - **No URL fetching.** All source content for the conference preview is the structured data and the prior memory above. Do NOT use fetch_url, web_search, or any tool to retrieve outside content. The national landscape was already synthesized by a separate pipeline; quoting from it directly is forbidden by the National Perspective rule above.
