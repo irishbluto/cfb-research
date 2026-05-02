@@ -739,7 +739,7 @@ games settle the rest.
 
 """
 
-prompt += """### Tone — Phil Steele meets Banner Society
+    prompt += """### Tone — Phil Steele meets Banner Society
 
 Write with the voice of a smart, slightly weary CFB lifer who has seen every variation of "this is the year" and remains delighted by the sport anyway. Phil Steele's appetite for the specific data point crossed with Banner Society's wry affection for the genre. Be willing to be funny — dry-witty, observational, occasionally biting — but **every joke has to land on a real contradiction, a real tendency, or a specific data point.** No generic snark.
 
