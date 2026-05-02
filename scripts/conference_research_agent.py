@@ -350,6 +350,68 @@ def _fmt_national_block(national):
     return "\n".join(lines)
 
 
+def _fmt_editor_notes(editor_notes, standings):
+    """
+    Editor steering notes — the highest-authority block in the prompt.
+
+    Notes come from writer_notes/<season>/<conf>.json (loaded by
+    build_conference_context.py and folded into conf_context['editor_notes']).
+    They reflect 2026 reality the agent's prior knowledge can't be trusted on:
+    coaching changes, key transfers, off-field stories, intentional editorial
+    angles. The block instructs the agent to treat them as ground truth and
+    to use them as direction (not text — never quoted verbatim).
+
+    Returns "" when there are no notes so we don't render an empty block.
+    """
+    if not editor_notes:
+        return ""
+    conf_note  = (editor_notes.get('conference_note') or '').strip()
+    team_notes = editor_notes.get('team_notes', {}) or {}
+    if not conf_note and not team_notes:
+        return ""
+
+    # Build display-name lookup from standings so we render "Alabama" rather
+    # than "alabama". Falls back to the slug if standings doesn't have it.
+    display_by_slug = {}
+    for s in standings:
+        slug = s.get('url_param') or s.get('team_slug') or s.get('team', '')
+        team = s.get('team') or s.get('display_name') or slug
+        if slug:
+            display_by_slug[slug] = team
+
+    lines = [
+        "## EDITOR NOTES — AUTHORITATIVE STEERING (read first, weight highest)",
+        "",
+        "These notes come from the editor and reflect current 2026 reality. Treat them as ground",
+        "truth. They OVERRIDE any conflicting prior knowledge or context-data inference. They are",
+        "DIRECTION, not text — weave them naturally into the narrative; do NOT quote them verbatim.",
+        "If a note states a fact (a hire, a transfer, an injury, a story), trust it. If a note",
+        "names a tone or angle, let it shape your framing of that team or the conference.",
+        "",
+    ]
+    if conf_note:
+        lines.append("Conference-wide steer:")
+        lines.append(f"  {conf_note}")
+        lines.append("")
+    if team_notes:
+        lines.append("Per-team steer:")
+        # Render in standings order so the agent reads them top-down.
+        rendered = set()
+        for s in standings:
+            slug = s.get('url_param') or s.get('team_slug') or s.get('team', '')
+            note = team_notes.get(slug)
+            if note:
+                disp = display_by_slug.get(slug, slug)
+                lines.append(f"  - {disp}: {note}")
+                rendered.add(slug)
+        # Catch any slugs not represented in standings (defensive).
+        for slug, note in team_notes.items():
+            if slug not in rendered:
+                lines.append(f"  - {slug}: {note}")
+    lines.append("== END EDITOR NOTES ==")
+    return "\n".join(lines)
+
+
 # ---------------------------------------------------------------------------
 # Build prompt
 # ---------------------------------------------------------------------------
@@ -367,16 +429,18 @@ def build_prompt(conf_slug, conf_context, conf_memory, national):
     marquee_ooc   = conf_context.get('marquee_ooc', []) or []
     missing_teams = conf_context.get('missing_teams', []) or []
     conf_sched    = conf_context.get('conf_schedule_length', {}) or {}
+    editor_notes  = conf_context.get('editor_notes')   # None when no notes file
 
     # Format blocks
-    standings_block = _fmt_standings(standings)
-    players_block   = _fmt_top_players(top_players)
-    recruits_block  = _fmt_top_recruits(top_recruits)
-    portal_block    = _fmt_top_portal(top_portal)
-    history_block   = _fmt_history(history, conf_sched)
-    ooc_block       = _fmt_marquee_ooc(marquee_ooc)
-    memory_block    = _fmt_memory_block(conf_memory)
-    national_block  = _fmt_national_block(national)
+    standings_block     = _fmt_standings(standings)
+    players_block       = _fmt_top_players(top_players)
+    recruits_block      = _fmt_top_recruits(top_recruits)
+    portal_block        = _fmt_top_portal(top_portal)
+    history_block       = _fmt_history(history, conf_sched)
+    ooc_block           = _fmt_marquee_ooc(marquee_ooc)
+    memory_block        = _fmt_memory_block(conf_memory)
+    national_block      = _fmt_national_block(national)
+    editor_notes_block  = _fmt_editor_notes(editor_notes, standings)
 
     output_path = str(CONF_PREVIEWS / f"{conf_slug}.json")
     teams_in_order = ", ".join(s.get('url_param', s.get('team', '?')) for s in standings)
@@ -394,6 +458,8 @@ Your task: Write the {conf_display} {season} conference preview, magazine-style.
 
 ## Research Mode: {mode.upper()}
 Current focus: {mode_focus}
+
+{editor_notes_block}
 
 {memory_block}
 

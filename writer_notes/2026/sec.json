@@ -1,0 +1,29 @@
+{
+  "_doc": "Editor steering notes for the conference preview agent. Authoritative — these override prior knowledge and any conflicting context-data interpretation. Keep each note to 1–3 short sentences. Empty strings are dropped silently. Loaded by build_conference_context.py from /cfb-research/writer_notes/<season>/<conf>.json.",
+  "_usage": [
+    "conference_note: a sentence or two about the conference as a whole — the meta-narrative for the year (e.g., 'The realignment dust has settled but the talent gap between the top three and the rest is still widening.').",
+    "team_notes.<slug>: a sentence or two about that specific team — what the data won't tell the agent (a coaching change, a critical transfer, an injury, an off-field story, the angle the writeup should take).",
+    "Slugs match the canonical team slugs in build_team_context.py / scrape_team_context.py."
+  ],
+  "season": 2026,
+  "conference": "sec",
+  "conference_note": "",
+  "team_notes": {
+    "alabama": "",
+    "arkansas": "",
+    "auburn": "",
+    "florida": "",
+    "georgia": "",
+    "kentucky": "",
+    "lsu": "",
+    "mississippi-state": "",
+    "missouri": "",
+    "oklahoma": "",
+    "ole-miss": "",
+    "south-carolina": "",
+    "tennessee": "",
+    "texas": "",
+    "texas-am": "",
+    "vanderbilt": ""
+  }
+}

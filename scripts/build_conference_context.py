@@ -32,6 +32,7 @@ from dotenv import load_dotenv
 BASE_DIR        = Path("/cfb-research")
 TEAM_CONTEXT    = BASE_DIR / "team_context"
 CONF_CONTEXT    = BASE_DIR / "conference_context"
+WRITER_NOTES    = BASE_DIR / "writer_notes"   # editor steering notes (per season/conf)
 SEASON          = 2026   # current season
 PAST_YEARS      = 4      # standings-history window (per spec: 4 years)
 
@@ -144,6 +145,61 @@ def load_team_context(slug):
     except Exception as e:
         print(f"  [WARN] could not parse {path}: {e}", flush=True)
         return None
+
+
+# ---------------------------------------------------------------------------
+# Editor steering notes (writer_notes/<season>/<conf>.json)
+# ---------------------------------------------------------------------------
+
+def load_writer_notes(conf_slug, season=SEASON):
+    """
+    Load editor steering notes for {season}/{conf_slug}.json.
+
+    Schema (see writer_notes/2026/sec.json for the canonical example):
+      {
+        "season": 2026,
+        "conference": "sec",
+        "conference_note": "1-3 sentences about the conference as a whole",
+        "team_notes": {
+          "<team-slug>": "1-3 sentences about that team",
+          ...
+        }
+      }
+
+    These notes are AUTHORITATIVE: the prompt block built around them is
+    instructed to override any conflicting prior knowledge or context-data
+    inference. The loader strips empty/whitespace-only strings so the
+    downstream formatter can short-circuit on an entirely-empty file.
+
+    Returns the cleaned dict, or None when:
+      - the file doesn't exist
+      - the file is malformed
+      - all notes are empty after trimming
+    """
+    path = WRITER_NOTES / str(season) / f"{conf_slug}.json"
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding='utf-8'))
+    except Exception as e:
+        print(f"  [WARN] writer_notes parse failed for {path}: {e}", flush=True)
+        return None
+    conf_note = (data.get('conference_note') or '').strip()
+    raw_team  = data.get('team_notes', {}) or {}
+    team_notes = {
+        slug: note.strip()
+        for slug, note in raw_team.items()
+        if isinstance(note, str) and note.strip()
+    }
+    if not conf_note and not team_notes:
+        return None
+    return {
+        'season':          data.get('season', season),
+        'conference':      data.get('conference', conf_slug),
+        'conference_note': conf_note,
+        'team_notes':      team_notes,
+        'source_path':     str(path),
+    }
 
 
 def parse_record(s):
@@ -498,6 +554,17 @@ def build(conf_slug, debug=False):
     finally:
         conn.close()
 
+    # Editor steering notes — authoritative; overrides agent prior knowledge.
+    # None when no writer_notes file or all notes are empty.
+    editor_notes = load_writer_notes(conf_slug)
+    if debug:
+        if editor_notes:
+            note_count = (1 if editor_notes['conference_note'] else 0) + len(editor_notes['team_notes'])
+            print(f"    editor_notes: loaded {note_count} note(s) "
+                  f"from {editor_notes['source_path']}", flush=True)
+        else:
+            print(f"    editor_notes: (none — file missing or all empty)", flush=True)
+
     out = {
         'conference_slug':       conf_slug,
         'conference_display':    CONF_DISPLAY.get(conf_slug, conf_slug.upper()),
@@ -512,6 +579,7 @@ def build(conf_slug, debug=False):
         'top_portal':            top_portal,
         'history':               history,
         'marquee_ooc':           marquee_ooc,
+        'editor_notes':          editor_notes,
     }
 
     CONF_CONTEXT.mkdir(exist_ok=True)
