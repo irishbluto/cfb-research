@@ -609,28 +609,31 @@ Each blurb is a paragraph (60–110 words). Don't just compress the conference e
 # Run Claude agent (mirrors national_landscape_agent.py pattern)
 # ---------------------------------------------------------------------------
 def run_agent(conf_slug, prompt, dry_run=False):
-    """Spawn a Claude Code session with the conference prompt. Validate JSON output."""
+    """Spawn a Claude Code session with the conference prompt. Validate JSON output.
+    Writes the rendered prompt to logs/prompt_conference_<slug>.txt in both
+    dry-run and live modes — that file is the canonical review artifact."""
+    # Strip null bytes (safety — same as national_landscape_agent.py)
+    prompt = prompt.replace('\x00', '')
+
+    # Persist the rendered prompt for review/debugging — always, not just live runs
+    LOG_DIR.mkdir(exist_ok=True)
+    prompt_file = LOG_DIR / f"prompt_conference_{conf_slug}.txt"
+    prompt_file.write_text(prompt)
+
     if dry_run:
         print(f"\n{'='*60}", flush=True)
         print(f"DRY RUN — conference: {conf_slug}", flush=True)
         print(f"Prompt length: {len(prompt)} chars", flush=True)
+        print(f"Full prompt written to: {prompt_file}", flush=True)
         print(f"{'='*60}\n", flush=True)
-        # Print first 1200 + last 600 chars so the structure is visible
+        # Print first 1200 + last 600 chars so the structure is visible inline too
         if len(prompt) > 1800:
             print(prompt[:1200])
-            print("\n...[middle elided]...\n")
+            print("\n...[middle elided — see file above for full prompt]...\n")
             print(prompt[-600:])
         else:
             print(prompt)
         return True
-
-    # Strip null bytes (safety — same as national_landscape_agent.py)
-    prompt = prompt.replace('\x00', '')
-
-    # Persist prompt for debugging
-    LOG_DIR.mkdir(exist_ok=True)
-    prompt_file = LOG_DIR / f"prompt_conference_{conf_slug}.txt"
-    prompt_file.write_text(prompt)
 
     cmd = [CLAUDE_BIN, "--dangerously-skip-permissions", "-p", prompt]
 
