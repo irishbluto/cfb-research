@@ -523,17 +523,21 @@ def build_marquee_ooc(conn, conf_games_name, season=SEASON, max_games=10):
     p4_placeholders = ",".join(["%s"] * len(P4_GAMES))
 
     sql = f"""
-        SELECT id, season, week, start_date, neutral_site, venue, outlet,
-               mediaType, home_team, home_conference, home_points,
-               away_team, away_conference, away_points
-        FROM games
-        WHERE season = %s
+        SELECT g.id, g.season, g.week, g.start_date, g.neutral_site, g.venue, g.outlet,
+               g.mediaType, g.home_team, g.home_conference, g.home_points,
+               g.away_team, g.away_conference, g.away_points,
+               hp.rating AS home_power_rating,
+               ap.rating AS away_power_rating
+        FROM games g
+        LEFT JOIN powerrating hp ON hp.team = g.home_team AND hp.year = g.season
+        LEFT JOIN powerrating ap ON ap.team = g.away_team AND ap.year = g.season
+        WHERE g.season = %s
           AND {cg_clause}
           AND (
-                (home_conference = %s AND away_conference IN ({p4_placeholders}))
-             OR (away_conference = %s AND home_conference IN ({p4_placeholders}))
+                (g.home_conference = %s AND g.away_conference IN ({p4_placeholders}))
+             OR (g.away_conference = %s AND g.home_conference IN ({p4_placeholders}))
           )
-        ORDER BY start_date ASC
+        ORDER BY (COALESCE(hp.rating, 0) + COALESCE(ap.rating, 0)) DESC, g.start_date ASC
     """
     params = (
         season, *cg_params,
@@ -555,6 +559,8 @@ def build_marquee_ooc(conn, conf_games_name, season=SEASON, max_games=10):
         'home_conf':  r.get('home_conference', ''),
         'away_team':  r.get('away_team', ''),
         'away_conf':  r.get('away_conference', ''),
+        'home_power_rating': r.get('home_power_rating'),
+        'away_power_rating': r.get('away_power_rating'),
     } for r in rows[:max_games]]
 
 
