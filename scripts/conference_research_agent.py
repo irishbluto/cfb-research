@@ -128,14 +128,44 @@ def load_national_landscape():
 def _fmt_standings(standings):
     """One row per team in projected standings order, dense and scannable."""
     lines = []
+    def _rstr(pct, rank):
+        # "{pct}%/#{rank}" when both present; "{pct}%" when rank is missing/0; "?" when no pct.
+        if pct is None:
+            return '?'
+        if rank is not None and rank > 0:
+            return f"{pct}%/#{rank}"
+        return f"{pct}%"
+
     for i, s in enumerate(standings, start=1):
+        # Returning production block — P&R canonical (snap-weighted) overall + off/def
+        # with FBS-wide ranks (138 teams). Bill Connelly's separate methodology is
+        # appended ONLY when his number diverges from ours by >5pp on any axis —
+        # divergence is signal worth flagging in writeups (different snap weighting
+        # tells different stories: P&R lower = lost OL/WR snap volume; BillC lower
+        # = lost skill production weight).
+        rp_o, rp_off, rp_def = s.get('returning_production_pct'), s.get('returning_offense_pct'), s.get('returning_defense_pct')
+        rp_or, rp_fr, rp_dr  = s.get('returning_production_rank'), s.get('returning_offense_rank'), s.get('returning_defense_rank')
+        bc_o, bc_f, bc_d     = s.get('billc_returning_production_pct'), s.get('billc_returning_offense_pct'), s.get('billc_returning_defense_pct')
+
+        ret_main = f"Ret {_rstr(rp_o, rp_or)} (O:{_rstr(rp_off, rp_fr)}, D:{_rstr(rp_def, rp_dr)})"
+
+        diff_bits = []
+        for label, pr_val, bc_val in [('T', rp_o, bc_o), ('O', rp_off, bc_f), ('D', rp_def, bc_d)]:
+            if pr_val is not None and bc_val is not None:
+                d = int(pr_val) - int(bc_val)
+                if abs(d) > 5:
+                    sign = '+' if d > 0 else '-'
+                    diff_bits.append(f"{label}{sign}{abs(d)}")
+        if diff_bits:
+            ret_main += f" [vs BillC diverges {' '.join(diff_bits)}]"
+
         bits = [
             f"{i}. {s.get('team', s.get('url_param', ''))}",
             f"proj {s.get('projected_record', '?')} ({s.get('expected_conf_record', '?')} conf)",
             f"Power #{s.get('power_rank', '?')}",
             f"Talent #{s.get('talent_rank', '?')}",
             f"SOS #{s.get('sos_rank', '?')}",
-            f"Returns {s.get('returning_production', '?')}%",
+            ret_main,
             f"HC {s.get('head_coach', '')} ({s.get('coach_years', '?')})",
         ]
         if s.get('starting_qb_name'):
@@ -682,8 +712,9 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
 
   - "Production Numbers" (the `points` value in `top_players`) and "Talent rank" (in `standings`) are Punt & Rally's own analytical builds. **NEVER attribute them to 247Sports, On3, Rivals, or any external source.** Refer to them by name without provenance: "by Production Numbers, X is the conference's top player," or "the conference's #1 talent ranking sits with Y."
   - Recruit and portal individual ratings (the `rating` field in `top_recruits` and `top_portal`) ARE 247Sports ratings. Display them as `.XX` (two decimals).
-  - **Returning production definition (Punt & Rally's measure):** "Returning production" as used on this site INCLUDES returning players AND portal additions — it is a measure of how much production will be on the field for the upcoming season, NOT a snap-back rate or pure-returner percentage. So a team with 84% returning production may have a heavy portal class and still be 84% — the metric counts incoming transfers as production-on-the-field. Frame the percentage accordingly: do not say "X% of last year's roster is back" — the figure does not mean that. "X% returning production" or "X% of expected production returns" is correct.
-  - **Returning production source — strict.** The `returning_production` value in standings is Punt & Rally's calculation. NEVER cite Bill Connelly's returning production, ESPN's calculation, or any other source's number. NEVER reference Connelly by name in conjunction with a returning-production figure. The number you display or cite must be the value in the `standings` block, full stop.
+  - **Returning production — definition.** The `Ret` value in standings is Punt & Rally's own snap-weighted calculation (`getReturnProdBundleSTV` in `Team` class): the share of last year's snaps coming back from RETURNERS. Portal additions are NOT counted — only true returners from the prior roster. Frame as "X% of last year's snaps return" or "returns the Yth-most production in FBS." Do NOT say "X% of last year's roster" (it weights snaps, not headcount) or "X% of production including transfers" (portal additions are explicitly excluded — separate metric).
+  - **Lead with the rank, support with the percentage.** The number after `#` is FBS-wide rank across 138 teams. "Returns the 9th-most defensive production in FBS" lands harder than "81% defensive returning production." Use the raw % when comparing within a team (off-vs-def split) or when a team is mid-pack. The standings line renders as `Ret {overall}%/#{rank} (O:{off}%/#{rank}, D:{def}%/#{rank})`. A wide off-vs-def split (>20pp) is itself a story angle — a team rebuilding one side while the other returns intact warrants explicit framing.
+  - **Bill Connelly comparison — only shown when methodologies diverge.** When standings carries a `[vs BillC diverges Tn On Dn]` tag, P&R's number differs from Connelly's by >5pp on that axis. P&R counts raw snaps; Connelly weights skill-position production (QB, RB, WR, TE) more heavily. **P&R LOWER on offense (e.g., O-8)** = lost OL/WR snap volume that Connelly's methodology forgives because the QB or top RB came back. **P&R HIGHER on offense** = kept snap-volume bodies but lost a high-leverage skill player Connelly's weighting reflects. Treat divergence as a story angle when the gap aligns with a known roster fact: "P&R reads ND's offense at just 59%; Connelly has it at 67% — the gap is the OL turnover that the returning QB doesn't fully cancel." Do NOT cite Connelly's number alone or as the headline; the lead figure is always P&R's.
 
 ### QB experience rule (strictly enforced)
 
