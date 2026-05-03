@@ -570,9 +570,44 @@ def build_preview(conn, team, season):
     if data['starting_qb_name']:
         data['starting_qb_note'] = data['starting_qb_name']
 
+    # Canonical returning production from puntandrally.com — sourced from
+    # the `returning_production` table, which is populated by viewreturnprod.php
+    # when visited from home. Those numbers come from Team::getReturnProdBundleSTV
+    # (Punt & Rally's own snap-weighted methodology) and are what the live site
+    # displays on team profiles, viewconferencereturnprod.php, and viewreturnprod.php.
+    # team_preview's overall_return_prod / off_return_prod / def_return_prod use
+    # an inferior calculation and are kept here only as a fallback for teams not
+    # yet cached. New fields exposed: returning_production_rank / _offense_rank /
+    # _defense_rank (the cache provides FBS-wide ranks; team_preview never did).
+    rp_canon = query_one(conn, """
+        SELECT `overall`, `off`, `def`,
+               `overall_rank`, `off_rank`, `def_rank`
+        FROM `returning_production`
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (team, season))
+    if rp_canon:
+        if rp_canon.get('overall') is not None:
+            data['returning_production_pct'] = inum(rp_canon.get('overall'))
+        if rp_canon.get('off') is not None:
+            data['returning_offense_pct']    = inum(rp_canon.get('off'))
+        if rp_canon.get('def') is not None:
+            data['returning_defense_pct']    = inum(rp_canon.get('def'))
+        # Ranks: skip 0 placeholders (set when only the ?stat=overall view has
+        # been refreshed). off_rank / def_rank become real once those views run.
+        _orank = inum(rp_canon.get('overall_rank')) or 0
+        _frank = inum(rp_canon.get('off_rank'))     or 0
+        _drank = inum(rp_canon.get('def_rank'))     or 0
+        if _orank > 0:
+            data['returning_production_rank'] = _orank
+        if _frank > 0:
+            data['returning_offense_rank']    = _frank
+        if _drank > 0:
+            data['returning_defense_rank']    = _drank
+
     # Bill Connelly's returning production (separate methodology) — kept
-    # alongside team_preview's numbers so the agent can compare both sources.
-    # Connelly tends to weight skill-position production heavier; team_preview
+    # alongside the canonical P&R numbers so the agent can compare both sources.
+    # Connelly tends to weight skill-position production heavier; the P&R number
     # uses raw snap-back rates. Divergence between the two is meaningful signal.
     billc = query_one(conn, """
         SELECT overall, off, def
@@ -1342,9 +1377,9 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
             print(f"  NEW HC: was {prev_hc}")
         print(f"  vegas={context.get('vegas_win_total')} proj={context.get('projected_record')} "
               f"(#{context.get('projected_record_rank')}) sos=#{context.get('sos_rank')}")
-        print(f"  ret_prod (team_preview): overall={context.get('returning_production_pct')}% "
-              f"off={context.get('returning_offense_pct')}% "
-              f"def={context.get('returning_defense_pct')}% "
+        print(f"  ret_prod (P&R canonical): overall={context.get('returning_production_pct')}% (#{context.get('returning_production_rank')}) "
+              f"off={context.get('returning_offense_pct')}% (#{context.get('returning_offense_rank')}) "
+              f"def={context.get('returning_defense_pct')}% (#{context.get('returning_defense_rank')}) "
               f"starters={context.get('returning_starters')} "
               f"(off {context.get('returning_starters_off')}/def {context.get('returning_starters_def')})")
         if context.get('billc_returning_production_pct') is not None:
