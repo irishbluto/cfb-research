@@ -237,18 +237,52 @@ def load_page(page, url, debug=False):
         return False
 
 def activate_tab(page, tab_id):
-    """Activate a jQuery UI tab by its href anchor id."""
-    page.evaluate(f'() => {{ const a = document.querySelector(\'a[href="#{tab_id}"]\'); if(a) a.click(); }}')
+    """
+    Activate a tab panel by its anchor id.
+
+    Handles BOTH the old jQuery UI tab layout AND the new tpv2 sidebar
+    layout introduced in the 2026-04 teamprofile.php redesign:
+
+      - jQuery UI: clicking the tab anchor swaps panel visibility.
+      - tpv2: sidebar links carry both `href='#<id>'` and `data-target='<id>'`;
+        a `tpv2-active` class on the matching `<div id='<id>'>` controls
+        visibility. The page's IIFE only sets that class once on initial
+        paint based on URL hash, so we mirror it here for direct reads.
+    """
+    page.evaluate(f'''() => {{
+        const a = document.querySelector('a[href="#{tab_id}"]');
+        if (a) a.click();
+        const panel = document.getElementById('{tab_id}');
+        if (panel) {{
+            document.querySelectorAll('.tpv2-active').forEach(el => el.classList.remove('tpv2-active'));
+            panel.classList.add('tpv2-active');
+        }}
+    }}''')
     time.sleep(0.8)
 
 def get_div_text(page, div_id, debug=False):
+    """
+    Return the rendered text of a div by id.
+
+    Tries inner_text() first (visible text — what the user sees), then falls
+    back to text_content() if the panel is hidden by CSS (common in tpv2
+    where inactive panels have display:none until activated by JS). The
+    fallback is what saves us when a panel is in the DOM but not yet active.
+    """
     try:
         el = page.query_selector(f"#{div_id}")
-        if el:
-            return el.inner_text()
-        if debug:
-            print(f"  [div] #{div_id} not found")
-        return ""
+        if not el:
+            if debug:
+                print(f"  [div] #{div_id} not found")
+            return ""
+        text = el.inner_text() or ""
+        if not text.strip():
+            # Panel exists but inner_text is empty — likely hidden. Use
+            # text_content which returns text regardless of visibility.
+            text = el.text_content() or ""
+            if debug and text.strip():
+                print(f"  [div] #{div_id} hidden — used text_content fallback")
+        return text
     except Exception as e:
         if debug:
             print(f"  [div] #{div_id} error: {e}")
@@ -289,14 +323,32 @@ def rf(s):
 # the preview-tab fetch from scrape_team() entirely.
 
 def extract_preview_minimal(page, debug=False):
-    activate_tab(page, "preview")
-    body = get_div_text(page, "preview")
+    """
+    Extract profile_2026 + last_season_ats from teamprofile.php.
+
+    2026-04-29 redesign notes:
+      - Preview tab merged into the 'overview' tab (single panel, mode-aware).
+      - "'26 Profile" is now a card heading followed by chip markup, not a
+        free-text blurb. Captured value is the rating_trend label plus the
+        Performance / Special Teams stat cells, normalized into one line.
+      - "Vs Spread" is now a chip key with no whitespace between the label
+        and the digits; the regex below is loosened from \\s+ to \\s* to match.
+    """
+    activate_tab(page, "overview")
+    body = get_div_text(page, "overview", debug=debug)
     data = {}
 
-    m = re.search(r"'26 Profile\s+(.+?)(?:\n|$)", body)
-    data['profile_2026'] = m.group(1).strip() if m else ""
+    profile_match = re.search(
+        r"'\d{2}\s+Profile[\s:]*(.+?)(?=Returning Production|Returning Starters|Proj Portal|Offense\b|Defense\b|Scoring\b|\Z)",
+        body, re.DOTALL,
+    )
+    if profile_match:
+        blurb = re.sub(r'\s+', ' ', profile_match.group(1)).strip(' \t\n,;:')
+        data['profile_2026'] = blurb[:250]
+    else:
+        data['profile_2026'] = ""
 
-    m = re.search(r'Vs Spread\s+(\d+)\s*[-\u2013]\s*(\d+)\s*[-\u2013]\s*(\d+)', body)
+    m = re.search(r'Vs Spread[\s:]*(\d+)\s*[-\u2013]\s*(\d+)\s*[-\u2013]\s*(\d+)', body)
     data['last_season_ats'] = (
         f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else ""
     )
