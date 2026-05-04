@@ -291,21 +291,80 @@ def _should_prefetch(url):
         return False
 
 
+_DATE_META_PATTERNS = [
+    # meta tag patterns — published or modified time
+    r'<meta[^>]+property=["\']article:published_time["\'][^>]+content=["\']([^"\']+)["\']',
+    r'<meta[^>]+name=["\']article:published_time["\'][^>]+content=["\']([^"\']+)["\']',
+    r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']article:published_time["\']',
+    r'<meta[^>]+name=["\']pubdate["\'][^>]+content=["\']([^"\']+)["\']',
+    r'<meta[^>]+name=["\']publishdate["\'][^>]+content=["\']([^"\']+)["\']',
+    r'<meta[^>]+name=["\']date["\'][^>]+content=["\']([^"\']+)["\']',
+    r'<meta[^>]+name=["\']DC\.date\.issued["\'][^>]+content=["\']([^"\']+)["\']',
+    r'<meta[^>]+itemprop=["\']datePublished["\'][^>]+content=["\']([^"\']+)["\']',
+    # <time datetime="..."> element
+    r'<time[^>]+datetime=["\']([^"\']+)["\']',
+    # JSON-LD datePublished — captures the value inside the JSON blob
+    r'"datePublished"\s*:\s*"([^"]+)"',
+    r'"dateCreated"\s*:\s*"([^"]+)"',
+]
+
+
+def _extract_published_date(raw_html):
+    """
+    Best-effort publication-date extraction from an HTML page.
+
+    Returns a timezone-aware datetime (UTC) or None. Tries meta tags,
+    <time datetime=...>, and JSON-LD datePublished in priority order.
+    """
+    import re
+    if not raw_html:
+        return None
+    for pat in _DATE_META_PATTERNS:
+        m = re.search(pat, raw_html, re.IGNORECASE)
+        if not m:
+            continue
+        raw = m.group(1).strip()
+        if not raw:
+            continue
+        # Try ISO-8601 first (most common for the patterns above)
+        for candidate in (raw, raw.replace('Z', '+00:00')):
+            try:
+                dt = datetime.fromisoformat(candidate)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt
+            except Exception:
+                pass
+        # Fallback to RFC-2822 (rare, but some feeds use it)
+        try:
+            dt = parsedate_to_datetime(raw)
+            if dt and dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt
+        except Exception:
+            continue
+    return None
+
+
 def _fetch_article_body(url, max_chars=1000, timeout=8):
     """
-    Fetch an article URL and extract plain-text body content.
+    Fetch an article URL and extract plain-text body content + publication date.
 
     Skips known paywalled/JS-heavy domains (see SKIP_PREFETCH_DOMAINS).
-    Returns a string of up to max_chars characters, or '' on failure/skip.
+    Returns a tuple (text, pub_dt):
+      - text: string of up to max_chars characters, or '' on failure/skip.
+      - pub_dt: timezone-aware datetime (UTC) or None when not recoverable.
 
     Strategy:
       1. Prefer <article> or <main> tag content when present.
       2. Strip non-content tags (script, style, nav, header, footer, etc.).
       3. Strip remaining HTML tags and collapse whitespace.
       4. Reject result if < 150 chars (likely a login wall or JS shell).
+      5. Independently of body extraction, scan raw HTML for a publish date
+         so callers can drop pre-cycle articles even when the body parses fine.
     """
     if not _should_prefetch(url):
-        return ''
+        return '', None
 
     try:
         req = urllib.request.Request(
@@ -323,9 +382,12 @@ def _fetch_article_body(url, max_chars=1000, timeout=8):
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read(102400).decode('utf-8', errors='replace')
     except Exception:
-        return ''
+        return '', None
 
     import re
+
+    # Extract publication date from the raw HTML before we strip tags
+    pub_dt = _extract_published_date(raw)
 
     # Prefer semantic content containers when available
     article_match = re.search(r'<article[^>]*>(.*?)</article>', raw, re.DOTALL | re.IGNORECASE)
@@ -358,9 +420,9 @@ def _fetch_article_body(url, max_chars=1000, timeout=8):
 
     # Sanity check — too short means a login wall, JS shell, or error page
     if len(text) < 150:
-        return ''
+        return '', pub_dt
 
-    return text[:max_chars]
+    return text[:max_chars], pub_dt
 
 # ---------------------------------------------------------------------------
 # Error article helper
@@ -384,7 +446,7 @@ def _error_article(name, src_type, url, msg):
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_prefetch=8):
+def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_prefetch=8, min_date=None):
     """
     Fetch recent articles for all written sources configured for a team slug.
 
@@ -392,8 +454,24 @@ def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_pref
     non-paywalled sources so the Claude agent can extract key points without
     making any URL fetch calls itself. This is the primary token-reduction lever.
 
+    min_date (optional, 'YYYY-MM-DD' string or datetime): hard recency floor.
+    Articles with a recoverable publish date earlier than this are flagged
+    `stale_filtered: True` and have their body stripped, even if they reached
+    here via a direct (non-RSS) source. RSS items are already filtered upstream
+    by the `days` cutoff; min_date catches direct URLs and web-fetched bodies.
+
     Returns dict with articles list and a formatted summary for the agent prompt.
     """
+    # Normalize min_date to a tz-aware datetime for comparison
+    _min_dt = None
+    if min_date:
+        if isinstance(min_date, datetime):
+            _min_dt = min_date if min_date.tzinfo else min_date.replace(tzinfo=timezone.utc)
+        else:
+            try:
+                _min_dt = datetime.strptime(str(min_date), '%Y-%m-%d').replace(tzinfo=timezone.utc)
+            except Exception:
+                _min_dt = None
     all_sources = _load_all_sources()
 
     team_sources = all_sources.get(slug, [])
@@ -445,19 +523,34 @@ def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_pref
         unique_urls = list(url_to_articles.keys())[:max_prefetch]
 
         def _do_prefetch(url):
-            return url, _fetch_article_body(url)
+            body, pub_dt = _fetch_article_body(url)
+            return url, body, pub_dt
 
         if unique_urls:
             with concurrent.futures.ThreadPoolExecutor(max_workers=6) as ex:
                 futures = {ex.submit(_do_prefetch, url): url for url in unique_urls}
                 done, _ = concurrent.futures.wait(futures, timeout=45)
 
-            # Write body text to all articles that share this URL
+            # Write body text + publish date to all articles that share this URL.
+            # If a publish date is recoverable AND falls below the recency floor,
+            # mark the article as stale_filtered and DROP the body so the agent
+            # can't quote it as current reporting. We keep the headline/URL so
+            # the source is visible in logs but the agent treats it as background.
             for future in done:
                 try:
-                    url, body = future.result()
-                    if body:
-                        for article in url_to_articles.get(url, []):
+                    url, body, pub_dt = future.result()
+                    pub_str = pub_dt.strftime('%Y-%m-%d') if pub_dt else ''
+                    is_stale = bool(_min_dt and pub_dt and pub_dt < _min_dt)
+                    for article in url_to_articles.get(url, []):
+                        if pub_str:
+                            article['prefetch_published'] = pub_str
+                            # If RSS pubdate was missing, backfill from prefetch
+                            if not article.get('published'):
+                                article['published'] = pub_str
+                        if is_stale:
+                            article['stale_filtered'] = True
+                            article['body_text'] = ''
+                        elif body:
                             article['body_text'] = body
                 except Exception:
                     pass
@@ -475,6 +568,16 @@ def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_pref
 
         elif a.get('no_recent'):
             summary_lines.append(f"  [{a['source']}] No articles in last {days} days")
+
+        elif a.get('stale_filtered'):
+            # Pre-cycle article — body was dropped. Surfaced for transparency only.
+            pub = a.get('prefetch_published') or a.get('published') or 'unknown'
+            summary_lines.append(
+                f"  [{a['source']} — {a.get('source_type','')}] STALE — pre-cycle source, "
+                f"published {pub}; DO NOT cite as current reporting.\n"
+                f"    Headline: {a.get('headline','')}\n"
+                f"    URL: {a.get('url','')}"
+            )
 
         elif a.get('via') == 'direct':
             # Paywalled / JS-heavy — pass URL for Claude only if no body was fetched

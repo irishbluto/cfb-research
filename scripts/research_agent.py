@@ -32,7 +32,7 @@ Logs:   /cfb-research/logs/research_{date}.log
 """
 
 import json, os, sys, time, argparse, subprocess, logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -275,6 +275,26 @@ def build_prompt(slug, context, channels, no_youtube=False):
         mode_focus = "injury updates, weekly game prep, performance analysis, fanbase pulse"
 
     # ---------------------------------------------------------------------------
+    # Source recency floor — keeps the agent from treating prior-cycle articles
+    # as current reporting. The floor is wider in deep offseason (less news
+    # volume, longer-tail coverage is OK) and tighter in-season.
+    # Anything older than min_source_date is either dropped (if we can detect
+    # the date in the data layer) or flagged in the prompt for the agent to
+    # exclude. April 2025 Yahoo "spring takeaways" article that polluted
+    # Buffalo's 2026-04-19 run is the canonical regression case this guards.
+    # ---------------------------------------------------------------------------
+    MODE_RECENCY_DAYS = {
+        'early_offseason':  90,
+        'spring_offseason': 75,
+        'preseason':        60,
+        'in_season':        21,
+        'postseason':       21,
+    }
+    _recency_days   = MODE_RECENCY_DAYS.get(mode, 60)
+    min_source_date = (_now - timedelta(days=_recency_days)).strftime('%Y-%m-%d')
+    cycle_year      = _now.year if _month >= 2 else _now.year - 1  # Jan rolls into prior cycle
+
+    # ---------------------------------------------------------------------------
     # Roster caps by mode — limits roster_block size without losing key players
     # Preseason/offseason: wider caps to cover position battles
     # In-season/playoffs: tighter caps, starters matter most
@@ -467,7 +487,17 @@ Watch / recheck this run:
     try:
         sys.path.insert(0, str(BASE_DIR / "scripts"))
         from written_sources_fetcher import fetch_team_articles
-        ws_result = fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True)
+        # Pass the mode-aware recency floor so the fetcher can drop pre-cycle
+        # articles whose publish date is recoverable from the page HTML, and
+        # bump the RSS `days` window to match (was hard-coded at 14, which is
+        # too tight in deep offseason for low-volume teams).
+        ws_result = fetch_team_articles(
+            slug,
+            days=max(14, _recency_days),
+            max_per_source=3,
+            prefetch=True,
+            min_date=min_source_date,
+        )
         if ws_result['count'] > 0 or ws_result['direct_count'] > 0:
             prefetched = ws_result.get('prefetched_count', 0)
             unfetched  = ws_result.get('unfetched_direct', [])
@@ -566,6 +596,8 @@ Portal Net: {portal_net:+d} ({len(portal_in)} in, {len(portal_out)} out)
 {best_players_block}
 ## Research Mode: {mode.upper()}
 Current focus: {mode_focus}
+Current cycle year: {cycle_year}
+Source recency floor: {min_source_date} — IGNORE any article, video, or web-search hit dated before this as current reporting. If a URL contains a year segment (e.g. `/2025/`, `/2024/`) that does not match the current cycle year ({cycle_year}), exclude it. If a source's publish date cannot be determined, treat it as background only — never place it in `agent_flags.high_confidence`.
 
 ## Your Research Tasks
 
@@ -597,7 +629,9 @@ Current focus: {mode_focus}
 4. **Web Search Fallback** — Only if Tasks 1, 2, and 3 leave obvious gaps, do a targeted search:
    - Maximum 2 searches total — be specific, not broad
    - Every search query MUST include the word "football" — no exceptions. This prevents cross-sport contamination from basketball, baseball, or other programs at the same school.
-   - Good examples: "{team_name} football injury update April 2026", "{team_name} football depth chart spring 2026", "{team_name} 2026 football outlook"
+   - Every search query MUST include the cycle year ({cycle_year}) AND the recency operator `after:{min_source_date}` to keep results inside the current cycle.
+   - Good examples: "{team_name} football injury update {cycle_year} after:{min_source_date}", "{team_name} football depth chart spring {cycle_year} after:{min_source_date}", "{team_name} {cycle_year} football outlook after:{min_source_date}"
+   - For every result you consider, inspect the URL and visible date. Discard any result whose URL contains a year segment that is not {cycle_year}, or whose visible date predates {min_source_date}. The April 2025 Yahoo "spring takeaways" article that polluted a prior Buffalo run is the canonical case to avoid.
    - Do NOT search for things already covered by YouTube, written sources, or Reddit above
    - For any player found ONLY via web search (not in roster or pre-fetched sources): the source must explicitly mention "football" AND must not reference basketball or another sport in the same context. If you cannot confirm this, omit the player entirely.
 
@@ -665,6 +699,13 @@ The file must be valid JSON matching this exact structure:
 **Output:** Write the JSON file as soon as you have enough data — do not wait for perfection. No trailing commas, no comments inside the JSON. Failed URL fetches: mark as "unavailable" and move on immediately — no retries.
 
 **Sources:** Prefer beat writers and team-specific outlets over aggregators (Heavy.com, Yardbarker, Bleacher Report). Pre-fetched articles are your primary source — only search if clear gaps remain after Tasks 1, 2, and 3.
+
+**Source recency (strictly enforced):**
+  - Never use a source dated before {min_source_date} as current reporting. Pre-fetched written articles flagged `STALE — pre-cycle source` MUST NOT be quoted, summarized, or used to support `agent_flags.high_confidence`. Their headlines may be acknowledged only as "from a prior cycle" if absolutely needed for context.
+  - For web-search results: inspect the URL path and any visible date. If the URL contains a year segment that is not {cycle_year} (e.g. `/2025/04/`, `/articles/2024-...`), or the snippet's date predates {min_source_date}, discard the result. Do NOT click through and rationalize it as still relevant.
+  - For YouTube items: the `published` timestamp on each video is authoritative. If it predates {min_source_date}, drop the entry — even if the title sounds current. Re-uploaded or re-promoted old footage is a known failure mode.
+  - When a source has no recoverable date at all, you may use it for background framing only. Never place an undated source in `agent_flags.high_confidence`, never let it be the sole support for a `key_storylines` claim.
+  - Canonical regression case: an April 2025 Yahoo "4 takeaways from UB spring football" article was previously ingested as current 2026 reporting and produced a fabricated 2026 spring-game narrative. The recency floor + URL year-segment check exist specifically to prevent that pattern.
 
 **Schedule accuracy (strictly enforced):**
   - The `conference_game` field in the schedule data is authoritative — it is computed from actual 2026 conference rosters. Never override it with your own knowledge of conference membership. If `conference_game: true`, it is a conference game, full stop.
