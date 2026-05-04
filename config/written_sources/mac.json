@@ -21,6 +21,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Akron Athletics — Football",
+      "url": "https://gozips.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "ball-state": [
@@ -38,6 +45,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Ball State Athletics — Football",
+      "url": "https://ballstatesports.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "bowling-green": [
@@ -78,6 +92,13 @@
       "rss": "https://www.toledoblade.com/rss",
       "title_filter": ["bowling green", "bgsu", "falcons"],
       "notes": "Local daily newspaper; dedicated BGSU section confirmed; piano paywall on bodies but headlines in RSS"
+    },
+    {
+      "name": "BG Falcon Media — Football",
+      "url": "https://bgfalconmedia.com/category/sports/football/",
+      "type": "student_news",
+      "rss": "https://bgfalconmedia.com/category/sports/football/feed/",
+      "notes": "BGSU student newspaper football category — WordPress RSS pattern; team-scoped feed (no title_filter needed)"
     }
   ],
   "buffalo": [
@@ -102,6 +123,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Buffalo Athletics — Football",
+      "url": "https://ubbulls.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "central-michigan": [
@@ -126,6 +154,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Central Michigan Athletics — Football",
+      "url": "https://cmuchippewas.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "eastern-michigan": [
@@ -150,6 +185,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Eastern Michigan Athletics — Football",
+      "url": "https://emueagles.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "kent-state": [
@@ -174,6 +216,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Kent State Athletics — Football",
+      "url": "https://kentstatesports.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "massachusetts": [
@@ -198,6 +247,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "UMass Athletics — Football",
+      "url": "https://umassathletics.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "miami-oh": [
@@ -222,6 +278,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Miami (OH) Athletics — Football",
+      "url": "https://miamiredhawks.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "ohio": [
@@ -246,6 +309,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Ohio Athletics — Football",
+      "url": "https://ohiobobcats.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "sacramento-state": [
@@ -271,6 +341,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking for inaugural FBS season"
+    },
+    {
+      "name": "Sacramento State Athletics — Football",
+      "url": "https://hornetsports.com/sports/football/archives?search=&sport=football&season=0",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL (Sidearm filter URL preserved)"
     }
   ],
   "toledo": [
@@ -311,6 +388,13 @@
       "rss": "https://www.toledoblade.com/rss",
       "title_filter": ["toledo", "rockets"],
       "notes": "Local daily newspaper; dedicated UT and BGSU sections confirmed; piano paywall on bodies but headlines in RSS"
+    },
+    {
+      "name": "Toledo Athletics — Football",
+      "url": "https://utrockets.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "western-michigan": [
@@ -335,6 +419,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Western Michigan Athletics — Football",
+      "url": "https://wmubroncos.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ]
 }
