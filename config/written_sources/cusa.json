@@ -28,6 +28,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Delaware Athletics — Football",
+      "url": "https://bluehens.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "fiu": [
@@ -45,6 +52,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "FIU Athletics — Football",
+      "url": "https://fiusports.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "jacksonville-state": [
@@ -69,6 +83,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Jacksonville State Athletics — Football",
+      "url": "https://jaxstatesports.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "kennesaw-state": [
@@ -86,6 +107,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking for a program still building its FBS recruiting infrastructure"
+    },
+    {
+      "name": "Kennesaw State Athletics — Football",
+      "url": "https://ksuowls.com/sports/football/archives?search=&sport=fb&season=0",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; Sidearm filter URL preserved (sport=fb, not sport=football)"
     }
   ],
   "liberty": [
@@ -103,6 +131,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Liberty Athletics — Football",
+      "url": "https://libertyflames.com/archives?path=football",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; non-Sidearm path-style URL"
     }
   ],
   "middle-tennessee": [
@@ -134,6 +169,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Middle Tennessee Athletics — Football",
+      "url": "https://goblueraiders.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "missouri-state": [
@@ -151,6 +193,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking for a program still building FBS roster depth"
+    },
+    {
+      "name": "Missouri State Athletics — Football",
+      "url": "https://missouristatebears.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "new-mexico-state": [
@@ -175,6 +224,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "New Mexico State Athletics — Football",
+      "url": "https://nmstatesports.com/sports/football/archives?search=&sport=football&season=0",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; Sidearm filter URL preserved"
     }
   ],
   "sam-houston": [
@@ -199,6 +255,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Sam Houston Athletics — Football",
+      "url": "https://gobearkats.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ],
   "western-kentucky": [
@@ -216,6 +279,13 @@
       "type": "beat_writer",
       "rss": null,
       "notes": "Recruiting and portal tracking"
+    },
+    {
+      "name": "Western Kentucky Athletics — Football",
+      "url": "https://wkusports.com/sports/football/archives",
+      "type": "official",
+      "rss": null,
+      "notes": "Official athletics archives — guaranteed current-cycle coverage; fetched as direct URL"
     }
   ]
 }
