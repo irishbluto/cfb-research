@@ -538,13 +538,13 @@ def build_marquee_ooc(conn, conf_games_name, season=SEASON, max_games=10):
              OR (g.away_conference = %s AND g.home_conference IN ({p4_placeholders}))
           )
         -- Marquee score: sum of power ratings minus a closeness penalty.
-        -- k_dyn = 0.5 + 0.02 * MAX(0, 5 - avg_rating) gives a flat 0.5 penalty
-        -- weight above avg=5 and ramps up for weaker matchups, so lopsided
-        -- games (e.g. ND vs Stanford) don't outrank close marquee games
-        -- (e.g. Bama vs FSU). See repo notes for tuning levers.
+        -- k_dyn = 0.75 + 0.02 * MAX(0, 5 - avg_rating) gives a flat 0.75
+        -- penalty weight above avg=5 and ramps up for weaker matchups, so
+        -- lopsided games (e.g. Texas vs UTSA) don't outrank close marquee
+        -- games (e.g. Florida vs Auburn). See repo notes for tuning levers.
         ORDER BY (
             (COALESCE(hp.rating, 0) + COALESCE(ap.rating, 0))
-            - (0.5 + 0.02 * GREATEST(0, 5 - (COALESCE(hp.rating, 0) + COALESCE(ap.rating, 0)) / 2.0))
+            - (0.75 + 0.02 * GREATEST(0, 5 - (COALESCE(hp.rating, 0) + COALESCE(ap.rating, 0)) / 2.0))
               * ABS(COALESCE(hp.rating, 0) - COALESCE(ap.rating, 0))
         ) DESC, g.start_date ASC
     """
