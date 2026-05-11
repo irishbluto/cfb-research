@@ -38,9 +38,11 @@ NATIONAL_DIR    = BASE_DIR / "national"
 LOG_DIR         = BASE_DIR / "logs"
 CLAUDE_BIN      = "/home/joleary/.local/bin/claude"
 
-AGENT_TIMEOUT_SECS = 1800  # 30 min — prompt grew to ~40KB after rule additions;
-                           # first run (smaller prompt) completed in 458s, so 30 min
-                           # gives generous headroom without inviting runaway runs.
+AGENT_TIMEOUT_SECS = 3600  # 60 min — Big 12 (16 teams, ~62KB prompt) timed out at 30 min
+                           # on 2026-05-11; ACC/B1G runs (14 teams, ~40KB) completed under
+                           # the prior 1800s ceiling, but the larger-conference + denser-
+                           # context combo needs more headroom. Still bounded to prevent
+                           # runaway runs.
 
 # Import canonical conference list from build_team_context.py
 sys.path.insert(0, str(BASE_DIR / "scripts"))

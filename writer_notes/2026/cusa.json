@@ -7,17 +7,17 @@
   ],
   "season": 2026,
   "conference": "cusa",
-  "conference_note": "",
+  "conference_note": "Conference USA is traditionally the lowest rated G6 conference alongside the MAC.  Jacksonville State hosted the 2025 Conference USA championship game in their home stadium, AmFirst Stadium in Jacksonville, Alabama. Kennessaw State won the 2025 CUSA championship, beating Jacksonville State 19-15 to complete a surprisingly great season for the Owls.  Four storylines define the 2026 Conference USA: (1) CUSA has had four different teams win the championship in four years, can Kennessaw State reverse that trend in 2026? (2) CUSA down to 10 members after lost two conferences members; Louisiana Tech to the Sun Belt and UTEP to the Mountain West (3) CUSA had half their conference games decided by one score, the highest in CFB, will the tight contests continue? (4) Conference USA, like the rest of the G6, typically loses players to the portal if they prove to be productive, how each team handles that goes a long way to determining who performs well in any given season.  When team_notes give a 3-tier range (e.g., Tier 2-4), that's not a hedge — it's the league norm. The agent should NOT over-anchor on a single 'centering' tier; instead treat the range itself as the projection. A team at Tier 2-4 means 'either it works and they're contending for the title game or it doesn't and they're fighting for a bowl' — both branches are real. Conference USA tier framework (tiers describe team caliber, NOT exact record): Tier 1 = Conference USA title-game favorite, lower tier CFB bowl game contenders ; Tier 2 = title-game contender, lower tier bowl game contenders; Tier 3 = middle tier and title-game and bowl game outsider; Tier 4 = bottom of the conference where reaching bowl eligibility would itself be a tremendous achievement. When team_notes give a range, the agent should treat the wider boundary as the realistic downside — but per the volatility note above, 3-tier ranges are common here and the range itself should be framed as the projection rather than collapsing to a single tier. The Conference USA Championship game is played in the home stadium of the team with the best overall conference win percentage.   ",
   "team_notes": {
-    "delaware": "",
-    "fiu": "",
-    "jacksonville-state": "",
-    "kennesaw-state": "",
-    "liberty": "",
-    "middle-tennessee": "",
-    "missouri-state": "",
-    "new-mexico-state": "",
-    "sam-houston": "",
-    "western-kentucky": ""
+    "delaware": "Tier 2 CUSA team; Second season in FBS, joined in 2025 for their initial CUSA season finishing a respectable 7-6, and 5-3 in CUSA play. Delaware returns the most starts by players on their roster in the conference in 149, overall 3rd in CUSA returning production. Have the best returning QB in CUSA in Nick Minicucci; return RB Jo'Nathan Silver and WR Sean Wilson.   ",
+    "fiu": "Tier 2-3 CUSA team; ",
+    "jacksonville-state": "Tier 1-2 CUSA team; Jacksonville State has won nine games in three straight seasons, and is 21-5 in CUSA league games since 2023. Returns the 2nd most experience in CUSA.  Added some intriguing OL like Amarii Atchinson, Caleb Holmes and Hadine Diaby.  ",
+    "kennesaw-state": "Tier 1-3 CUSA team; 2025 CUSA champs after an improbable 10-4 record going 8-1 in CUSA league play.  ",
+    "liberty": "Tier 1 CUSA team; Most talented roster in CUSA, annually the favorite to win the conference but flopped badly to a 4-8 record, 3-5 in CUSA play in 2025.  RB Kam Davis was added from Florida State. ",
+    "middle-tennessee": "Tier 3-4 CUSA team;  Middle Tennessee has limited resources and seemingly little true support from their administration.  Middle Tennessee returns the least amount of experience in CUSA. QB Roman Gagliano returns after starting the last three games in 2025, in which he played surprsingly very well (7 TD, 0 INT). WRs Cam'ron Lacy and AJ Jones also return to give Gagliano some familiar weapons to throw to.     ",
+    "missouri-state": "Tier 3 CUSA team; Second season in FBS, joined in 2025 for their initial CUSA season finishing a respectable 7-6, and 5-3 in CUSA play. New HC, in for a big rebuilding year, returning very little of their offense and tied for 2nd to last in overall returning production in CUSA. New HC Casey Woods was the offensive coordinator at SMU the past three seasons. ",
+    "new-mexico-state": "Tier 3-4 CUSA team; ",
+    "sam-houston": "Tier 4 CUSA team; HC Phil Longo one of the lowest rated coaches in FBS, and was not an inspiring hire last year going just 2-10 in 2025. Grabbing All-CUSA OL Josiah Chenault from Kennessaw was quite the addition.  ",
+    "western-kentucky": "Tier 1 CUSA team; WKU returns the second least amount of player experience in CUSA.  WKU is annually a favorite to win CUSA and 2026 is no different. Have won 8 or 9 games every season since 2021, going 9-4 last year and 6-2 in CUSA.  HC Tyson Helton is the best coach in CUSA.  Hired new OC Bodie Reeder from Middle Tennessee, a questionable hire as Middle Tennessee's offense was terrible last year.  Added four P4 OL in the transfer portal.  "
   }
 }
