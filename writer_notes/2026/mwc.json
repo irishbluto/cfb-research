@@ -7,7 +7,7 @@
   ],
   "season": 2026,
   "conference": "mwc",
-  "conference_note": "",
+  "conference_note": "When team_notes give a 3-tier range (e.g., Tier 2-4), that's not a hedge — it's the league norm. The agent should NOT over-anchor on a single 'centering' tier; instead treat the range itself as the projection. A team at Tier 2-4 means 'either it works and they're contending for the title game or it doesn't and they're fighting for a bowl' — both branches are real. Conference USA tier framework (tiers describe team caliber, NOT exact record): Tier 1 = MWC title-game favorite, lower tier CFB bowl game contenders ; Tier 2 = title-game contender, lower tier bowl game contenders; Tier 3 = middle tier and title-game and bowl game outsider; Tier 4 = bottom of the conference where reaching bowl eligibility would itself be a tremendous achievement. When team_notes give a range, the agent should treat the wider boundary as the realistic downside — but per the volatility note above, 3-tier ranges are common here and the range itself should be framed as the projection rather than collapsing to a single tier. The Mid-American Championship game is played in the home stadium of the team with the best overall conference win percentage.",
   "team_notes": {
     "air-force": "",
     "hawaii": "",
