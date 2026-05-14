@@ -48,14 +48,6 @@
       "notes": "SBNation MAC hub — confirmed active with weekly game recaps and preseason previews for Ball State"
     },
     {
-      "name": "Ball State of the Union",
-      "url": "https://ballstateoftheunion.substack.com/",
-      "type": "beat_writer",
-      "rss": "https://ballstateoftheunion.substack.com/feed",
-      "title_filter": ["football", "cardinal", "ball state", "uremovich"],
-      "notes": "Independent Ball State Substack — credentialed beat reporting from spring practices, full season previews with opponent breakdowns; partnered with Jon Clawson YouTube podcast; launched Jan 2026, monthly cadence confirmed through May 2026; free posts with full text in RSS"
-    },
-    {
       "name": "247Sports — Ball State",
       "url": "https://247sports.com/college/ball-state/",
       "type": "beat_writer",
