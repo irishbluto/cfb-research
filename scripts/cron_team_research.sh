@@ -313,7 +313,8 @@ log "PIPELINE: $SUCCESS ok, $FAIL failed"
 log "  Refreshing Hostinger team-research cache..."
 TS=$(date +%s)
 START_T=$(date +%s)
-http_code=$(curl -s -o /dev/null -w "%{http_code}" \
+RESP_BODY=$(mktemp)
+http_code=$(curl -s -o "$RESP_BODY" -w "%{http_code}" \
     -H "Cache-Control: no-cache, no-store, must-revalidate" \
     -H "Pragma: no-cache" \
     -H "Expires: 0" \
@@ -321,14 +322,21 @@ http_code=$(curl -s -o /dev/null -w "%{http_code}" \
     --max-time 600 2>/dev/null || echo "000")
 ELAPSED=$(( $(date +%s) - START_T ))
 if [ "$http_code" = "200" ]; then
-    if [ "$ELAPSED" -lt 5 ]; then
-        log "  WARN: cache refresh returned HTTP 200 in ${ELAPSED}s — likely a CDN cache hit, origin didn't actually run. Bump CF cache rules for /research/test.php."
+    # Real success = the body contains the marker emitted by test.php's refresh_all block.
+    # A duration-only heuristic was misleading (2026-05-13): the $arewehome gate let PHP
+    # return a fast empty 200, which read as "CDN cache hit" but was actually a silent
+    # no-op. Checking the body for the loaded-count line is authoritative.
+    if grep -q "Research Cache Refresh" "$RESP_BODY" 2>/dev/null; then
+        loaded=$(grep -oE "[0-9]+/[0-9]+ loaded" "$RESP_BODY" | head -1)
+        log "  Cache refreshed (HTTP $http_code, ${ELAPSED}s, ${loaded:-?/?})"
     else
-        log "  Cache refreshed (HTTP $http_code, ${ELAPSED}s)"
+        body_head=$(head -c 200 "$RESP_BODY" 2>/dev/null | tr -d '\n' | tr -d '\r')
+        log "  WARN: cache refresh returned HTTP 200 in ${ELAPSED}s but body lacked success marker — refresh_all skipped (auth gate? token mismatch?). First 200 chars: [${body_head}]"
     fi
 else
     log "  WARN: cache refresh returned HTTP $http_code (caches will fall back to TTL)"
 fi
+rm -f "$RESP_BODY"
 
 log "DONE : $SLOT | mode=$MODE | day=$DOW_NAME | pick=$PICK"
 log "================================================================"

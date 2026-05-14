@@ -35,6 +35,10 @@ import json, os, sys, time, argparse, subprocess, logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
+# Local import — sibling module in scripts/.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from cost_logger import log_run
+
 # ---------------------------------------------------------------------------
 # Paths - Here are the paths
 # ---------------------------------------------------------------------------
@@ -854,6 +858,7 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
 
     cmd = [
         CLAUDE_BIN, "--dangerously-skip-permissions",
+        "--output-format", "json",
         "-p", prompt,
     ]
 
@@ -877,6 +882,16 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
                 cwd=str(BASE_DIR),
             )
             elapsed = round(time.time() - start, 1)
+
+            # Capture cost + token usage from the JSON envelope on stdout.
+            # Logs one row to logs/agent_cost_log.csv per attempt; never raises.
+            log_run(
+                pipeline   = "team_research",
+                slug       = slug,
+                elapsed    = elapsed,
+                returncode = result.returncode,
+                stdout     = result.stdout,
+            )
 
             if result.returncode == 0:
                 # Check if output file was actually written
@@ -907,6 +922,15 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
 
         except subprocess.TimeoutExpired:
             logging.error(f"  ✗ {slug} — timed out after 900s (no retry)")
+            # Timeout — cost was incurred but stdout was not captured. Log a
+            # row with blanks so we still see the run in the cost CSV.
+            log_run(
+                pipeline   = "team_research",
+                slug       = slug,
+                elapsed    = round(time.time() - start, 1),
+                returncode = None,
+                stdout     = "",
+            )
             return False
         except Exception as e:
             logging.error(f"  ✗ {slug} — unexpected error: {e} (no retry)")

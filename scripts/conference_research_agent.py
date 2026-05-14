@@ -47,6 +47,7 @@ AGENT_TIMEOUT_SECS = 3600  # 60 min — Big 12 (16 teams, ~62KB prompt) timed ou
 # Import canonical conference list from build_team_context.py
 sys.path.insert(0, str(BASE_DIR / "scripts"))
 from build_team_context import CONFERENCE_TEAMS  # noqa: E402
+from cost_logger import log_run  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -874,7 +875,7 @@ def merge_context_into_preview(conf_slug):
 # ---------------------------------------------------------------------------
 # Run Claude agent (mirrors national_landscape_agent.py pattern)
 # ---------------------------------------------------------------------------
-def run_agent(conf_slug, prompt, dry_run=False):
+def run_agent(conf_slug, prompt, dry_run=False, mode=None):
     """Spawn a Claude Code session with the conference prompt. Validate JSON output.
     Writes the rendered prompt to logs/prompt_conference_<slug>.txt in both
     dry-run and live modes — that file is the canonical review artifact."""
@@ -901,7 +902,11 @@ def run_agent(conf_slug, prompt, dry_run=False):
             print(prompt)
         return True
 
-    cmd = [CLAUDE_BIN, "--dangerously-skip-permissions", "-p", prompt]
+    cmd = [
+        CLAUDE_BIN, "--dangerously-skip-permissions",
+        "--output-format", "json",
+        "-p", prompt,
+    ]
 
     logging.info(f"  [{conf_slug}] Running Claude (prompt: {len(prompt)} chars)")
     start = time.time()
@@ -915,6 +920,17 @@ def run_agent(conf_slug, prompt, dry_run=False):
             cwd=str(BASE_DIR),
         )
         elapsed = round(time.time() - start, 1)
+
+        # Capture cost + token usage from the JSON envelope on stdout.
+        # Writes one row to logs/agent_cost_log.csv; never raises.
+        log_run(
+            pipeline   = "conference_preview",
+            slug       = conf_slug,
+            mode       = mode,
+            elapsed    = elapsed,
+            returncode = result.returncode,
+            stdout     = result.stdout,
+        )
 
         if result.returncode == 0:
             output_file = CONF_PREVIEWS / f"{conf_slug}.json"
@@ -951,6 +967,15 @@ def run_agent(conf_slug, prompt, dry_run=False):
 
     except subprocess.TimeoutExpired:
         logging.error(f"  [{conf_slug}] ✗ timed out after {AGENT_TIMEOUT_SECS}s")
+        # Timeout — log a row with blanks so the run is still visible in the CSV.
+        log_run(
+            pipeline   = "conference_preview",
+            slug       = conf_slug,
+            mode       = mode,
+            elapsed    = round(time.time() - start, 1),
+            returncode = None,
+            stdout     = "",
+        )
         return False
     except Exception as e:
         logging.error(f"  [{conf_slug}] ✗ unexpected error: {e}")
@@ -984,7 +1009,7 @@ def run_conference(conf_slug, dry_run=False, debug=False):
     logging.info(f"  [{conf_slug}] mode={mode} | prompt={len(prompt)} chars")
 
     CONF_PREVIEWS.mkdir(exist_ok=True)
-    return run_agent(conf_slug, prompt, dry_run=dry_run)
+    return run_agent(conf_slug, prompt, dry_run=dry_run, mode=mode)
 
 
 # ---------------------------------------------------------------------------

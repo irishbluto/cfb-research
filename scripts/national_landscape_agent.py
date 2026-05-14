@@ -28,6 +28,10 @@ NATIONAL_DIR = BASE_DIR / "national"
 LOG_DIR     = BASE_DIR / "logs"
 CLAUDE_BIN  = "/home/joleary/.local/bin/claude"
 
+# Local import — sibling module in scripts/.
+sys.path.insert(0, str(BASE_DIR / "scripts"))
+from cost_logger import log_run  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -304,6 +308,7 @@ def run_agent(prompt, dry_run=False):
 
     cmd = [
         CLAUDE_BIN, "--dangerously-skip-permissions",
+        "--output-format", "json",
         "-p", prompt,
     ]
 
@@ -319,6 +324,16 @@ def run_agent(prompt, dry_run=False):
             cwd=str(BASE_DIR),
         )
         elapsed = round(time.time() - start, 1)
+
+        # Capture cost + token usage from the JSON envelope on stdout.
+        # Writes one row to logs/agent_cost_log.csv; never raises.
+        log_run(
+            pipeline   = "national_landscape",
+            slug       = "national",
+            elapsed    = elapsed,
+            returncode = result.returncode,
+            stdout     = result.stdout,
+        )
 
         if result.returncode == 0:
             output_file = NATIONAL_DIR / "landscape_latest.json"
@@ -346,6 +361,14 @@ def run_agent(prompt, dry_run=False):
 
     except subprocess.TimeoutExpired:
         logging.error(f"  ✗ Timed out after 600s")
+        # Timeout — log a row with blanks so the run is still visible in the CSV.
+        log_run(
+            pipeline   = "national_landscape",
+            slug       = "national",
+            elapsed    = round(time.time() - start, 1),
+            returncode = None,
+            stdout     = "",
+        )
         return False
     except Exception as e:
         logging.error(f"  ✗ Unexpected error: {e}")
