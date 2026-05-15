@@ -70,16 +70,16 @@ WHERE lifecycle_stage = 'developing';   -- only seed rows still at the default
 -- ---------------------------------------------------------------------
 -- Sanity checks (run after applying)
 -- ---------------------------------------------------------------------
--- DESC team_memory_storylines;
--- SELECT lifecycle_stage, status, COUNT(*) AS n
---   FROM team_memory_storylines
---  WHERE season = 2026
---  GROUP BY lifecycle_stage, status
---  ORDER BY lifecycle_stage, status;
--- SELECT slug, theme, status, lifecycle_stage, JSON_LENGTH(updates) AS updates_n
---   FROM team_memory_storylines
---  WHERE slug = 'notre-dame' AND season = 2026
---  ORDER BY last_updated DESC;
+DESC team_memory_storylines;
+SELECT lifecycle_stage, status, COUNT(*) AS n
+  FROM team_memory_storylines
+ WHERE season = 2026
+ GROUP BY lifecycle_stage, status
+ ORDER BY lifecycle_stage, status;
+SELECT slug, theme, status, lifecycle_stage, JSON_LENGTH(updates) AS updates_n
+  FROM team_memory_storylines
+ WHERE slug = 'notre-dame' AND season = 2026
+ ORDER BY last_updated DESC;
 
 -- ---------------------------------------------------------------------
 -- Rollback (only if needed)
