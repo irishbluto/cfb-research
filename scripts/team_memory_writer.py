@@ -685,6 +685,124 @@ def write_team_memory(slug, db):
 
 
 # ---------------------------------------------------------------------------
+# Cache-only rebuild — regenerates team_memory/{slug}.json from the DB
+# without touching the DB or requiring today's research file. Used after
+# bulk-retiring storyline threads (e.g. the Ourlads cleanup pass) so the
+# cached JSON drops the retired rows immediately, rather than waiting for
+# the next scheduled research run on that team's conference cycle.
+#
+# Pulls all top-level fields from the team_memory DB row (which carries
+# the last good values from the prior real run). Pass-through fields not
+# stored in that row (prior_storylines, prior_injury_flags) come from the
+# latest research/{slug}_latest.json regardless of its date, with the
+# Ourlads contamination filter applied so retired threads don't echo
+# back as raw storyline text.
+# ---------------------------------------------------------------------------
+def rebuild_cache_only(slug, db):
+    """Regenerate team_memory/{slug}.json from the DB, no writes, no date gate."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    cur = db.cursor()
+
+    # Load the team_memory DB row — source of truth for everything except
+    # prior_storylines / prior_injury_flags.
+    cur.execute("SELECT * FROM team_memory WHERE slug = %s", (slug,))
+    existing = cur.fetchone()
+    if not existing:
+        logging.info(f"  [{slug}] No team_memory row yet — skipping cache rebuild")
+        return False
+
+    # Optional pass-through from the most recent research JSON (any date).
+    input_file = OUTPUT_DIR / f"{slug}_latest.json"
+    data = {}
+    if input_file.exists():
+        try:
+            with open(input_file) as f:
+                data = json.load(f)
+        except Exception as e:
+            logging.warning(f"  [{slug}] Could not read research file ({e}); proceeding with DB-only fields")
+
+    # Apply the contamination filter so retired Ourlads storylines never
+    # reach the cache as raw prior_storylines text.
+    _raw_priors = data.get("key_storylines", [])[:5]
+    prior_storylines_clean = [s for s in _raw_priors if not _is_ourlads_contaminated(s)]
+
+    # Pull active+stale storyline_threads from the DB (already excludes retired).
+    cur.execute(
+        """SELECT theme, status, lifecycle_stage,
+                  first_seen, last_updated, updates, source_type
+           FROM team_memory_storylines
+           WHERE slug = %s AND status IN ('active','stale') AND season = %s
+             AND lifecycle_stage != 'retired'
+           ORDER BY FIELD(lifecycle_stage,'developing','continuing','settled'),
+                    last_updated DESC""",
+        (slug, CURRENT_SEASON)
+    )
+    storyline_threads = []
+    for row in cur.fetchall():
+        try:
+            updates = json.loads(row["updates"]) if isinstance(row["updates"], str) else row["updates"]
+        except Exception:
+            updates = []
+        storyline_threads.append({
+            "theme":           row["theme"],
+            "status":          row["status"],
+            "lifecycle_stage": row["lifecycle_stage"],
+            "first_seen":      str(row["first_seen"]),
+            "last_updated":    str(row["last_updated"]),
+            "updates":         updates,
+            "source_type":     row["source_type"],
+        })
+
+    # Reconstruct agent_flags from DB columns (stored as JSON strings).
+    def _parse_jsonlist(s):
+        if not s:
+            return []
+        try:
+            v = json.loads(s) if isinstance(s, str) else s
+            return v if isinstance(v, list) else []
+        except Exception:
+            return []
+
+    agent_flags = {
+        "high_confidence":    _parse_jsonlist(existing.get("high_confidence")),
+        "low_confidence":     _parse_jsonlist(existing.get("low_confidence")),
+        "watch_for_next_run": _parse_jsonlist(existing.get("watch_for_next_run")),
+    }
+
+    coaching = {
+        "head_coach": existing.get("coaching_hc", "") or "",
+        "oc":         existing.get("coaching_oc", "") or "",
+        "dc":         existing.get("coaching_dc", "") or "",
+    }
+
+    cache = {
+        "team":              existing.get("team_name", slug),
+        "slug":              slug,
+        "last_run":          str(existing.get("last_run", today)),
+        "run_count":         existing.get("run_count", 0),
+        "mode":              existing.get("mode", ""),
+        "prior_summary":     existing.get("prior_summary", "") or "",
+        "prior_sentiment":   existing.get("prior_sentiment", "") or "",
+        "prior_storylines":  prior_storylines_clean,
+        "prior_injury_flags": data.get("injury_flags", [])[:10],
+        "coaching_snapshot": coaching,
+        "agent_flags":       agent_flags,
+        "storyline_threads": storyline_threads,
+    }
+
+    MEMORY_DIR.mkdir(exist_ok=True)
+    try:
+        with open(MEMORY_DIR / f"{slug}.json", 'w') as f:
+            json.dump(cache, f, indent=2)
+        active_count = sum(1 for t in storyline_threads if t.get("status") == "active")
+        logging.info(f"  ✓ {slug} — cache rebuilt ({active_count} active thread(s))")
+        return True
+    except Exception as e:
+        logging.error(f"  [{slug}] Failed to write cache file: {e}")
+        return False
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 def main():
@@ -698,6 +816,14 @@ def main():
     target.add_argument('--conf',       default=None, dest='conf', help='Conference slug')
     target.add_argument('--conference', default=None, dest='conf', help='Alias for --conf')
     target.add_argument('--all',        action='store_true', help='All configured teams')
+    parser.add_argument(
+        '--rebuild-cache-only',
+        action='store_true',
+        help=('Regenerate team_memory/{slug}.json from the DB without writing '
+              'to the DB and without requiring today\'s research file. Use '
+              'this after a bulk retirement (e.g. the Ourlads cleanup) so '
+              'JSON caches reflect the current DB immediately.')
+    )
     args = parser.parse_args()
 
     sys.path.insert(0, str(BASE_DIR / "scripts"))
@@ -744,7 +870,11 @@ def main():
 
     db = get_db()
     try:
-        ok = sum(write_team_memory(slug, db) for slug in teams)
+        if args.rebuild_cache_only:
+            logging.info("Mode: --rebuild-cache-only (no DB writes, no date gate)")
+            ok = sum(rebuild_cache_only(slug, db) for slug in teams)
+        else:
+            ok = sum(write_team_memory(slug, db) for slug in teams)
         skipped = len(teams) - ok
         logging.info(f"Done — {ok}/{len(teams)} memory files written"
                      + (f", {skipped} skipped" if skipped else ""))
