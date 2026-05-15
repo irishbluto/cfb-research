@@ -73,6 +73,29 @@ STOPWORDS = frozenset(
     "after new team season has been will could should their this that".split()
 )
 
+# ---------------------------------------------------------------------------
+# Contamination filter — phrases that indicate a storyline was seeded by
+# ourlads.com's "unofficial" depth chart. These claims must never reach the
+# storyline_threads table because they propagate across runs as if they were
+# beat-writer reporting. The agent prompt forbids citing Ourlads, but this
+# is the belt-and-suspenders catch for any leftover phrasing or for older
+# JSON files being re-ingested.
+# ---------------------------------------------------------------------------
+OURLADS_CONTAMINATION_PATTERNS = (
+    "ourlads",
+    "unofficial qb1", "unofficial rb1", "unofficial wr1",
+    "unofficial depth chart",
+    "post-spring depth chart",  # near-universal Ourlads phrasing
+)
+
+
+def _is_ourlads_contaminated(text):
+    """Return True if a storyline string looks Ourlads-derived."""
+    if not text:
+        return False
+    lowered = text.lower()
+    return any(pat in lowered for pat in OURLADS_CONTAMINATION_PATTERNS)
+
 
 # ---------------------------------------------------------------------------
 # DB connection
@@ -363,6 +386,17 @@ def write_team_memory(slug, db):
     # 4. Match new storylines against active threads
     # ------------------------------------------------------------------
     new_storylines = data.get("key_storylines", [])[:5]
+
+    # Strip any storyline that smells of Ourlads contamination. We do this
+    # BEFORE threading so contaminated text never reaches the DB. Anything
+    # dropped here will simply not be threaded; the genuine reporting in
+    # the other storylines still gets through.
+    pre_filter_count = len(new_storylines)
+    new_storylines = [s for s in new_storylines if not _is_ourlads_contaminated(s)]
+    if len(new_storylines) < pre_filter_count:
+        dropped = pre_filter_count - len(new_storylines)
+        logging.warning(f"  [{slug}] Dropped {dropped} Ourlads-contaminated storyline(s) before threading")
+
     matched_ids = set()
 
     for storyline_text in new_storylines:
@@ -603,6 +637,13 @@ def write_team_memory(slug, db):
             "source_type":     row["source_type"],
         })
 
+    # Filter Ourlads-contaminated storylines out of prior_storylines so the
+    # next agent run doesn't see them echoed back as its own prior reporting.
+    # The threading step above already drops them from the DB; this catches
+    # the parallel raw-pass-through cache field.
+    _raw_priors = data.get("key_storylines", [])[:5]
+    prior_storylines_clean = [s for s in _raw_priors if not _is_ourlads_contaminated(s)]
+
     cache = {
         "team":              team_name,
         "slug":              slug,
@@ -611,7 +652,7 @@ def write_team_memory(slug, db):
         "mode":              mode,
         "prior_summary":     data.get("agent_summary", ""),
         "prior_sentiment":   data.get("overall_sentiment", ""),
-        "prior_storylines":  data.get("key_storylines", [])[:5],
+        "prior_storylines":  prior_storylines_clean,
         "prior_injury_flags": data.get("injury_flags", [])[:10],
         "coaching_snapshot": coaching,
         "agent_flags":       agent_flags,

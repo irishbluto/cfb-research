@@ -97,6 +97,35 @@ SKIP_PREFETCH_DOMAINS = {
 }
 
 # ---------------------------------------------------------------------------
+# Domains that must NEVER reach the agent — drop URL entirely (no headline,
+# no body, no inclusion in the written_sources list). Stronger than
+# SKIP_PREFETCH_DOMAINS, which only suppresses the body fetch.
+#
+# Rationale: Ourlads publishes an "unofficial" depth chart that arbitrarily
+# orders players 1/2/3 even when the coaching staff has issued no depth chart
+# and a position battle is still open. The agent has been treating that
+# ordering as authoritative ("X has emerged as QB1 on Ourlads' post-spring
+# depth chart") and elevating it into storyline threads, which then poison
+# downstream runs. Hard-block at the ingestion layer is belt-and-suspenders
+# alongside the prompt-level rule.
+# ---------------------------------------------------------------------------
+HARD_BLOCK_DOMAINS = {
+    'ourlads.com',
+}
+
+
+def _is_hard_blocked(url):
+    """Return True if this URL's domain is on the hard-block list."""
+    if not url:
+        return False
+    try:
+        parsed = urllib.parse.urlparse(url)
+        domain = parsed.netloc.lstrip('www.').lower()
+        return any(blocked in domain for blocked in HARD_BLOCK_DOMAINS)
+    except Exception:
+        return False
+
+# ---------------------------------------------------------------------------
 # Config loader — globs all conference files
 # ---------------------------------------------------------------------------
 
@@ -501,6 +530,19 @@ def fetch_team_articles(slug, days=14, max_per_source=3, prefetch=True, max_pref
             direct_count += len(articles)
 
         all_articles.extend(articles)
+
+    # ------------------------------------------------------------------
+    # Hard-block filter — drop any article whose URL hits a forbidden
+    # domain (e.g. ourlads.com) BEFORE the agent ever sees it. These
+    # sources have been determined to misrepresent themselves as
+    # authoritative (Ourlads orders players 1/2/3 even when no coach has
+    # issued a depth chart) and must not be allowed to seed storylines.
+    # ------------------------------------------------------------------
+    blocked = [a for a in all_articles if _is_hard_blocked(a.get('url'))]
+    if blocked:
+        all_articles = [a for a in all_articles if not _is_hard_blocked(a.get('url'))]
+        for a in blocked:
+            print(f"  [hard-block] dropped {a.get('url')} for {slug}", file=sys.stderr)
 
     # ------------------------------------------------------------------
     # Prefetch article body text concurrently

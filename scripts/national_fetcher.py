@@ -57,6 +57,25 @@ SKIP_PREFETCH_DOMAINS = {
     'si.com',
 }
 
+# Domains that must NEVER reach the agent — see written_sources_fetcher.py
+# for full rationale. Ourlads' "unofficial" depth chart has been mistaken
+# for coach-issued reporting and contaminated storyline threads.
+HARD_BLOCK_DOMAINS = {
+    'ourlads.com',
+}
+
+
+def _is_hard_blocked(url):
+    """Return True if this URL's domain is on the hard-block list."""
+    if not url:
+        return False
+    try:
+        parsed = urllib.parse.urlparse(url)
+        domain = parsed.netloc.lstrip('www.').lower()
+        return any(blocked in domain for blocked in HARD_BLOCK_DOMAINS)
+    except Exception:
+        return False
+
 # ---------------------------------------------------------------------------
 # Config loader
 # ---------------------------------------------------------------------------
@@ -422,6 +441,13 @@ def fetch_national_sources(days=7, max_per_source=5, prefetch=True,
             real = [v for v in items if not v.get('error') and not v.get('no_recent')]
             print(f" -> {len(real)} videos")
             youtube_results.extend(items)
+
+    # --- Hard-block forbidden domains before they reach the agent ---
+    before = len(written_results)
+    written_results = [a for a in written_results if not _is_hard_blocked(a.get('url'))]
+    dropped = before - len(written_results)
+    if dropped:
+        print(f"  [hard-block] dropped {dropped} national article(s)", flush=True)
 
     # --- Prefetch article bodies for written sources ---
     if prefetch:
