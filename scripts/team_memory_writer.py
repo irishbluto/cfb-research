@@ -31,6 +31,43 @@ MAX_ACTIVE_STORYLINES = 10
 STALE_AFTER_RUNS = 3       # mark stale if not updated in N runs
 RESOLVE_AFTER_RUNS = 5     # resolve if stale and still not updated after N total
 
+# ---------------------------------------------------------------------------
+# Lifecycle tuning knobs (see compute_lifecycle_stage)
+# ---------------------------------------------------------------------------
+# How many NEW non-stopword tokens a fresh update must introduce (vs the union
+# of all prior update tokens on the same thread) to count as real substance.
+# Below threshold = rephrase → demote one stage. At/above = real advance →
+# promote toward developing (subject to the update-count ceiling below).
+NEW_SUBSTANCE_THRESHOLD = 5
+
+# When the last N updates on a thread (including the one just appended) all
+# look like rephrases of each other (each adds <SETTLED_TOKEN_FLOOR new
+# tokens), force the thread to 'settled'. Guards against slow drift through
+# continuing.
+RECENT_UPDATES_FOR_SETTLED_CHECK = 3
+SETTLED_TOKEN_FLOOR              = 3   # < this many new tokens per step = rephrase
+
+# Update-count ceilings — editorial weight cap regardless of token novelty.
+# Long-running threads have diminishing narrative value even when each new
+# update introduces a few fresh tokens (rotating outlet names, rhetorical
+# embellishments, etc.). The ceiling forces them down the lifecycle on
+# schedule even if the substance check would otherwise keep them developing.
+#
+#   prior update count            max allowed stage on next update
+#     0                              developing (new thread)
+#     1-2                            developing
+#     3-4                            continuing
+#     5+                             settled
+#
+# Tuning notes: lowering MAX_DEVELOPING_UPDATES makes threads settle faster
+# (good for an established team in slow news); raising it gives breaking
+# stories more room to stay at lead-paragraph weight.
+MAX_DEVELOPING_UPDATES = 2   # after 2 prior updates, can no longer be 'developing'
+MAX_CONTINUING_UPDATES = 4   # after 4 prior updates, settled is the floor
+
+# Ordered stage list — used to resolve "natural" stage vs ceiling
+_STAGE_ORDER = ["developing", "continuing", "settled"]
+
 STOPWORDS = frozenset(
     "the a an is are was were in on at to for of and but or with from as by "
     "after new team season has been will could should their this that".split()
@@ -106,6 +143,123 @@ def match_storyline(new_text, matchable_threads, threshold=0.35, min_overlap=2):
             best_match = thread
 
     return best_match
+
+
+# ---------------------------------------------------------------------------
+# Lifecycle stage (editorial weight, independent of status/freshness)
+# ---------------------------------------------------------------------------
+def date_to_mode(d):
+    """Return the research mode for a given date.
+
+    MUST stay in sync with the calendar in research_agent.py
+    (early_offseason / spring_offseason / preseason / in_season / postseason).
+    Accepts a datetime.date, datetime.datetime, or 'YYYY-MM-DD' string.
+    """
+    if isinstance(d, str):
+        d = datetime.strptime(d, "%Y-%m-%d").date()
+    elif hasattr(d, "date") and not hasattr(d, "month"):
+        d = d.date()
+    m, day = d.month, d.day
+    if (m == 12 and day >= 6) or (m == 1 and day <= 25):
+        return "postseason"
+    elif (m == 1 and day >= 26) or m in (2, 3):
+        return "early_offseason"
+    elif m in (4, 5, 6):
+        return "spring_offseason"
+    elif m == 7 or (m == 8 and day <= 28):
+        return "preseason"
+    else:
+        return "in_season"
+
+
+def compute_lifecycle_stage(prior_stage, prior_updates, new_note):
+    """Deterministic stage assignment for a thread that was just touched.
+
+    Args:
+        prior_stage:    The thread's lifecycle_stage BEFORE this update
+                        (or '' / None for a brand-new thread).
+        prior_updates:  List of update dicts ({date, note}) that existed
+                        BEFORE appending the new one.
+        new_note:       The text of the update being appended.
+
+    Returns:
+        One of 'developing', 'continuing', 'settled'.
+        ('retired' is never assigned here — only by calendar decay on
+        threads that go UNtouched.)
+
+    Computation:
+        1. Compute a "natural" stage from update content:
+           a. No prior updates → 'developing' (brand-new thread).
+           b. new_note adds >= NEW_SUBSTANCE_THRESHOLD novel non-stopword tokens
+              vs the union of prior update tokens → 'developing' (real advance).
+           c. Last RECENT_UPDATES_FOR_SETTLED_CHECK updates (including this
+              one) all add < SETTLED_TOKEN_FLOOR tokens vs the running
+              union → 'settled' (sustained convergence).
+           d. Otherwise demote one notch:
+              developing → continuing, continuing → settled, settled → settled.
+        2. Compute a "ceiling" stage from update count (long-running threads
+           have diminishing editorial value even when their token churn looks
+           novel — rotating outlets, rhetorical embellishments):
+              prior count <= MAX_DEVELOPING_UPDATES  → ceiling = developing
+              prior count <= MAX_CONTINUING_UPDATES  → ceiling = continuing
+              prior count >  MAX_CONTINUING_UPDATES  → ceiling = settled
+        3. Return whichever is MORE SETTLED (later in _STAGE_ORDER).
+    """
+    # ----- Step 1: natural stage from content --------------------------------
+    if not prior_updates:
+        natural = "developing"
+    else:
+        new_tokens = tokenize(new_note or "")
+        prior_token_union = set()
+        for u in prior_updates:
+            prior_token_union |= tokenize(u.get("note", ""))
+        novel = new_tokens - prior_token_union
+
+        if len(novel) >= NEW_SUBSTANCE_THRESHOLD:
+            natural = "developing"
+        else:
+            # Convergence check: do the last N notes including this one all
+            # add < SETTLED_TOKEN_FLOOR tokens vs the running union?
+            recent_notes = [u.get("note", "") for u in prior_updates[-(RECENT_UPDATES_FOR_SETTLED_CHECK - 1):]]
+            recent_notes.append(new_note or "")
+            converged = False
+            if len(recent_notes) >= RECENT_UPDATES_FOR_SETTLED_CHECK:
+                running = set()
+                all_rephrases = True
+                for note in recent_notes:
+                    t = tokenize(note)
+                    if running and len(t - running) >= SETTLED_TOKEN_FLOOR:
+                        all_rephrases = False
+                        break
+                    running |= t
+                converged = all_rephrases
+            if converged:
+                natural = "settled"
+            else:
+                # Demote one notch from prior stage
+                demote = {
+                    "developing": "continuing",
+                    "continuing": "settled",
+                    "settled":    "settled",
+                    "retired":    "developing",   # defensive — should not happen
+                    "":           "continuing",
+                    None:         "continuing",
+                }
+                natural = demote.get(prior_stage, "continuing")
+
+    # ----- Step 2: update-count ceiling --------------------------------------
+    prior_count = len(prior_updates)
+    if prior_count <= MAX_DEVELOPING_UPDATES:
+        ceiling = "developing"
+    elif prior_count <= MAX_CONTINUING_UPDATES:
+        ceiling = "continuing"
+    else:
+        ceiling = "settled"
+
+    # ----- Step 3: return the more-settled of the two ------------------------
+    natural_idx = _STAGE_ORDER.index(natural) if natural in _STAGE_ORDER else 1
+    ceiling_idx = _STAGE_ORDER.index(ceiling)
+    return _STAGE_ORDER[max(natural_idx, ceiling_idx)]
 
 
 # ---------------------------------------------------------------------------
@@ -187,8 +341,14 @@ def write_team_memory(slug, db):
     # rather than spawning a duplicate. Reactivation happens in the UPDATE
     # path inside step 4.
     # ------------------------------------------------------------------
+    # Exclude lifecycle_stage='retired' — retired threads should NOT be
+    # matched/reactivated by name; if a story genuinely returns we want a
+    # fresh thread so the agent sees it as new substance.
     cur.execute(
-        "SELECT * FROM team_memory_storylines WHERE slug = %s AND status IN ('active','stale') AND season = %s",
+        """SELECT * FROM team_memory_storylines
+           WHERE slug = %s AND status IN ('active','stale')
+             AND lifecycle_stage != 'retired'
+             AND season = %s""",
         (slug, CURRENT_SEASON)
     )
     matchable_threads = cur.fetchall()
@@ -208,25 +368,35 @@ def write_team_memory(slug, db):
     for storyline_text in new_storylines:
         match = match_storyline(storyline_text, matchable_threads)
         if match and match["id"] not in matched_ids:
-            # Update existing thread
+            # Update existing thread — compute lifecycle stage from the
+            # PRE-append updates list (so novelty is measured vs prior state).
             matched_ids.add(match["id"])
-            updates = match["_updates"]
-            updates.append({"date": today, "note": storyline_text})
+            prior_updates = match["_updates"]
+            new_stage = compute_lifecycle_stage(
+                match.get("lifecycle_stage", ""),
+                prior_updates,
+                storyline_text,
+            )
+            updates = prior_updates + [{"date": today, "note": storyline_text}]
             # Keep last 8 updates max to control token cost
             updates = updates[-8:]
             cur.execute(
-                "UPDATE team_memory_storylines SET updates = %s, last_updated = %s, status = 'active' WHERE id = %s",
-                (json.dumps(updates), today, match["id"])
+                """UPDATE team_memory_storylines
+                   SET updates = %s, last_updated = %s,
+                       status = 'active', lifecycle_stage = %s
+                   WHERE id = %s""",
+                (json.dumps(updates), today, new_stage, match["id"])
             )
         else:
-            # Create new thread
+            # Create new thread — always starts as 'developing'
             updates_json = json.dumps([{"date": today, "note": storyline_text}])
             # Build a short theme from the first ~80 chars
             theme = storyline_text[:80].rstrip(". ")
             cur.execute(
                 """INSERT INTO team_memory_storylines
-                   (slug, theme, status, first_seen, last_updated, updates, source_type, season)
-                   VALUES (%s, %s, 'active', %s, %s, %s, 'agent', %s)""",
+                   (slug, theme, status, lifecycle_stage,
+                    first_seen, last_updated, updates, source_type, season)
+                   VALUES (%s, %s, 'active', 'developing', %s, %s, %s, 'agent', %s)""",
                 (slug, theme, today, today, updates_json, CURRENT_SEASON)
             )
 
@@ -238,8 +408,9 @@ def write_team_memory(slug, db):
         updates_json = json.dumps([{"date": today, "note": change_desc}])
         cur.execute(
             """INSERT INTO team_memory_storylines
-               (slug, theme, status, first_seen, last_updated, updates, source_type, season)
-               VALUES (%s, %s, 'active', %s, %s, %s, 'coaching_diff', %s)""",
+               (slug, theme, status, lifecycle_stage,
+                first_seen, last_updated, updates, source_type, season)
+               VALUES (%s, %s, 'active', 'developing', %s, %s, %s, 'coaching_diff', %s)""",
             (slug, change_desc, today, today, updates_json, CURRENT_SEASON)
         )
 
@@ -278,6 +449,52 @@ def write_team_memory(slug, db):
              AND last_updated < DATE_SUB(%s, INTERVAL 30 DAY)""",
         (slug, CURRENT_SEASON, today)
     )
+
+    # ------------------------------------------------------------------
+    # 6b. Calendar-aware lifecycle retirement
+    # ------------------------------------------------------------------
+    # When the agent's research mode advances past a thread's mode of origin
+    # AND the thread is now stale (i.e., not touched in the current mode),
+    # retire the thread so it drops out of the memory cache. This prevents
+    # spring storylines from holding settled/continuing slots through the
+    # summer & fall when no source has refreshed them.
+    #
+    # A thread that DOES get touched in the new mode comes back via the
+    # normal UPDATE path above — last_updated advances into the current
+    # mode's window and the rule below leaves it alone.
+    #
+    # Resolved threads are skipped (already off the cache); coaching diffs
+    # are skipped (a coaching change is structural, not seasonal narrative).
+    current_mode = date_to_mode(today)
+    cur.execute(
+        """SELECT id, first_seen, last_updated, source_type
+           FROM team_memory_storylines
+           WHERE slug = %s AND season = %s
+             AND status = 'stale'
+             AND lifecycle_stage != 'retired'
+             AND source_type != 'coaching_diff'""",
+        (slug, CURRENT_SEASON)
+    )
+    retired_ids = []
+    for row in cur.fetchall():
+        try:
+            first_mode = date_to_mode(row["first_seen"])
+            last_mode  = date_to_mode(row["last_updated"])
+        except Exception:
+            continue
+        # Retire only if (a) the thread was born in a different mode than now,
+        # AND (b) it hasn't been touched in the current mode either.
+        if first_mode != current_mode and last_mode != current_mode:
+            retired_ids.append(row["id"])
+    if retired_ids:
+        # Single batched UPDATE to avoid N round-trips
+        placeholders = ",".join(["%s"] * len(retired_ids))
+        cur.execute(
+            f"UPDATE team_memory_storylines SET lifecycle_stage = 'retired' WHERE id IN ({placeholders})",
+            retired_ids
+        )
+        logging.info(f"  [{slug}] Calendar retirement: {len(retired_ids)} stale thread(s) retired "
+                     f"(current mode: {current_mode})")
 
     # ------------------------------------------------------------------
     # 7. Enforce storyline cap
@@ -352,12 +569,21 @@ def write_team_memory(slug, db):
     # ------------------------------------------------------------------
     # 10. Write JSON cache file (for research_agent.py prompt injection)
     # ------------------------------------------------------------------
-    # Re-fetch active storylines after all updates
+    # Re-fetch active storylines after all updates. Retired threads are
+    # excluded from the cache — they remain in the DB for history but are
+    # invisible to the next agent run (which prevents them from re-anchoring
+    # writeups).
+    # Ordering: developing → continuing → settled, then most-recently-updated
+    # within each stage. The agent reads top-down, so this puts the threads
+    # that deserve paragraph-length treatment at the top of the prompt.
     cur.execute(
-        """SELECT theme, status, first_seen, last_updated, updates, source_type
+        """SELECT theme, status, lifecycle_stage,
+                  first_seen, last_updated, updates, source_type
            FROM team_memory_storylines
            WHERE slug = %s AND status IN ('active','stale') AND season = %s
-           ORDER BY last_updated DESC""",
+             AND lifecycle_stage != 'retired'
+           ORDER BY FIELD(lifecycle_stage,'developing','continuing','settled'),
+                    last_updated DESC""",
         (slug, CURRENT_SEASON)
     )
     storylines_rows = cur.fetchall()
@@ -368,12 +594,13 @@ def write_team_memory(slug, db):
         except Exception:
             updates = []
         storyline_threads.append({
-            "theme":        row["theme"],
-            "status":       row["status"],
-            "first_seen":   str(row["first_seen"]),
-            "last_updated": str(row["last_updated"]),
-            "updates":      updates,
-            "source_type":  row["source_type"],
+            "theme":           row["theme"],
+            "status":          row["status"],
+            "lifecycle_stage": row["lifecycle_stage"],
+            "first_seen":      str(row["first_seen"]),
+            "last_updated":    str(row["last_updated"]),
+            "updates":         updates,
+            "source_type":     row["source_type"],
         })
 
     cache = {
@@ -397,8 +624,19 @@ def write_team_memory(slug, db):
             json.dump(cache, f, indent=2)
         active_count = sum(1 for t in storyline_threads if t.get("status") == "active")
         stale_count = len(storyline_threads) - active_count
-        logging.info(f"  ✓ {slug} — memory written (run #{run_count}, mode: {mode}, "
-                     f"{active_count} active / {stale_count} stale)")
+        # Stage breakdown helps spot composition drift during a multi-team run
+        stage_counts = {"developing": 0, "continuing": 0, "settled": 0}
+        for t in storyline_threads:
+            s = t.get("lifecycle_stage", "")
+            if s in stage_counts:
+                stage_counts[s] += 1
+        logging.info(
+            f"  ✓ {slug} — memory written (run #{run_count}, mode: {mode}, "
+            f"{active_count} active / {stale_count} stale | "
+            f"developing:{stage_counts['developing']} "
+            f"continuing:{stage_counts['continuing']} "
+            f"settled:{stage_counts['settled']})"
+        )
         return True
     except Exception as e:
         logging.error(f"  [{slug}] Failed to write cache file: {e}")

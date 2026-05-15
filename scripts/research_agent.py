@@ -343,8 +343,13 @@ def build_prompt(slug, context, channels, no_youtube=False):
         recheck     = flags.get('low_confidence', []) + flags.get('watch_for_next_run', [])
         threads     = prior_memory.get('storyline_threads', [])
 
-        # Build storyline thread summaries (most recent update per thread)
-        thread_lines = []
+        # Build storyline thread summaries (most recent update per thread).
+        # Threads are pre-sorted by lifecycle_stage in the cache (developing →
+        # continuing → settled), so the agent reads them top-down with the
+        # threads that deserve the most prose first. The composition rule in
+        # the synthesis section tells the agent how much real estate each
+        # stage gets in agent_summary.
+        thread_lines_by_stage = {"developing": [], "continuing": [], "settled": []}
         for t in threads:
             updates = t.get("updates", [])
             latest = updates[-1]["note"] if updates else t.get("theme", "")
@@ -357,12 +362,30 @@ def build_prompt(slug, context, channels, no_youtube=False):
             source_tag = ""
             if t.get("source_type") == "coaching_diff":
                 source_tag = " [COACHING CHANGE]"
-            thread_lines.append(f"  - {latest}{age_note}{status_tag}{source_tag}")
+            stage = (t.get("lifecycle_stage") or "continuing").lower()
+            if stage not in thread_lines_by_stage:
+                stage = "continuing"
+            thread_lines_by_stage[stage].append(f"  - {latest}{age_note}{status_tag}{source_tag}")
+
+        stage_headers = {
+            "developing": ("DEVELOPING — lead the writeup with these; full paragraph treatment with specifics. "
+                           "New this cycle or materially advanced."),
+            "continuing": ("CONTINUING — paragraph-length context; do not restate every angle. "
+                           "Active and load-bearing, no new dimensions this cycle."),
+            "settled":    ("SETTLED — compress to ONE clause or short sentence. True and still important, "
+                           "but converged across recent runs. A first-time reader should still encounter the "
+                           "fact; do not expand it into a paragraph."),
+        }
+        stage_blocks = []
+        for stage in ("developing", "continuing", "settled"):
+            lines = thread_lines_by_stage[stage]
+            if lines:
+                stage_blocks.append(f"[{stage.upper()}] {stage_headers[stage]}\n" + "\n".join(lines))
 
         # Use thread summaries if available, fall back to flat prior_storylines for backward compat
-        if thread_lines:
-            storylines_section = f"""Tracked storyline threads:
-{chr(10).join(thread_lines)}"""
+        if stage_blocks:
+            storylines_section = ("Tracked storyline threads (grouped by lifecycle stage — see composition rule in synthesis section):\n\n"
+                                  + "\n\n".join(stage_blocks))
         elif storylines:
             storylines_section = f"""Prior key storylines:
 {chr(10).join(f"  - {s}" for s in storylines)}"""
@@ -797,6 +820,20 @@ If there are genuinely no notable injuries on the roster (rare — most common i
 **Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
 **Storyline continuity:** If prior run notes include tracked storyline threads, your key_storylines should update those threads where possible — use similar language and keywords so the memory system can match them across runs. If a tracked storyline has resolved (e.g. QB battle decided, coaching hire confirmed), you may drop it from key_storylines and it will age out naturally. If a storyline marked [STALE] is still relevant based on your sources, include it again to keep it active. Do NOT invent storyline updates — only update a thread if your current sources have new information.
+
+**Writeup composition (lifecycle-weighted real estate, constant total length):** Tracked storyline threads in the PRIOR RUN NOTES are grouped by lifecycle stage — DEVELOPING, CONTINUING, SETTLED. These tags govern how much room each thread gets in `agent_summary` (the prose writeup readers actually see):
+
+  - **DEVELOPING** (new this cycle or materially advanced): lead the writeup. Full paragraph treatment with specific names, numbers, and stakes. This is what makes the writeup feel current — readers came back BECAUSE something is moving here.
+
+  - **CONTINUING** (active, load-bearing, no new dimensions this cycle): paragraph-length context, but do NOT restate every prior angle. One tight pass on the current state, then move on.
+
+  - **SETTLED** (true and important, but converged across recent runs — same point being made repeatedly with minor rephrasing): compress to ONE clause or short sentence. The reader still needs to encounter the fact (the site replaces a preview magazine; a first-time visitor in July must still learn CJ Carr is the QB and a Heisman contender, that the regression indicators favor the team, etc.). What they do NOT need is two paragraphs of the same point reworded.
+
+  This is a composition rule, NOT a length rule — the writeup total stays the SAME length spec'd in the agent_summary field (4-5 sentences offseason, up to 7 in-season). What shifts is the allocation: as the calendar advances, more threads move into SETTLED and the compressed clauses make room for fresh DEVELOPING material at paragraph length. By August most spring storylines should be settled one-liners and fall-camp news should dominate. The total length never shrinks — a short writeup signals "nothing is happening" to a first-time reader, and that's the wrong message for a live preview site that's better than a magazine.
+
+  Concrete bad pattern to avoid: when nothing is genuinely new this run, the temptation is to expand SETTLED threads back into paragraphs by rephrasing them. Resist this. If the slate is light, write a thorough, compact summary of the settled landscape (one clause per settled thread) and lead with whichever continuing or developing storyline has the most life. The writeup should always READ like a beat writer giving you the current snapshot, never like a recap of what's been said before.
+
+  Stage tags on threads are advisory inputs to YOU — do not echo the tags themselves in the prose. The reader sees only the writeup, not the staging.
 
 **Prior-storyline sport audit (mandatory before treating any thread as football):** prior runs may have written storyline threads that quietly contain a non-football player (a basketball-podcast contamination, a misclassified portal name, a recruit later confirmed to a different sport). For every prior-run storyline thread you intend to "update" or "resolve," apply the same Football-Players-Only verification: if the thread names a player, that player must pass path (a) roster, (b) team data (portal_in/out, recruiting_class_2026, top_portal_additions), or (c) explicit football tag in a current source. If they fail all three, DO NOT update or "resolve" the thread — instead, leave it unmentioned so it ages out naturally, and treat the prior thread as suspect rather than as ground truth. A "resolution" of a contaminated prior thread (e.g., "the prior portal competition for [non-football player] is now resolved") propagates the original error and makes it look corroborated — that is the worst possible outcome.
 
