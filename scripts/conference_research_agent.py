@@ -810,6 +810,12 @@ When in doubt, lean grounded. A funny line that feels forced is worse than a cle
 
 Each blurb is a paragraph (60–110 words). Don't just compress the conference essay's view of the team — the blurb is its own thing. Give the reader the team's central reality in three or four beats: what they have, what they're trying to do with it, what could go wrong, and the headline question. The voice should be the same as the essay (Phil Steele meets Banner Society), but blurbs lean slightly more analytical — fewer punchlines per word, more concrete texture.
 
+**Recruits vs current roster — separation rule (strictly enforced):** A recruit who is not yet on the active 2026 roster is NOT depth, NOT a returner, NOT a piece of the current-year position group. The two categories must be presented separately in any blurb that touches recruiting at all.
+
+  - **Eligible recruit names — `top_recruits` only.** The only recruits you may name in a blurb are those in this team's `top_recruits` structured field (the 2026 class). Any 2027 commit, 2028 prospect, or beat-writer-sourced future signee picked up from memory threads or team writeups must be omitted from the blurb entirely.
+  - **Never blend recruits into current-position-group sentences.** Do NOT name a recruit inside a sentence about the current depth chart, position group state, returners, or production. Failure pattern to avoid: *"The WR room is thin — last year's leading receiver is gone, no returner cleared 13 catches, and while Armani Hill's commitment adds a name, [returners] still headline the group."* That sentence reads to a fan as if Hill is a current freshman; he's actually a 2027 commit. Cut the recruit reference; keep the returner analysis intact.
+  - **Where recruiting belongs.** Recruiting goes in its own beat: a class-rank line, a portal-vs-recruiting balance note, or one sentence about a top 2026 signee framed explicitly as "incoming freshman" or "2026 signee." Many teams won't have a recruiting beat worth a sentence in 60–110 words — that's fine. Don't crowbar a single name in just because it appeared in the team writeup.
+
 """
 
     prompt += """### Output instructions
