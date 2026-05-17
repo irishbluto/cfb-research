@@ -51,6 +51,43 @@ from cost_logger import log_run  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
+# Recent postseason ground truth — shared across all conferences
+# ---------------------------------------------------------------------------
+# Static block injected into every conference prompt. Covers facts that
+# post-date Claude's training cutoff (most recent CFP title games + program
+# arcs the agent can't reason about from prior knowledge). Update this
+# constant once per offseason after the title game is played.
+#
+# Lives here rather than in writer_notes/<conf>.json because every
+# conference essay needs the same facts — SEC writeups need Indiana/Miami
+# context, B1G writeups need SEC-drought context, ACC writeups need both,
+# and so on. Single source of truth, edited once, applied everywhere.
+RECENT_POSTSEASON_FACTS = """## RECENT POSTSEASON GROUND TRUTH — POST-TRAINING-CUTOFF FACTS (treat as authoritative)
+
+These facts post-date the agent's training data. Trust them over any prior
+knowledge. They OVERRIDE conflicting inference. Weave them in naturally where
+relevant; do NOT quote them verbatim or recite them as a list.
+
+**Most recent three College Football Playoff title games:**
+  - Jan 2024 (post-2023 season): Michigan 34, Washington 13. Michigan's first national title since 1997. Big Ten champion.
+  - Jan 2025 (post-2024 season): Ohio State 34, Notre Dame 23. Ohio State's first national title since 2014. Big Ten champion.
+  - Jan 2026 (post-2025 season): Indiana 27, Miami 21. Indiana's first national championship in program history. Big Ten champion.
+
+**Narrative implications (use these to calibrate framing across conferences):**
+  - The Big Ten has won three consecutive national championships (Michigan, Ohio State, Indiana). Whenever the conversation touches B1G-vs-SEC standing or league strength, this is the empirical reality of the last three seasons — frame the Big Ten as the reigning power conference, not a co-equal.
+  - The SEC has not appeared in a CFP title game since Georgia's January 2023 win. That is THREE straight title-game absences (Jan 2024, Jan 2025, Jan 2026). When framing the SEC's title drought or "the league has slipped" angle, the correct count is three years/three title games, not two.
+  - Miami's January 2026 appearance was the ACC's first CFP title-game appearance under the 12-team format and ended Miami's long absence from the national championship conversation. The Hurricanes enter 2026 as defending national runner-up, not as a perennial-disappointment program.
+
+**Indiana program arc (essential — agent's prior knowledge ends before this):**
+  - Curt Cignetti was hired from James Madison after the 2023 season. Pre-Cignetti, Indiana was historically one of the Big Ten's bottom programs.
+  - 2024 (Cignetti year 1): Indiana surged to an 11-win regular season and earned a CFP berth — itself an unprecedented turnaround.
+  - 2025 (Cignetti year 2): Indiana won the national championship, defeating Miami 27-21 in the January 2026 title game.
+  - This is one of the fastest program rises in modern college football history. Any 2026 framing of Indiana as a "doormat," "rebuilding job," "Big Ten cellar dweller," or "punchline" is factually wrong — they enter the 2026 season as DEFENDING NATIONAL CHAMPIONS. Treat them accordingly in both the Big Ten preview AND any cross-conference reference (SEC writeups invoking "what the B1G has done," ACC writeups invoking the Miami title-game loss, etc.).
+
+== END RECENT POSTSEASON GROUND TRUTH =="""
+
+
+# ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
 def setup_logging():
@@ -511,6 +548,8 @@ Your task: Write the {conf_display} {season} conference preview, magazine-style.
 Current focus: {mode_focus}
 
 {editor_notes_block}
+
+{RECENT_POSTSEASON_FACTS}
 
 {memory_block}
 
