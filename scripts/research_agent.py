@@ -319,6 +319,32 @@ def build_prompt(slug, context, channels, no_youtube=False):
         'Punters':         1,
     }
 
+    # ---------------------------------------------------------------------------
+    # Close-games / turnover indicators — mode-gated injection.
+    # In projection modes (early_offseason / spring_offseason / preseason), the
+    # prior-season numbers feed the regression-toward-mean framing the agent
+    # uses to project the upcoming year.
+    # In in_season / postseason, prior-year close-games and TO margin are stale —
+    # current-season results are the honest indicator. Until the data layer ships
+    # current-season builders (TODO before late-Aug 2026 season start per the
+    # season-data-cycle rule: all stats must flip to current-season at the
+    # in_season boundary), suppress the prior-year fields entirely in those
+    # modes so the agent doesn't mistakenly apply offseason regression framing
+    # to last year's data.
+    # ---------------------------------------------------------------------------
+    if mode in _IN_SEASON_MODES:
+        close_games_turnover_block = (
+            "Close-games / turnover indicators: prior-year (2025) values suppressed in-season. "
+            "Apply the in-season analysis rule below — current-season turnover margin and "
+            "one-score record are the honest indicators; do NOT use prior-year regression framing."
+        )
+    else:
+        close_games_turnover_block = (
+            f"2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_overall_display}\n"
+            f"2025 Turnover Margin: {turnover_display}\n"
+            f"Regression Flags: {regression_display}"
+        )
+
     # Format team notes for prompt
     notes_block = ""
     if team_notes:
@@ -600,9 +626,7 @@ Conference: {conference}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
 {f"Previous Staff (2025) — HC: {prev_coach} | OC: {prev_oc} | DC: {prev_dc}" if prev_coach else "Previous coaching staff: Not in DB — do NOT name or guess any former coaches or coordinators"}
 2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
-2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_overall_display}
-2025 Turnover Margin: {turnover_display}
-Regression Flags: {regression_display}
+{close_games_turnover_block}
 4-Year Record: {four_yr}
 Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}
 PPA: Offense #{ppa_off} | Defense #{ppa_def}
@@ -812,7 +836,25 @@ The file must be valid JSON matching this exact structure:
 
 **QB experience rule (strictly enforced):** The "QB Situation" field in Team Context is the authoritative source on the quarterback's status and experience. If context identifies a QB as a returning starter, never describe them as "unproven," "untested," or someone who "hasn't proved it" — not from sources, and not as your own editorial synthesis. This prohibition is absolute: do not generate this framing yourself even if no source says it. You may report a spring injury, a competition, or a concern about depth accurately — but those facts stand alone. Do not attach editorial conclusions about a returning starter's track record that the context data contradicts.
 
-**Regression analysis:** If the Regression Flags field above is not "None identified," incorporate those flags into your analysis as a key storyline or within agent_summary. One-score game records are one of the strongest regression indicators in college football — most one-score games even out over time, so a team that went 6-1 is a strong candidate to regress in close games the following season, while a team that went 1-6 is a strong candidate to improve. Frame one-score regression with confidence. Turnover margin is a less reliable indicator — some defenses genuinely create turnovers through scheme and talent, and some offenses have persistent ball-security problems, so extreme turnover margins don't always revert. Frame turnover regression as "worth monitoring" rather than an expectation. If BOTH a one-score flag and a turnover flag point in the same direction (e.g., team won lots of close games AND had an unsustainably high turnover margin), that strengthens the regression case and should be treated as a major storyline.
+**Regression analysis (PROJECTION MODES ONLY — `early_offseason`, `spring_offseason`, `preseason`):** If the current Research Mode is `in_season` or `postseason`, SKIP this entire rule and apply the "Current-season indicators" rule below instead. Once games are being played, prior-season turnover margin and one-score record are stale — current-year results are the honest indicator, not statistical-noise candidates to revert from.
+
+In projection modes, the Regression Flags field above (if not "None identified") feeds your storyline analysis. Regression flags are DIRECTIONAL — each one points either toward IMPROVEMENT (the team got unlucky and should rebound) or toward DECLINE (the team got lucky and should fall back). Read each flag's direction before writing about it. NEVER collapse multiple flags into "both regression indicators point toward tougher outcomes" without first confirming they actually point the same way.
+
+  - **One-score game record (strong indicator, frame with confidence).** Records cluster toward .500 over time. A 6-1, 5-1, or 4-0 mark in one-score games predicts DECLINE — some of those wins become losses next year. A 1-6, 1-5, or 0-4 mark predicts IMPROVEMENT — some of those losses become wins.
+
+  - **Turnover margin (less reliable but still directional, frame as "worth monitoring").** Extreme TO margins in EITHER direction trend toward zero. A very HIGH positive margin (+12 or better) is a DECLINE candidate — takeaway luck likely fades and some wins go with it. A very NEGATIVE margin (-8 or worse) is an IMPROVEMENT / bounce-back candidate — the team was sloppy and unlucky, and trending toward zero means fewer giveaways and a few extra wins. Caveat both directions: some defenses genuinely create turnovers and some offenses have persistent ball-security problems. NEVER frame a negative TO margin as "compounding" bad news — that is the opposite of what the regression read implies. Separate baseline note that still applies: a positive TO margin is good (ball security + takeaways); a negative margin is a concern the program needs to address. Regression-toward-zero is an additive consideration on top of that baseline, not a replacement for it.
+
+  - **Same direction (both flags agree)** — e.g., 6-1 in one-scores AND +15 margin (both decline), or 1-6 AND -12 margin (both improvement). Strengthens the case; treat as a major storyline.
+
+  - **Opposite direction (flags conflict)** — e.g., 4-0 in one-scores AND -9 margin: close-game luck likely fades (worse) while TO margin likely improves (better). Acknowledge the tension; do NOT write "both regression indicators point toward tougher outcomes." The honest read is that the two effects partially or fully cancel.
+
+**Current-season indicators (IN-SEASON / POSTSEASON ONLY — `in_season`, `postseason`):** Once the season has started, turnover margin and one-score game record become honest descriptions of how the team is actually playing, not regression candidates. Their importance also INVERTS compared to the projection rule above. Prior-year (2025) values are suppressed from the Team Context block in these modes — source current-season indicators from beat coverage, written sources, and box-score discussion.
+
+  - **Turnover margin (HIGH importance in-season).** A large positive current-season TO margin is one of the clearest indicators that a team is winning at the line of scrimmage on BOTH sides of the ball — offensive ball security plus defensive takeaways. A large negative margin is a serious team weakness on at least one side, often both. Frame current-season TO margin as a real strength or real concern. The "regression toward zero" framework from the projection rule does NOT apply in-season — current results are the truth, not noise to revert from. Do NOT write "should regress," "due to improve," or "luck-driven" about a current-season TO margin.
+
+  - **One-score game record (lower importance in-season, still descriptive).** Close games still tend to even out over time, even mid-season — a 4-0 in close games can easily become 4-2 by November. Use the record as descriptive shorthand (a team that's won every close game has earned its wins; a team that's lost every close game is closer to a better record than the standings show), but do NOT lean on it as the structural argument the way TO margin can be.
+
+  - **If both indicators agree** (good current-season record AND positive current-season margin → genuine team strength; bad record AND negative margin → genuine concern) — reinforce the read. **If they disagree** — trust the TO margin signal first.
 
 **Injury reporting (comprehensive list — strictly enforced):** The `injury_flags` array must be a COMPREHENSIVE roster-health snapshot for the 2026 season, not a net-new-findings list. Build it by merging two sources and deduplicating:
   1. Every entry in the "Injury notes" block above (context-sourced — already verified in the data layer; include them all).
