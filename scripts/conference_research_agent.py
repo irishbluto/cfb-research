@@ -691,6 +691,12 @@ Every player named anywhere in the essay, blurbs, or storylines must be a verifi
 
   (1) Name players as leaders or standouts ONLY from `top_players` or the team's `starting_qb_name`. When discussing any team's strength at a position group in their blurb, if a `top_players` entry from that team plays that position, they MUST be named — do not construct a positional narrative that omits the most prominent established player.
 
+  (1b) **Quarterback identification — mandatory naming.** QB is the first thing readers look for in any preview. Whenever a team's quarterback situation appears in the essay, blurb, or storylines — declared starter, open competition, returner-vs-portal battle, anything in between — every quarterback in that conversation MUST be named. Pull names from three places:
+        - `starting_qb_name` in the standings row (carries a `[returning starter]` or `[new starter]` tag),
+        - any `top_portal` entry from this team with position = QB (an incoming portal QB),
+        - any `top_recruits` entry from this team with position = QB (a notable freshman in the QB room).
+      Specifically forbidden when names exist in the data above: "two portal additions competing for QB1," "the quarterback situation is unresolved, with two transfers competing for the job," "the unsettled question is quarterback, where two portal additions are still competing… with no declared winner," "a portal QB and a returner are battling," "the incumbent and a newcomer," or any framing that references quarterbacks by category (portal addition, returner, transfer, incumbent, newcomer) rather than by name. If two portal QBs are competing, name BOTH. If a returner is being pushed by a portal arrival, name BOTH. Unnamed framing is acceptable ONLY when no QB name exists in any of the three fields above — and that case should be rare. If you reach for vague language, double-check the data first.
+
   (2) Before placing any player in a positional context (QB battle, RB room, OL depth), verify their position in `top_players` or the recruit/portal blocks. If you can't verify, remove the name.
 
   (3) **Player provenance — strict (this fixes the Jackson Harris bug).** Each top_players entry is tagged with one of:
