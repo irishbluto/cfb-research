@@ -1172,6 +1172,159 @@ def build_turnover_margin(conn, team, season):
     return data
 
 
+def build_current_season_turnover_margin(conn, team, season):
+    """Current-season turnover margin from seasonstats.
+
+    Mirrors build_turnover_margin() but reads season = current_season instead
+    of season - 1. Used in in_season / postseason modes per the season-data-
+    cycle rule (all team stats flip to current-season at the late-August
+    in_season boundary).
+
+    Partial-season behavior: in late Aug / early Sep, seasonstats may have no
+    current-year rows yet. Returns empty dict on missing data so the prompt
+    layer can fall back gracefully to "season just started, no current-season
+    indicators yet."
+
+    No automated regression flag is emitted in-season: the in-season analysis
+    rule frames current TO margin as a genuine strength/concern, not as
+    statistical noise to revert from. Let the agent describe the number
+    directly with its in-season rule.
+
+    Returns keys prefixed `current_season_*` so offseason fields can coexist
+    in the JSON. National rank computed inline same as the prior-season
+    builder.
+    """
+    data = {}
+
+    committed = query_one(conn, """
+        SELECT statvalue FROM seasonstats
+        WHERE school = %s AND season = %s AND statname = 'turnovers'
+        LIMIT 1
+    """, (team, season))
+
+    forced = query_one(conn, """
+        SELECT statvalue FROM seasonstats
+        WHERE school = %s AND season = %s AND statname = 'turnoversOpponent'
+        LIMIT 1
+    """, (team, season))
+
+    if committed and forced:
+        try:
+            to_committed = int(float(committed['statvalue']))
+            to_forced    = int(float(forced['statvalue']))
+        except (ValueError, TypeError):
+            return data
+        margin = to_forced - to_committed
+        data['current_season_turnover_margin']     = margin
+        data['current_season_turnovers_committed'] = to_committed
+        data['current_season_turnovers_forced']    = to_forced
+        data['current_season_turnover_margin_year'] = season
+
+        # National rank — same math as offseason builder, just current season.
+        rnk = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM (
+                SELECT f.school,
+                       CAST(f.statvalue AS SIGNED) - CAST(c.statvalue AS SIGNED) AS margin
+                FROM seasonstats f
+                JOIN seasonstats c
+                  ON c.school = f.school AND c.season = f.season
+                 AND c.statname = 'turnovers'
+                WHERE f.season = %s AND f.statname = 'turnoversOpponent'
+            ) sub
+            WHERE sub.margin > %s
+        """, (season, margin))
+        data['current_season_turnover_margin_rank'] = inum(rnk.get('rnk')) if rnk else None
+
+    return data
+
+
+def build_current_season_one_score(conn, team, season):
+    """Current-season one-score (margin <= 8) record from the games table.
+
+    Mirrors _one_score_record() in build_one_score_games() but limited to the
+    running current season. Used in in_season / postseason modes.
+
+    Filters to season = current_season AND home_points IS NOT NULL (completed
+    games only). Returns empty dict if no completed current-season games.
+
+    Also emits current_season_games_played so the prompt layer can gate
+    emission on a minimum sample size (one or two games is meaningless on TO
+    margin / one-score record; by Week 3 the signal is worth surfacing).
+
+    games.neutral_site has mixed storage ('0', '1', or 'Y') per the schema
+    quirk in memory, but isn't relevant here — one-score is purely a margin
+    computation regardless of venue.
+    """
+    data = {}
+
+    # Total completed games in current season (governs the gate threshold)
+    games_row = query_one(conn, """
+        SELECT COUNT(*) AS played FROM games
+        WHERE (home_team = %s OR away_team = %s)
+          AND season = %s
+          AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND season_type = 'regular'
+    """, (team, team, season))
+    games_played = inum(games_row.get('played')) if games_row else 0
+    data['current_season_games_played'] = games_played or 0
+
+    if not games_played:
+        # Season hasn't started (or no completed games yet) — return just the
+        # zero count so prompt layer can detect "too early."
+        return data
+
+    row = query_one(conn, """
+        SELECT
+          SUM(CASE
+              WHEN home_team = %s
+                   AND CAST(home_points AS SIGNED) > CAST(away_points AS SIGNED)
+                   AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                   THEN 1
+              WHEN away_team = %s
+                   AND CAST(away_points AS SIGNED) > CAST(home_points AS SIGNED)
+                   AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                   THEN 1
+              ELSE 0 END) AS wins,
+          SUM(CASE
+              WHEN home_team = %s
+                   AND CAST(home_points AS SIGNED) < CAST(away_points AS SIGNED)
+                   AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                   THEN 1
+              WHEN away_team = %s
+                   AND CAST(away_points AS SIGNED) < CAST(home_points AS SIGNED)
+                   AND ABS(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) <= 8
+                   THEN 1
+              ELSE 0 END) AS losses
+        FROM games
+        WHERE (home_team = %s OR away_team = %s)
+          AND season = %s
+          AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND season_type = 'regular'
+    """, (team, team, team, team, team, team, season))
+
+    w = inum(row.get('wins')) if row else 0
+    l = inum(row.get('losses')) if row else 0
+    w = w or 0
+    l = l or 0
+    if w or l:
+        data['current_season_one_score_record'] = f"{w}-{l}"
+        data['current_season_one_score_wins']   = w
+        data['current_season_one_score_losses'] = l
+    else:
+        # Games played but none qualified as one-score — surface explicitly so
+        # the prompt doesn't read "no data" when in fact all games were
+        # blowouts. Cheap signal in itself.
+        data['current_season_one_score_record'] = "0-0"
+        data['current_season_one_score_wins']   = 0
+        data['current_season_one_score_losses'] = 0
+        data['current_season_one_score_note']   = (
+            f"No one-score games yet in {season} ({games_played} played) — "
+            f"all decided by more than 8 points."
+        )
+
+    return data
+
+
 def build_last_season_record(conn, team, season):
     """Prior season W-L from games table; also computes 2024 record."""
     data = {}
@@ -1313,6 +1466,14 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     context.update(build_last_season_record(conn, url_param, SEASON))
     context.update(build_one_score_games(conn, url_param, SEASON))
     context.update(build_turnover_margin(conn, url_param, SEASON))
+    # Current-season parallels — populated only once SEASON has completed games
+    # in seasonstats / games tables (i.e. late August onward). Prior-season
+    # builders above keep offseason projection working; these add the
+    # in_season / postseason data layer per the season-data-cycle rule.
+    # Both writers use `current_season_*` key prefixes so the two builders'
+    # output can coexist in the JSON without collisions.
+    context.update(build_current_season_turnover_margin(conn, url_param, SEASON))
+    context.update(build_current_season_one_score(conn, url_param, SEASON))
 
     # --- Regression flags (derived from fields already on context) ----------
     # One-score: extreme records in close games tend to regress toward .500.

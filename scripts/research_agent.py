@@ -325,19 +325,84 @@ def build_prompt(slug, context, channels, no_youtube=False):
     # prior-season numbers feed the regression-toward-mean framing the agent
     # uses to project the upcoming year.
     # In in_season / postseason, prior-year close-games and TO margin are stale —
-    # current-season results are the honest indicator. Until the data layer ships
-    # current-season builders (TODO before late-Aug 2026 season start per the
-    # season-data-cycle rule: all stats must flip to current-season at the
-    # in_season boundary), suppress the prior-year fields entirely in those
-    # modes so the agent doesn't mistakenly apply offseason regression framing
-    # to last year's data.
+    # current-season results are the honest indicator. The data layer ships
+    # current_season_* fields populated from seasonstats / games (see
+    # build_current_season_turnover_margin / build_current_season_one_score in
+    # build_team_context.py). Until a team has enough completed games for the
+    # signal to be meaningful (≥ 3), fall back to a "too early" notice so the
+    # agent sources current indicators from beat coverage instead of leaning on
+    # a noisy 1-2 game sample.
     # ---------------------------------------------------------------------------
+    _MIN_IN_SEASON_GAMES = 3
+
     if mode in _IN_SEASON_MODES:
-        close_games_turnover_block = (
-            "Close-games / turnover indicators: prior-year (2025) values suppressed in-season. "
-            "Apply the in-season analysis rule below — current-season turnover margin and "
-            "one-score record are the honest indicators; do NOT use prior-year regression framing."
-        )
+        curr_games_played = context.get('current_season_games_played', 0) or 0
+        curr_to_margin    = context.get('current_season_turnover_margin')
+        curr_to_forced    = context.get('current_season_turnovers_forced')
+        curr_to_committed = context.get('current_season_turnovers_committed')
+        curr_to_rank      = context.get('current_season_turnover_margin_rank')
+        curr_to_year      = context.get('current_season_turnover_margin_year')
+        curr_one_score    = context.get('current_season_one_score_record')
+        curr_one_score_note = context.get('current_season_one_score_note', '')
+
+        # Build the TO margin display from current-season fields, mirroring the
+        # offseason format but without regression-flag language (per the
+        # in-season rule, current TO margin is genuine signal, not noise).
+        if curr_to_margin is not None:
+            sign = '+' if curr_to_margin > 0 else ''
+            rank_str = f" (#{curr_to_rank})" if curr_to_rank else ""
+            curr_to_display = (f"{sign}{curr_to_margin}{rank_str} — "
+                              f"forced {curr_to_forced}, committed {curr_to_committed}")
+        else:
+            curr_to_display = "n/a"
+
+        # One-score display — surface the "all blowouts" note when present so
+        # the agent doesn't read a "0-0" record as missing data.
+        if curr_one_score and curr_one_score != "0-0":
+            curr_one_score_display = curr_one_score
+        elif curr_one_score == "0-0" and curr_one_score_note:
+            curr_one_score_display = f"0-0 ({curr_one_score_note})"
+        else:
+            curr_one_score_display = "n/a"
+
+        if curr_games_played >= _MIN_IN_SEASON_GAMES and (
+            curr_to_margin is not None or (curr_one_score and curr_one_score != "0-0")
+        ):
+            yr_label = curr_to_year or cycle_year
+            close_games_turnover_block = (
+                f"{yr_label} Current-Season One Score Record ({curr_games_played} games played): "
+                f"{curr_one_score_display}\n"
+                f"{yr_label} Current-Season Turnover Margin: {curr_to_display}\n"
+                f"Apply the in-season analysis rule below — these are descriptions of how "
+                f"the team is actually playing, not regression candidates. TO margin = HIGH "
+                f"importance; one-score record = lower importance, descriptive."
+            )
+        else:
+            # Early-season fallback (Week 1-2, or seasonstats row not yet
+            # populated). Surface prior-year (2025) numbers as BACKGROUND
+            # CONTEXT ONLY — explicitly framed so the agent does not
+            # extrapolate them to the 2026 team's current play. Per the
+            # season-data-cycle rule: in_season metrics describe how the
+            # CURRENT team is playing; prior-year data is contextual color
+            # about who this team was last year, NOT a read on this year.
+            sample_note = (
+                f"only {curr_games_played} game(s) played in {cycle_year} — "
+                f"sample too small to read 2026 team strength"
+                if curr_games_played and curr_games_played < _MIN_IN_SEASON_GAMES
+                else f"no completed {cycle_year} games in data layer yet"
+            )
+            close_games_turnover_block = (
+                f"Close-games / turnover indicators: {sample_note}.\n"
+                f"2025 (PRIOR-YEAR CONTEXT ONLY — do NOT apply to 2026 team) "
+                f"One Score Game Record: {close_game_record} | "
+                f"Under {coach}: {close_game_overall_display}\n"
+                f"2025 (PRIOR-YEAR CONTEXT ONLY — do NOT apply to 2026 team) "
+                f"Turnover Margin: {turnover_display}\n"
+                f"In-season rule: prior-year numbers are background color about who "
+                f"this team WAS last year, not a current-season indicator. Source "
+                f"current-season indicators from beat coverage and box-score "
+                f"discussion. Do NOT use prior-year regression framing."
+            )
     else:
         close_games_turnover_block = (
             f"2025 One Score Game Record: {close_game_record} | Under {coach}: {close_game_overall_display}\n"
