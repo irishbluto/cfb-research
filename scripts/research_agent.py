@@ -171,7 +171,7 @@ def build_prompt(slug, context, channels, no_youtube=False):
     prev_dc     = context.get('previous_dc', '')
     conference  = context.get('conference')
     power_rank  = context.get('power_rank')
-    profile     = context.get('profile_2026', '')
+    profile     = context.get('team_profile') or context.get('profile_2026', '')  # team_profile is the new name; profile_2026 kept as one-cycle fallback
     qb_note     = context.get('starting_qb_note', '')
     team_notes  = context.get('team_notes', [])
     inj_notes   = context.get('injury_notes', [])
@@ -690,7 +690,8 @@ CUSA (10): Delaware, FIU, Jacksonville State, Kennesaw State, Liberty, Middle Te
 Conference: {conference}
 Head Coach: {coach} | Record: {context.get('coach_record', '')} | {context.get('coach_years', '')}
 {f"Previous Staff (2025) — HC: {prev_coach} | OC: {prev_oc} | DC: {prev_dc}" if prev_coach else "Previous coaching staff: Not in DB — do NOT name or guess any former coaches or coordinators"}
-2025 Record: {context.get('last_season_record', '')} | ATS: {context.get('last_season_ats', '')}
+2025 Record: {context.get('last_season_record', '')}
+ATS Record: {context.get('team_ats_record') or context.get('last_season_ats', '')}  (current-season once games played, otherwise prior season)
 {close_games_turnover_block}
 4-Year Record: {four_yr}
 Power Rating: #{power_rank} overall | Offense: #{off_rank} | Defense: #{def_rank}

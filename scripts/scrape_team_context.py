@@ -4,7 +4,7 @@ scrape_team_context.py  (v9 — DB-first pruned)
 -------------------------------------------------------------
 Scrapes only the things the DB can't give us:
 
-  teamprofile.php  (preview tab)  — profile_2026 + last_season_ats
+  teamprofile.php  (overview tab) — team_profile + team_ats_record
   teamroster.php                  — full depth chart w/ grades & snaps
   scheduleoutlook.php             — 2026 schedule w/ lines, win%, proj W/L, SOS
 
@@ -309,26 +309,36 @@ def rf(s):
     except: return None
 
 # ---------------------------------------------------------------------------
-# teamprofile.php — Preview tab (MINIMAL: only what the DB can't supply)
+# teamprofile.php — Overview tab (MINIMAL: only what the DB can't supply)
 # ---------------------------------------------------------------------------
 # Everything previously pulled from header / preview / overview / notes /
 # recruiting_summary now lives in the DB and is assembled by
 # build_team_context.py. The only fields the scraper still needs to deliver
-# from the preview tab are:
+# from the overview tab are:
 #
-#   profile_2026      — the free-text "'26 Profile" blurb (no DB source)
-#   last_season_ats   — prior-year ATS record "W-L-P" (shown in preview UI)
+#   team_profile      — "'NN Profile" rating-trend label + Performance/ST cells.
+#                       Rating-trend value is current-year SP+ derived, so this
+#                       updates as the season progresses.
+#   team_ats_record   — ATS "W-L-P" from the Vs Spread pill. Auto-flips from
+#                       prior-season to CURRENT-season once a current-year game
+#                       is played (PHP teamprofile.php lines 2325-2331). Kept
+#                       the rename from last_season_ats as a heads-up that this
+#                       is a live in-season number, not a frozen snapshot.
+#
+# Both anchors live in $overallSectionHTML (PHP line ~2280-2396), which is
+# captured BEFORE the preseason/in-season mode split and rendered into BOTH
+# mode panels. So the scrape works identically through the calendar flip.
 #
 # If either of these ever lands in a DB table, delete this function and drop
-# the preview-tab fetch from scrape_team() entirely.
+# the overview-tab fetch from scrape_team() entirely.
 
 def extract_preview_minimal(page, debug=False):
     """
-    Extract profile_2026 + last_season_ats from teamprofile.php.
+    Extract team_profile + team_ats_record from teamprofile.php.
 
     2026-04-29 redesign notes:
       - Preview tab merged into the 'overview' tab (single panel, mode-aware).
-      - "'26 Profile" is now a card heading followed by chip markup, not a
+      - "'NN Profile" is now a card heading followed by chip markup, not a
         free-text blurb. Captured value is the rating_trend label plus the
         Performance / Special Teams stat cells, normalized into one line.
       - "Vs Spread" is now a chip key with no whitespace between the label
@@ -344,18 +354,18 @@ def extract_preview_minimal(page, debug=False):
     )
     if profile_match:
         blurb = re.sub(r'\s+', ' ', profile_match.group(1)).strip(' \t\n,;:')
-        data['profile_2026'] = blurb[:250]
+        data['team_profile'] = blurb[:250]
     else:
-        data['profile_2026'] = ""
+        data['team_profile'] = ""
 
     m = re.search(r'Vs Spread[\s:]*(\d+)\s*[-\u2013]\s*(\d+)\s*[-\u2013]\s*(\d+)', body)
-    data['last_season_ats'] = (
+    data['team_ats_record'] = (
         f"{m.group(1)}-{m.group(2)}-{m.group(3)}" if m else ""
     )
 
     if debug:
-        print(f"  [preview_minimal] profile_2026={data['profile_2026'][:60]!r} "
-              f"ats={data['last_season_ats']}")
+        print(f"  [preview_minimal] team_profile={data['team_profile'][:60]!r} "
+              f"ats={data['team_ats_record']}")
     return data
 
 # ---------------------------------------------------------------------------
@@ -663,8 +673,8 @@ def scrape_team(page, team_name, url_param, slug, conference='', debug=False):
 
     Only produces the three fields build_team_context.py whitelists from
     the scraper:
-        profile_2026, last_season_ats  (via extract_preview_minimal)
-        full_roster                    (via scrape_teamroster)
+        team_profile, team_ats_record   (via extract_preview_minimal)
+        full_roster                     (via scrape_teamroster)
         schedule_2026, schedule_summary (via scrape_schedule_outlook)
 
     Everything else on the output JSON is just orchestration metadata —
@@ -688,7 +698,7 @@ def scrape_team(page, team_name, url_param, slug, conference='', debug=False):
         'last_research_run': None,
     }
 
-    # Preview tab — profile_2026 + last_season_ats only
+    # Overview tab — team_profile + team_ats_record (ATS auto-flips current-season once games played)
     context.update(extract_preview_minimal(page, debug))
 
     # Roster + schedule (separate pages)
@@ -787,8 +797,8 @@ def main():
                         json.dump(data, f, indent=2, ensure_ascii=False)
                     print(f"  ✓  roster={len(data.get('full_roster',[]))}  "
                           f"schedule={len(data.get('schedule_2026',[]))}  "
-                          f"profile={'Y' if data.get('profile_2026') else 'N'}  "
-                          f"ats={data.get('last_season_ats') or '-'}")
+                          f"profile={'Y' if data.get('team_profile') else 'N'}  "
+                          f"ats={data.get('team_ats_record') or '-'}")
                     results['success'].append(slug)
                 else:
                     print(f"  ✗ returned None")

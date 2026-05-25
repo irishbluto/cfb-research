@@ -1424,11 +1424,24 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
                 context['schedule_2026'] = existing['schedule_2026']
             if existing.get('schedule_summary'):
                 context['schedule_summary'] = existing['schedule_summary']
-            # Preserve scraper-only preview fields
-            if existing.get('profile_2026'):
-                context['profile_2026'] = existing['profile_2026']
-            if existing.get('last_season_ats'):
-                context['last_season_ats'] = existing['last_season_ats']
+            # Preserve scraper-only preview fields. team_ats_record auto-flips
+            # to current-season once games are played (see PHP teamprofile.php
+            # overall section). Accept old key names (profile_2026 /
+            # last_season_ats) from prior-cycle JSON for one-time migration —
+            # safe to delete the .get() fallbacks once every team has been
+            # rescraped under the new names.
+            profile_existing = (
+                existing.get('team_profile')
+                or existing.get('profile_2026')
+            )
+            if profile_existing:
+                context['team_profile'] = profile_existing
+            ats_existing = (
+                existing.get('team_ats_record')
+                or existing.get('last_season_ats')
+            )
+            if ats_existing:
+                context['team_ats_record'] = ats_existing
             # Preserve any manually-curated fields
             for k in ('agent_notes', 'youtube_channels', 'beat_writers',
                       'team_subreddit', 'known_injuries', 'position_battles'):

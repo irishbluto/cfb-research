@@ -45,7 +45,7 @@ In `research_agent.py`:
 
 ## Out-of-table builders that may also need attention
 
-The roster/schedule scrape (`scrape_team_context.py`) writes `full_roster`, `schedule_2026`, `profile_2026`, `last_season_ats`. These are scraper-driven and auto-flip with the underlying pages — **probably no audit needed**, but worth a quick check that the scraper handles the calendar transition cleanly. Memory `feedback_scraper_page_redesign_followthrough.md` flags scrape_team_context.py as needing same-session audit when teamprofile/teamroster/scheduleoutlook get touched.
+The roster/schedule scrape (`scrape_team_context.py`) writes `full_roster`, `schedule_2026`, `team_profile`, `team_ats_record`. These are scraper-driven and auto-flip with the underlying pages — `team_ats_record` in particular auto-rolls from prior-season to current-season once a 2026 game is played (PHP `teamprofile.php` lines 2325-2331). **Probably no audit needed** beyond confirming the rename from `profile_2026` / `last_season_ats` (2026-05-24) has propagated through any consumer. Memory `feedback_scraper_page_redesign_followthrough.md` flags scrape_team_context.py as needing same-session audit when teamprofile/teamroster/scheduleoutlook get touched.
 
 ## Injection layer audit (research_agent.py + conference_research_agent.py)
 
