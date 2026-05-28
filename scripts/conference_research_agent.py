@@ -38,11 +38,11 @@ NATIONAL_DIR    = BASE_DIR / "national"
 LOG_DIR         = BASE_DIR / "logs"
 CLAUDE_BIN      = "/home/joleary/.local/bin/claude"
 
-AGENT_TIMEOUT_SECS = 3600  # 60 min — Big 12 (16 teams, ~62KB prompt) timed out at 30 min
-                           # on 2026-05-11; ACC/B1G runs (14 teams, ~40KB) completed under
-                           # the prior 1800s ceiling, but the larger-conference + denser-
-                           # context combo needs more headroom. Still bounded to prevent
-                           # runaway runs.
+AGENT_TIMEOUT_SECS = 7200  # 120 min — Big Ten (18 teams, largest conf) timed out twice at
+                           # the prior 3600s ceiling on 2026-05-27. Big 12 (16 teams, ~62KB)
+                           # finishes inside 60 min, but B1G's extra two teams + denser
+                           # storyline context push it past. ACC/SEC (14-16 teams) still
+                           # finish well under. Bounded to prevent runaway runs.
 
 # Import canonical conference list from build_team_context.py
 sys.path.insert(0, str(BASE_DIR / "scripts"))
