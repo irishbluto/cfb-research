@@ -64,6 +64,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
+from urllib.parse import parse_qs, urlparse
 
 import requests
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
@@ -279,6 +280,29 @@ def fetch_all(api_key: str, year: int) -> list[FetchedPayload]:
         raise RuntimeError(f"API error on action=all: {data.get('error')}")
     return [FetchedPayload(school=t["school"], payload=t) for t in data["teams"]]
 
+def _cache_filename(url: str) -> str:
+    """
+    Derive a clean cache filename from the URL, baking in the ?v=
+    cache-buster (mtime) the PHP shim appends. So when the cutout
+    updates on Hostinger and its mtime bumps, the cache filename
+    changes and the next run pulls fresh automatically.
+
+    /cutouts/east-carolina_blake-harrell.png?v=1748600000
+       → east-carolina_blake-harrell_v1748600000.png
+    /pr_logo.png (no query)
+       → pr_logo.png
+    """
+    parsed = urlparse(url)
+    base   = Path(parsed.path).name
+    if not parsed.query:
+        return base
+    version = parse_qs(parsed.query).get("v", [None])[0]
+    if not version:
+        return base
+    stem   = Path(base).stem
+    suffix = Path(base).suffix or ".png"
+    return f"{stem}_v{version}{suffix}"
+
 def fetch_cutout(
     url: Optional[str],
     cache_dir: Path,
@@ -286,13 +310,15 @@ def fetch_cutout(
 ) -> Optional[Image.Image]:
     """
     Download cutout PNG, cache on disk, return as RGBA. None on 404.
-    When ``refresh=True`` the local cache file is deleted first so the
-    new asset on Hostinger gets pulled.
+
+    Cache key bakes in the ?v=<mtime> the shim adds so updated cutouts
+    naturally route to a new cache entry. ``refresh=True`` forces a
+    re-download regardless of cache state.
     """
     if not url:
         return None
     cache_dir.mkdir(parents=True, exist_ok=True)
-    cached = cache_dir / Path(url).name
+    cached = cache_dir / _cache_filename(url)
     if refresh and cached.exists():
         cached.unlink()
     if not cached.exists():
