@@ -518,9 +518,13 @@ def render_stat_rows(canvas: Image.Image, payload: dict) -> None:
     # Stat block lives strictly LEFT of the coach blob: label x=60,
     # value right-aligned at x=540, divider hairline through x=540.
     # The previous x_value_right=600 was bleeding into the cutout.
+    # y_top dropped from 330 → 280 on 2026-05-30 after removing the subhead,
+    # which left ~90px of empty space below the tag bar. 280 keeps a ~40px
+    # gap above PROJ RECORD and lets the takeaway block (y=720+) breathe
+    # below SCH STRENGTH (now ending at y=640).
     x_label = 60
     x_value_right = 540
-    y_top = 330
+    y_top = 280
     row_h = 60
 
     for i, (label, key, formatter) in enumerate(STAT_ROWS):
@@ -686,8 +690,13 @@ def render_quote_band(
         canvas.alpha_composite(scaled, (lx, ly))
         logo_w = new_w
 
-    # Quote on the left, sized to fit alongside the logo.
-    quote = copy_block.get("quote") or PLACEHOLDER_COPY["quote"]
+    # Quote on the left, sized to fit alongside the logo. Renders only
+    # when copy_block.quote is a real string — null/empty leaves the band
+    # as a pure brand strip (PR logo + colored field), which is the
+    # intended look until quotes get hand-written via admin override.
+    quote = copy_block.get("quote")
+    if not quote:
+        return
     f_quote = font("serif_italic", 28)
     quote_left = 60
     quote_right_limit = CANVAS_W - 60 - logo_w - 40  # 40px gap before logo
@@ -760,7 +769,10 @@ def render_card(
     # tag bar to the stat block, with the wrapped takeaway carrying the copy.
     render_stat_rows(canvas, payload)
     render_takeaway(canvas, copy_block)
-    render_watch_for(canvas, copy_block)
+    # render_watch_for removed 2026-05-30 — placeholder content felt orphaned
+    # next to the takeaway and risked duplicating it once seeded. The
+    # function is still defined for one-off renders that pass an explicit
+    # watch_for via --copy sidecar.
     render_nameplate(canvas, payload)
     render_quote_band(canvas, payload, copy_block, primary, alt, cache_dir)
 
