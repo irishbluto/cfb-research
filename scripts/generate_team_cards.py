@@ -73,6 +73,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 # ---------------------------------------------------------------------------
 
 API_BASE = "https://www.puntandrally.com/api/coach_card_stats.php"
+PR_LOGO_URL = "https://www.puntandrally.com/stylesheets/images/pr_logo.png"
 
 CANVAS_W = 1080
 CANVAS_H = 1080
@@ -366,19 +367,22 @@ def render_stat_rows(canvas: Image.Image, payload: dict) -> None:
     stats = payload.get("stats") or {}
     d = ImageDraw.Draw(canvas)
     label_f = font("sans_bold", 22)
-    value_f = font("serif_bold", 40)
+    value_f = font("serif_bold", 38)
 
+    # Stat block lives strictly LEFT of the coach blob: label x=60,
+    # value right-aligned at x=540, divider hairline through x=540.
+    # The previous x_value_right=600 was bleeding into the cutout.
     x_label = 60
-    x_value_right = 600  # right-align the value
+    x_value_right = 540
     y_top = 330
     row_h = 60
 
     for i, (label, key, formatter) in enumerate(STAT_ROWS):
         y = y_top + i * row_h
-        # Row divider
+        # Row divider (full width of the stat block)
         if i > 0:
             d.line(
-                [(x_label, y - 6), (x_value_right + 20, y - 6)],
+                [(x_label, y - 6), (x_value_right, y - 6)],
                 fill=(*HAIRLINE, 255),
                 width=1,
             )
@@ -386,7 +390,7 @@ def render_stat_rows(canvas: Image.Image, payload: dict) -> None:
         value_str = formatter(stats.get(key)) or "—"
         value_w = d.textlength(value_str, font=value_f)
         d.text(
-            (x_value_right - value_w, y - 4),
+            (x_value_right - value_w, y - 2),
             value_str,
             font=value_f,
             fill=(*INK, 255),
@@ -397,7 +401,14 @@ def render_takeaway(canvas: Image.Image, copy_block: dict) -> None:
     d = ImageDraw.Draw(canvas)
     # Gold accent stripe
     d.rectangle((60, 720, 68, 760), fill=(*GOLD, 255))
-    f = font("serif_italic", 26)
+    f = font("serif_italic", 24)
+    # Truncate to fit in the same 540px column as the stat block so the
+    # italic placeholder doesn't bleed into the coach cutout.
+    max_w = 540 - 84
+    text_w = d.textlength(takeaway, font=f)
+    while text_w > max_w and len(takeaway) > 10:
+        takeaway = takeaway[:-4] + "…"
+        text_w = d.textlength(takeaway, font=f)
     d.text((84, 720), takeaway, font=f, fill=(*INK, 255))
 
 def render_watch_for(canvas: Image.Image, copy_block: dict) -> None:
@@ -455,29 +466,43 @@ def render_quote_band(
     copy_block: dict,
     primary_rgb: tuple[int, int, int],
     alt_rgb: tuple[int, int, int],
+    cache_dir: Path,
 ) -> None:
-    """Bottom band with italic takeaway-style quote + @PuntandRally."""
+    """Bottom band with italic quote + PR logo lockup at right."""
     band_h = 140
     band_color = primary_rgb if readable_on_cream(primary_rgb) else alt_rgb
     d = ImageDraw.Draw(canvas)
     d.rectangle((0, CANVAS_H - band_h, CANVAS_W, CANVAS_H), fill=(*band_color, 255))
 
+    # PR logo lockup at the right. Logo is wide (1080x150-ish), so we
+    # scale to a fixed target height and right-align it.
+    logo = fetch_cutout(PR_LOGO_URL, cache_dir)
+    logo_w = 0
+    if logo is not None:
+        target_h = 56
+        ratio = target_h / logo.height
+        new_w = int(logo.width * ratio)
+        scaled = logo.resize((new_w, target_h), Image.LANCZOS)
+        lx = CANVAS_W - 60 - new_w
+        ly = CANVAS_H - band_h + (band_h - target_h) // 2
+        canvas.alpha_composite(scaled, (lx, ly))
+        logo_w = new_w
+
+    # Quote on the left, sized to fit alongside the logo.
     quote = copy_block.get("quote") or PLACEHOLDER_COPY["quote"]
     f_quote = font("serif_italic", 28)
-    f_handle = font("sans_bold", 20)
-    # Truncate quote if too long
-    max_w = 800
-    text_w = d.textlength(quote, font=f_quote)
+    quote_left = 60
+    quote_right_limit = CANVAS_W - 60 - logo_w - 40  # 40px gap before logo
+    max_w = quote_right_limit - quote_left
+    text_w = d.textlength(f"“{quote}”", font=f_quote)
     while text_w > max_w and len(quote) > 10:
         quote = quote[:-4] + "…"
-        text_w = d.textlength(quote, font=f_quote)
-    d.text((60, CANVAS_H - band_h + 30), f"“{quote}”", font=f_quote, fill=(*WHITE, 255))
+        text_w = d.textlength(f"“{quote}”", font=f_quote)
     d.text(
-        (CANVAS_W - 60 - d.textlength("@PuntandRally", font=f_handle),
-         CANVAS_H - band_h + 90),
-        "@PuntandRally",
-        font=f_handle,
-        fill=(*WHITE, 230),
+        (quote_left, CANVAS_H - band_h + (band_h - 28) // 2 - 4),
+        f"“{quote}”",
+        font=f_quote,
+        fill=(*WHITE, 255),
     )
 
 # ---------------------------------------------------------------------------
@@ -508,7 +533,7 @@ def render_card(
     render_takeaway(canvas, copy_block)
     render_watch_for(canvas, copy_block)
     render_nameplate(canvas, payload)
-    render_quote_band(canvas, payload, copy_block, primary, alt)
+    render_quote_band(canvas, payload, copy_block, primary, alt, cache_dir)
 
     return canvas.convert("RGB")
 
