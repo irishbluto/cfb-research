@@ -112,12 +112,14 @@ def _ret_display(rp):
     return rp.get("display") if isinstance(rp, dict) else None
 
 STAT_ROWS = [
-    ("PROJ RECORD",   "proj_record",  _record_display),
-    ("OFFENSE",       "offense_rank", _rank_display),
-    ("DEFENSE",       "defense_rank", _rank_display),
-    ("TALENT",        "talent_rank",  _rank_display),
-    ("RET PROD",      "ret_prod",     _ret_display),
-    ("SCH STRENGTH",  "sch_str_rank", _rank_display),
+    ("PROJ RECORD",   "proj_record",         _record_display),
+    ("OFFENSE",       "offense_rank",        _rank_display),
+    ("DEFENSE",       "defense_rank",        _rank_display),
+    ("TALENT",        "talent_rank",         _rank_display),
+    ("RET PROD",      "ret_prod",            _ret_display),
+    ("SCH STRENGTH",  "sch_str_rank",        _rank_display),
+    # _ret_display reused — coaching_staff_rank shares the {display} dict shape.
+    ("COACH STAFF",   "coaching_staff_rank", _ret_display),
 ]
 
 # ---------------------------------------------------------------------------
@@ -368,11 +370,11 @@ def render_background(canvas: Image.Image) -> None:
 # Single source of truth for the blob bounds — both the fill and the
 # cutout clip mask reference these so they always line up.
 BLOB_W      = 500
-BLOB_H      = 820
+BLOB_H      = 765                          # was 820; trimmed top 2026-05-30
 BLOB_X0     = CANVAS_W - BLOB_W + 20      # 600
-BLOB_Y0     = 130
+BLOB_Y0     = 175                          # was 130; pushed down to clear the team logo (y=50-160)
 BLOB_X1     = BLOB_X0 + BLOB_W            # 1100 (off-canvas right; rounded corner hides it)
-BLOB_Y1     = BLOB_Y0 + BLOB_H            # 950
+BLOB_Y1     = BLOB_Y0 + BLOB_H            # 940 — touches the navy quote band exactly
 BLOB_RADIUS = 80
 
 def render_side_blob(canvas: Image.Image, primary_rgb: tuple[int, int, int]) -> None:
@@ -555,14 +557,13 @@ def render_stat_rows(canvas: Image.Image, payload: dict) -> None:
     # Stat block lives strictly LEFT of the coach blob: label x=60,
     # value right-aligned at x=540, divider hairline through x=540.
     # The previous x_value_right=600 was bleeding into the cutout.
-    # y_top dropped from 330 → 280 on 2026-05-30 after removing the subhead,
-    # which left ~90px of empty space below the tag bar. 280 keeps a ~40px
-    # gap above PROJ RECORD and lets the takeaway block (y=720+) breathe
-    # below SCH STRENGTH (now ending at y=640).
+    # row_h trimmed 60→55 on 2026-05-30 to fit the 7th row (COACH STAFF)
+    # without pushing the takeaway down. 7 rows × 55px = 385px → ends at
+    # y=665, leaving 55px of breathing room before the takeaway at y=720.
     x_label = 60
     x_value_right = 540
     y_top = 280
-    row_h = 60
+    row_h = 55
 
     for i, (label, key, formatter) in enumerate(STAT_ROWS):
         y = y_top + i * row_h
@@ -740,12 +741,17 @@ def render_quote_band(
         canvas.alpha_composite(scaled, (lx, ly))
         logo_w = new_w
 
-    # Stat strip — three columns spanning x=60 to (logo_x - 40).
+    # Stat strip — two columns spanning x=60 to (logo_x - 40).
+    # COACH RANK moved up to the main stat block 2026-05-30 (now displayed
+    # as "COACH STAFF" there). The footer left with Vegas + Standing as
+    # the two complementary "market vs reality" data points.
+    # vegas_win_total uses record_display ("11.5-0.5") rather than the
+    # raw win total — the W-L format makes the comparison vs PROJ RECORD
+    # in the main block immediate.
     stats = payload.get("stats") or {}
     columns = [
-        ("VEGAS",      _stat_display(stats.get("vegas_win_total"))),
-        ("STANDING",   _stat_display(stats.get("conf_standing"))),
-        ("COACH RANK", _stat_display(stats.get("coaching_staff_rank"))),
+        ("VEGAS PROJ REC", _stat_display(stats.get("vegas_win_total"), key="record_display")),
+        ("STANDING",       _stat_display(stats.get("conf_standing"))),
     ]
 
     strip_left = 60
@@ -778,13 +784,16 @@ def render_quote_band(
         d.text((cx - lw / 2, label_y), label, font=label_f, fill=(*label_color, 255))
         d.text((cx - vw / 2, value_y), value, font=value_f, fill=(*value_color, 255))
 
-def _stat_display(val) -> str:
-    """Footer-strip stat formatter. Accepts the shim's {display: ...} dict
-    or a raw int/float/string; returns '—' when null/empty."""
+def _stat_display(val, key: str = "display") -> str:
+    """Footer-strip stat formatter. Accepts the shim's dict shape
+    ({display: ..., record_display: ..., etc.}) or a raw int/float/string;
+    returns '—' when null/empty. `key` selects which display variant to
+    pull from a dict — e.g. vegas_win_total has both `display` ('11.5')
+    and `record_display` ('11.5-0.5')."""
     if val is None:
         return "—"
     if isinstance(val, dict):
-        s = val.get("display")
+        s = val.get(key) or val.get("display")
         return s if s else "—"
     return str(val) if val != "" else "—"
 
