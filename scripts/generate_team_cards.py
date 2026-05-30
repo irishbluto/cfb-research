@@ -465,23 +465,60 @@ def render_team_name(
 ) -> None:
     """
     Tall condensed display name in the team's pick_card_color (primary
-    when readable, alt otherwise). Bebas Neue is the design intent —
-    falls back to a heavy serif if the .ttf isn't installed yet, per
+    when readable, alt otherwise), with the team nickname rendered as a
+    smaller subtitle directly underneath. Bebas Neue is the design intent
+    — falls back to a heavy serif if the .ttf isn't installed yet, per
     FONT_CANDIDATES.
+
+    Layout — name capped at 100pt (was 140pt) so the nickname fits in the
+    same vertical slot above the tag bar without needing to push the rest
+    of the card down. Auto-shrink to 60pt for long names (e.g.
+    'WESTERN MICHIGAN'). Nickname uses INK_MUTED for visual hierarchy —
+    name dominates, nickname supports.
     """
     name = (payload.get("school") or "").upper()
+    nickname = payload.get("team_nickname")
     color = pick_card_color(primary_rgb, alt_rgb)
 
     d = ImageDraw.Draw(canvas)
-    # Bebas Neue is condensed so we can size it bigger than a serif.
-    # Auto-fit: shrink only if the name overflows the 560px column.
+    # Cap at 100pt so the nickname slot below fits inside the y<200 region
+    # (tag bar still anchors at y=200). Auto-shrink for long names.
     max_w = 560
-    size = 140
+    size = 100
     f = font("display_team", size)
-    while d.textlength(name, font=f) > max_w and size > 70:
+    while d.textlength(name, font=f) > max_w and size > 60:
         size -= 4
         f = font("display_team", size)
     d.text((60, 50), name, font=f, fill=(*color, 255))
+
+    # Nickname subtitle — Bebas Neue 36pt in muted ink, right below the
+    # team name. Skipped silently when nickname is null (data gap).
+    if nickname:
+        nf = font("display_team", 36)
+        d.text((60, 158), nickname, font=nf, fill=(*INK_MUTED, 255))
+
+def render_team_logo(canvas: Image.Image, payload: dict, cache_dir: Path) -> None:
+    """
+    Small team helmet logo in the top-right of the cream area. Sits above
+    the coach blob (which starts around y=270), serving as a balancing
+    visual weight for the long team name on the left. Skipped silently
+    when payload.logo is null or the fetch fails.
+    """
+    logo_url = payload.get("logo")
+    if not logo_url:
+        return
+    logo = fetch_cutout(logo_url, cache_dir)
+    if logo is None:
+        return
+    target_h = 110
+    ratio = target_h / logo.height
+    new_w = int(logo.width * ratio)
+    scaled = logo.resize((new_w, target_h), Image.LANCZOS)
+    # Top-right anchored, with a 60px right margin matching the card's
+    # left gutter so it visually pairs with the team name.
+    x = CANVAS_W - 60 - new_w
+    y = 50
+    canvas.alpha_composite(scaled, (x, y))
 
 def render_tag_bar(canvas: Image.Image, payload: dict, year: int) -> None:
     """Gold pill bar reading '{YEAR} {CONF} DIAGNOSTIC'."""
@@ -670,11 +707,24 @@ def render_quote_band(
     alt_rgb: tuple[int, int, int],
     cache_dir: Path,
 ) -> None:
-    """Bottom band with italic quote + PR logo lockup at right."""
+    """
+    Bottom navy band — repurposed 2026-05-30 from a single italic quote to
+    a 3-stat footer strip (Vegas Win Total | Conf Standing | Coach Rank)
+    with the PR logo lockup on the right.
+
+    Stats column widths derived dynamically from the available space after
+    placing the logo: x=60 to (CANVAS_W - 60 - logo_w - 40). Three columns
+    are evenly distributed inside that span with thin white vertical
+    dividers between them. Any stat that's null renders as "—".
+
+    The italic quote field on copy_block is no longer used here; if it
+    needs a render slot in the future, add a separate function.
+    """
     band_h = 140
     band_color = pick_card_color(primary_rgb, alt_rgb)
     d = ImageDraw.Draw(canvas)
-    d.rectangle((0, CANVAS_H - band_h, CANVAS_W, CANVAS_H), fill=(*band_color, 255))
+    band_top = CANVAS_H - band_h
+    d.rectangle((0, band_top, CANVAS_W, CANVAS_H), fill=(*band_color, 255))
 
     # PR logo lockup at the right. Logo is wide (1080x150-ish), so we
     # scale to a fixed target height and right-align it.
@@ -686,31 +736,57 @@ def render_quote_band(
         new_w = int(logo.width * ratio)
         scaled = logo.resize((new_w, target_h), Image.LANCZOS)
         lx = CANVAS_W - 60 - new_w
-        ly = CANVAS_H - band_h + (band_h - target_h) // 2
+        ly = band_top + (band_h - target_h) // 2
         canvas.alpha_composite(scaled, (lx, ly))
         logo_w = new_w
 
-    # Quote on the left, sized to fit alongside the logo. Renders only
-    # when copy_block.quote is a real string — null/empty leaves the band
-    # as a pure brand strip (PR logo + colored field), which is the
-    # intended look until quotes get hand-written via admin override.
-    quote = copy_block.get("quote")
-    if not quote:
-        return
-    f_quote = font("serif_italic", 28)
-    quote_left = 60
-    quote_right_limit = CANVAS_W - 60 - logo_w - 40  # 40px gap before logo
-    max_w = quote_right_limit - quote_left
-    text_w = d.textlength(f"“{quote}”", font=f_quote)
-    while text_w > max_w and len(quote) > 10:
-        quote = quote[:-4] + "…"
-        text_w = d.textlength(f"“{quote}”", font=f_quote)
-    d.text(
-        (quote_left, CANVAS_H - band_h + (band_h - 28) // 2 - 4),
-        f"“{quote}”",
-        font=f_quote,
-        fill=(*WHITE, 255),
-    )
+    # Stat strip — three columns spanning x=60 to (logo_x - 40).
+    stats = payload.get("stats") or {}
+    columns = [
+        ("VEGAS",      _stat_display(stats.get("vegas_win_total"))),
+        ("STANDING",   _stat_display(stats.get("conf_standing"))),
+        ("COACH RANK", _stat_display(stats.get("coaching_staff_rank"))),
+    ]
+
+    strip_left = 60
+    strip_right = CANVAS_W - 60 - logo_w - 40
+    strip_w = strip_right - strip_left
+    col_w = strip_w / len(columns)
+
+    label_f = font("sans_bold", 16)
+    value_f = font("sans_bold", 30)
+    label_color = (220, 220, 220)   # off-white — softer than pure white
+    value_color = WHITE
+    divider_color = (255, 255, 255, 50)  # subtle white at low alpha
+
+    # Vertical dividers between columns
+    for i in range(1, len(columns)):
+        dx = int(strip_left + col_w * i)
+        d.line(
+            [(dx, band_top + 30), (dx, band_top + band_h - 30)],
+            fill=divider_color,
+            width=1,
+        )
+
+    # Render label + value centered in each column
+    label_y = band_top + 28
+    value_y = band_top + 60
+    for i, (label, value) in enumerate(columns):
+        cx = strip_left + col_w * (i + 0.5)
+        lw = d.textlength(label, font=label_f)
+        vw = d.textlength(value, font=value_f)
+        d.text((cx - lw / 2, label_y), label, font=label_f, fill=(*label_color, 255))
+        d.text((cx - vw / 2, value_y), value, font=value_f, fill=(*value_color, 255))
+
+def _stat_display(val) -> str:
+    """Footer-strip stat formatter. Accepts the shim's {display: ...} dict
+    or a raw int/float/string; returns '—' when null/empty."""
+    if val is None:
+        return "—"
+    if isinstance(val, dict):
+        s = val.get("display")
+        return s if s else "—"
+    return str(val) if val != "" else "—"
 
 # ---------------------------------------------------------------------------
 # Orchestration
@@ -762,6 +838,7 @@ def render_card(
     render_coach_cutout(canvas, cutout, payload.get("logo"), cache_dir)
 
     render_team_name(canvas, payload, primary, alt)
+    render_team_logo(canvas, payload, cache_dir)
     render_tag_bar(canvas, payload, year)
     # render_subhead removed 2026-05-30 — subhead+takeaway duplicated content
     # since both pulled from the same storyline source. Keeping the function
@@ -769,10 +846,7 @@ def render_card(
     # tag bar to the stat block, with the wrapped takeaway carrying the copy.
     render_stat_rows(canvas, payload)
     render_takeaway(canvas, copy_block)
-    # render_watch_for removed 2026-05-30 — placeholder content felt orphaned
-    # next to the takeaway and risked duplicating it once seeded. The
-    # function is still defined for one-off renders that pass an explicit
-    # watch_for via --copy sidecar.
+    render_watch_for(canvas, copy_block)
     render_nameplate(canvas, payload)
     render_quote_band(canvas, payload, copy_block, primary, alt, cache_dir)
 
