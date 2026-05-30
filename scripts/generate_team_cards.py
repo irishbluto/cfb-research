@@ -13,10 +13,17 @@ The script is data-thin by design: it hits the PHP shim at
 colors, head coach, slug pair, cutout URL, light-color flag) and
 focuses purely on composition.
 
-Editorial copy (subhead, watch_for, takeaway, quote) doesn't have a
-live source yet — the script accepts overrides via CLI or pulls from
-a ``team_card_copy.json`` sidecar if you drop one next to the script.
-Otherwise placeholder strings render so the layout can be reviewed.
+Editorial copy (subhead, watch_for, takeaway, quote) flows in three
+layers, highest precedence first:
+  1. ``--copy sidecar.json`` — per-team overrides for one-off renders.
+  2. ``payload["copy"]`` — populated by the shim from the
+     ``team_card_copy`` DB table (seeded via
+     ``puntandrally/scripts/seed_team_card_copy.php``).
+  3. ``PLACEHOLDER_COPY`` — fallback strings that make the gap obvious
+     in QA when neither of the above provides a value.
+Each field is independently resolved, so partial coverage (e.g. subhead
++ takeaway from auto-seed, watch_for + quote still placeholder) renders
+cleanly.
 
 Usage
 -----
@@ -648,6 +655,29 @@ def render_quote_band(
 # Orchestration
 # ---------------------------------------------------------------------------
 
+def resolve_copy_block(payload: dict, sidecar_block: dict) -> dict:
+    """
+    Merge the three copy sources for a team. Sidecar wins, then the
+    shim's payload.copy (DB-backed), then per-field PLACEHOLDER fallback
+    happens downstream at render time. We don't fold PLACEHOLDER in here
+    so the renderers' .get(...) or PLACEHOLDER chain still works for
+    anyone calling them directly.
+
+    Both inputs are tolerant of missing keys and None values — a None
+    field in either layer falls through to the next layer.
+    """
+    db_block = (payload.get("copy") or {}) if isinstance(payload, dict) else {}
+    sidecar  = sidecar_block or {}
+    merged: dict = {}
+    for key in ("subhead", "watch_for", "takeaway", "quote"):
+        val = sidecar.get(key)
+        if val in (None, ""):
+            val = db_block.get(key)
+        if val in (None, ""):
+            continue          # let the renderer's PLACEHOLDER fallback fire
+        merged[key] = val
+    return merged
+
 def render_card(
     payload: dict,
     copy_block: dict,
@@ -655,6 +685,10 @@ def render_card(
     cache_dir: Path,
     refresh: bool = False,
 ) -> Image.Image:
+    # Layer DB-backed copy (payload.copy) under any sidecar overrides
+    # the caller passed in. Either layer can be sparse.
+    copy_block = resolve_copy_block(payload, copy_block)
+
     canvas = Image.new("RGBA", (CANVAS_W, CANVAS_H), CREAM + (255,))
     render_background(canvas)
 
