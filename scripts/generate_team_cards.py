@@ -279,12 +279,22 @@ def fetch_all(api_key: str, year: int) -> list[FetchedPayload]:
         raise RuntimeError(f"API error on action=all: {data.get('error')}")
     return [FetchedPayload(school=t["school"], payload=t) for t in data["teams"]]
 
-def fetch_cutout(url: Optional[str], cache_dir: Path) -> Optional[Image.Image]:
-    """Download cutout PNG, cache on disk, return as RGBA. None on 404."""
+def fetch_cutout(
+    url: Optional[str],
+    cache_dir: Path,
+    refresh: bool = False,
+) -> Optional[Image.Image]:
+    """
+    Download cutout PNG, cache on disk, return as RGBA. None on 404.
+    When ``refresh=True`` the local cache file is deleted first so the
+    new asset on Hostinger gets pulled.
+    """
     if not url:
         return None
     cache_dir.mkdir(parents=True, exist_ok=True)
     cached = cache_dir / Path(url).name
+    if refresh and cached.exists():
+        cached.unlink()
     if not cached.exists():
         try:
             r = requests.get(url, timeout=30)
@@ -603,6 +613,7 @@ def render_card(
     copy_block: dict,
     year: int,
     cache_dir: Path,
+    refresh: bool = False,
 ) -> Image.Image:
     canvas = Image.new("RGBA", (CANVAS_W, CANVAS_H), CREAM + (255,))
     render_background(canvas)
@@ -612,7 +623,7 @@ def render_card(
     alt       = hex_to_rgb(colors.get("alt"), fallback=(180, 140, 40))
 
     render_side_blob(canvas, pick_card_color(primary, alt))
-    cutout = fetch_cutout(payload.get("cutout_url"), cache_dir)
+    cutout = fetch_cutout(payload.get("cutout_url"), cache_dir, refresh=refresh)
     render_coach_cutout(canvas, cutout, payload.get("logo"), cache_dir)
 
     render_team_name(canvas, payload, primary, alt)
@@ -657,6 +668,9 @@ def parse_args() -> argparse.Namespace:
                    help="Local cutout cache (default: .cache/cutouts/).")
     p.add_argument("--copy",    type=Path, default=None,
                    help="Optional JSON sidecar with per-team editorial overrides.")
+    p.add_argument("--refresh", action="store_true",
+                   help="Bypass the cutout cache: re-download every cutout being "
+                        "rendered. Use after pushing updated cutouts to Hostinger.")
     return p.parse_args()
 
 def main() -> int:
@@ -670,7 +684,10 @@ def main() -> int:
             print(f"FATAL: {e}", file=sys.stderr)
             return 1
         copy_block = copy_map.get(fetched.school, {})
-        img = render_card(fetched.payload, copy_block, args.year, args.cache)
+        img = render_card(
+            fetched.payload, copy_block, args.year, args.cache,
+            refresh=args.refresh,
+        )
         path = write_card(img, fetched.payload["team_slug"], args.year, args.out)
         print(f"Wrote {path}")
         return 0
@@ -686,7 +703,10 @@ def main() -> int:
     for i, fetched in enumerate(all_payloads, 1):
         try:
             copy_block = copy_map.get(fetched.school, {})
-            img = render_card(fetched.payload, copy_block, args.year, args.cache)
+            img = render_card(
+                fetched.payload, copy_block, args.year, args.cache,
+                refresh=args.refresh,
+            )
             path = write_card(img, fetched.payload["team_slug"], args.year, args.out)
             print(f"  [{i:>3}/{len(all_payloads)}] {path.name}")
         except Exception as e:
