@@ -155,11 +155,16 @@ FONT_CANDIDATES = {
         r"C:\Windows\Fonts\georgiaz.ttf",
     ],
     "sans_regular": [
+        str(_REPO_FONT_DIR / "Poppins-Regular.ttf"),
         "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         r"C:\Windows\Fonts\arial.ttf",
     ],
     "sans_bold": [
+        # Poppins SemiBold reads cleaner at small sizes than Bold —
+        # the stat labels and tag bar are short utilitarian text.
+        str(_REPO_FONT_DIR / "Poppins-SemiBold.ttf"),
+        str(_REPO_FONT_DIR / "Poppins-Bold.ttf"),
         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         r"C:\Windows\Fonts\arialbd.ttf",
@@ -207,9 +212,37 @@ def luminance(rgb: tuple[int, int, int]) -> float:
     r, g, b = rgb
     return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
 
+def contrast_ratio(rgb1: tuple[int, int, int], rgb2: tuple[int, int, int]) -> float:
+    """W3C relative contrast (1:1 → 21:1). Higher = more readable."""
+    L1, L2 = luminance(rgb1), luminance(rgb2)
+    lighter, darker = max(L1, L2), min(L1, L2)
+    return (lighter + 0.05) / (darker + 0.05)
+
+# Minimum contrast we'll accept for the primary brand color on cream.
+# 3.5:1 catches LSU gold (~1.2:1) and Colorado gold (~1.4:1) while
+# leaving teams like Tennessee orange (~3.7:1) on their primary.
+PRIMARY_CONTRAST_FLOOR = 3.5
+
+def pick_card_color(
+    primary: tuple[int, int, int],
+    alt: tuple[int, int, int],
+    bg: tuple[int, int, int] = CREAM,
+) -> tuple[int, int, int]:
+    """
+    Pick the brand color that reads best on the cream card. Prefers
+    primary if it clears the contrast floor; otherwise picks whichever
+    brand color has more contrast. Mirror logic for blob fill, team
+    name, and quote band so the whole card uses ONE chosen color.
+    """
+    pc = contrast_ratio(primary, bg)
+    if pc >= PRIMARY_CONTRAST_FLOOR:
+        return primary
+    ac = contrast_ratio(alt, bg)
+    return primary if pc >= ac else alt
+
 def readable_on_cream(rgb: tuple[int, int, int]) -> bool:
-    # Mirrors PHP is_readable_on_light(). Cutoff tuned for #F2EAD3 bg.
-    return luminance(rgb) <= 0.72
+    """Legacy helper — kept for any remaining callsites; uses the new floor."""
+    return contrast_ratio(rgb, CREAM) >= PRIMARY_CONTRAST_FLOOR
 
 # ---------------------------------------------------------------------------
 # Network — stats shim + cutout download (with on-disk cache)
@@ -374,12 +407,13 @@ def render_team_name(
     alt_rgb: tuple[int, int, int],
 ) -> None:
     """
-    Tall condensed display name in primary brand (or alt if too light).
-    Bebas Neue is the design intent — falls back to a heavy serif if
-    the .ttf isn't installed yet, per FONT_CANDIDATES.
+    Tall condensed display name in the team's pick_card_color (primary
+    when readable, alt otherwise). Bebas Neue is the design intent —
+    falls back to a heavy serif if the .ttf isn't installed yet, per
+    FONT_CANDIDATES.
     """
     name = (payload.get("school") or "").upper()
-    color = primary_rgb if readable_on_cream(primary_rgb) else alt_rgb
+    color = pick_card_color(primary_rgb, alt_rgb)
 
     d = ImageDraw.Draw(canvas)
     # Bebas Neue is condensed so we can size it bigger than a serif.
@@ -525,7 +559,7 @@ def render_quote_band(
 ) -> None:
     """Bottom band with italic quote + PR logo lockup at right."""
     band_h = 140
-    band_color = primary_rgb if readable_on_cream(primary_rgb) else alt_rgb
+    band_color = pick_card_color(primary_rgb, alt_rgb)
     d = ImageDraw.Draw(canvas)
     d.rectangle((0, CANVAS_H - band_h, CANVAS_W, CANVAS_H), fill=(*band_color, 255))
 
@@ -577,7 +611,7 @@ def render_card(
     primary   = hex_to_rgb(colors.get("primary"))
     alt       = hex_to_rgb(colors.get("alt"), fallback=(180, 140, 40))
 
-    render_side_blob(canvas, primary if readable_on_cream(primary) else alt)
+    render_side_blob(canvas, pick_card_color(primary, alt))
     cutout = fetch_cutout(payload.get("cutout_url"), cache_dir)
     render_coach_cutout(canvas, cutout, payload.get("logo"), cache_dir)
 
