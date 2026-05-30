@@ -224,21 +224,35 @@ def contrast_ratio(rgb1: tuple[int, int, int], rgb2: tuple[int, int, int]) -> fl
 # leaving teams like Tennessee orange (~3.7:1) on their primary.
 PRIMARY_CONTRAST_FLOOR = 3.5
 
+# When both brand colors are too pale to read on cream (Toledo with
+# white + cream gold is the trigger case), fall back to a near-black
+# charcoal so the card stays legible rather than rendering invisible.
+CHARCOAL_FALLBACK = (40, 40, 50)
+LIGHT_COLOR_FLOOR = 2.0  # contrast below this = treat as invisible
+
 def pick_card_color(
     primary: tuple[int, int, int],
     alt: tuple[int, int, int],
     bg: tuple[int, int, int] = CREAM,
 ) -> tuple[int, int, int]:
     """
-    Pick the brand color that reads best on the cream card. Prefers
-    primary if it clears the contrast floor; otherwise picks whichever
-    brand color has more contrast. Mirror logic for blob fill, team
-    name, and quote band so the whole card uses ONE chosen color.
+    Pick the brand color that reads best on the cream card.
+
+    Order of preference:
+      1. primary if it clears the 3.5:1 contrast floor (Tennessee
+         orange, ND navy, etc. — strong primaries stay primary).
+      2. alt if it has better contrast than primary (LSU purple
+         beats LSU gold; Colorado black beats Colorado vegas-gold).
+      3. charcoal fallback if BOTH brand colors are below 2.0:1
+         (Toledo's white+pale-gold case). Card stops being on-brand
+         but at least stays readable.
     """
     pc = contrast_ratio(primary, bg)
     if pc >= PRIMARY_CONTRAST_FLOOR:
         return primary
     ac = contrast_ratio(alt, bg)
+    if max(pc, ac) < LIGHT_COLOR_FLOOR:
+        return CHARCOAL_FALLBACK
     return primary if pc >= ac else alt
 
 def readable_on_cream(rgb: tuple[int, int, int]) -> bool:
