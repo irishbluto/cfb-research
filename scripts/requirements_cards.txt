@@ -1,0 +1,12 @@
+# Dependencies for generate_team_cards.py
+# Install with:  pip install -r scripts/requirements_cards.txt
+# Requires Python 3.9+.
+#
+# On the VPS (Ubuntu), you also need serif/sans system fonts:
+#   sudo apt install -y fonts-liberation fonts-dejavu fonts-dejavu-extra
+#
+# The script's FONT_CANDIDATES list checks /usr/share/fonts paths first,
+# then falls back to Windows C:\Windows\Fonts for local dev iteration.
+
+Pillow>=10.0
+requests>=2.31
