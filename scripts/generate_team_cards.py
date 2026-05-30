@@ -543,25 +543,77 @@ def render_stat_rows(canvas: Image.Image, payload: dict) -> None:
         )
 
 def render_takeaway(canvas: Image.Image, copy_block: dict) -> None:
+    """
+    The 'note' line below the stat block. Renders the takeaway in italic
+    serif, word-wrapped to at most 2 lines inside the same 540px column
+    the stat block uses. Gold accent stripe spans every rendered line so
+    the visual treatment scales with the content. Overflow past 2 lines
+    gets an ellipsis on the second line — by design the seeder caps
+    takeaway at ~160 chars, which is roughly two lines of comfortable
+    italic at this size.
+    """
     takeaway = copy_block.get("takeaway") or PLACEHOLDER_COPY["takeaway"]
     d = ImageDraw.Draw(canvas)
-    # Gold accent stripe
-    d.rectangle((60, 720, 68, 760), fill=(*GOLD, 255))
     f = font("serif_italic", 24)
-    # Truncate to fit in the same 540px column as the stat block so the
-    # italic placeholder doesn't bleed into the coach cutout.
-    max_w = 540 - 84
-    text_w = d.textlength(takeaway, font=f)
-    while text_w > max_w and len(takeaway) > 10:
-        takeaway = takeaway[:-4] + "…"
-        text_w = d.textlength(takeaway, font=f)
-    d.text((84, 720), takeaway, font=f, fill=(*INK, 255))
+
+    # Same column footprint as the stat block: x=60-540. Text starts after
+    # the 8px gold stripe + 16px gap = x=84.
+    x_text = 84
+    max_w = 540 - x_text
+    line_h = 32
+    max_lines = 2
+    y_top = 720
+
+    # Greedy word-wrap. Stop building once we'd exceed max_lines.
+    words = takeaway.split()
+    lines: list[str] = []
+    cur = ""
+    overflow = False
+    for w in words:
+        candidate = (cur + " " + w).strip()
+        if d.textlength(candidate, font=f) <= max_w:
+            cur = candidate
+            continue
+        # Doesn't fit on current line — push current, start a new one.
+        if cur:
+            lines.append(cur)
+            cur = w
+        else:
+            # Single word wider than max_w (rare). Force-place it; it'll
+            # truncate cleanly via the overflow branch below.
+            lines.append(w)
+            cur = ""
+        if len(lines) >= max_lines:
+            overflow = True
+            break
+    if cur and len(lines) < max_lines:
+        lines.append(cur)
+    elif cur and overflow:
+        # We bailed mid-stream — there's still content in cur that won't fit.
+        overflow = True
+
+    # Truncate the last line with an ellipsis if we overflowed.
+    if overflow and lines:
+        last = lines[-1]
+        suffix = "…"
+        while last and d.textlength(last + suffix, font=f) > max_w:
+            last = last[:-1]
+        lines[-1] = last.rstrip(" ,.;:-—()\"'") + suffix
+
+    # Gold accent stripe — spans every rendered line so 1- or 2-line
+    # takeaways both look intentional rather than orphaned.
+    stripe_bot = y_top + line_h * max(1, len(lines))
+    d.rectangle((60, y_top, 68, stripe_bot), fill=(*GOLD, 255))
+
+    for i, line in enumerate(lines):
+        d.text((x_text, y_top + i * line_h), line, font=f, fill=(*INK, 255))
 
 def render_watch_for(canvas: Image.Image, copy_block: dict) -> None:
     watch = copy_block.get("watch_for") or PLACEHOLDER_COPY["watch_for"]
     d = ImageDraw.Draw(canvas)
-    # Bullseye glyph (concentric circles)
-    cx, cy = 80, 800
+    # Bullseye glyph (concentric circles). cy bumped 800→830 to clear the
+    # 2-line takeaway block (y=720, max y=784) above it.
+    cx, cy = 80, 830
     d.ellipse((cx - 14, cy - 14, cx + 14, cy + 14), outline=(*GOLD, 255), width=3)
     d.ellipse((cx - 6, cy - 6, cx + 6, cy + 6), fill=(*GOLD, 255))
     f = font("sans_bold", 22)
@@ -702,7 +754,10 @@ def render_card(
 
     render_team_name(canvas, payload, primary, alt)
     render_tag_bar(canvas, payload, year)
-    render_subhead(canvas, copy_block)
+    # render_subhead removed 2026-05-30 — subhead+takeaway duplicated content
+    # since both pulled from the same storyline source. Keeping the function
+    # defined (still callable) but the card layout now goes directly from the
+    # tag bar to the stat block, with the wrapped takeaway carrying the copy.
     render_stat_rows(canvas, payload)
     render_takeaway(canvas, copy_block)
     render_watch_for(canvas, copy_block)
