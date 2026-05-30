@@ -66,7 +66,7 @@ from pathlib import Path
 from typing import Optional
 
 import requests
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -121,7 +121,19 @@ STAT_ROWS = [
 #   sudo apt install fonts-liberation fonts-dejavu fonts-dejavu-extra
 # On Windows the C:\Windows\Fonts paths cover Georgia + Arial out of the box.
 
+# Bebas Neue is bundled with the repo (OFL-licensed). Drop the .ttf at
+# cfb-research/scripts/fonts/BebasNeue-Regular.ttf — it ships in only one
+# weight so 'Regular' = the heavy condensed display look.
+_REPO_FONT_DIR = Path(__file__).resolve().parent / "fonts"
+
 FONT_CANDIDATES = {
+    "display_team": [
+        str(_REPO_FONT_DIR / "BebasNeue-Regular.ttf"),
+        # Graceful fallback: heavy serif if Bebas isn't installed yet
+        "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+        r"C:\Windows\Fonts\georgiab.ttf",
+    ],
     "serif_regular": [
         "/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
@@ -263,25 +275,50 @@ def fetch_cutout(url: Optional[str], cache_dir: Path) -> Optional[Image.Image]:
 def render_background(canvas: Image.Image) -> None:
     canvas.paste(CREAM, (0, 0, CANVAS_W, CANVAS_H))
 
+# Single source of truth for the blob bounds — both the fill and the
+# cutout clip mask reference these so they always line up.
+BLOB_W      = 500
+BLOB_H      = 820
+BLOB_X0     = CANVAS_W - BLOB_W + 20      # 600
+BLOB_Y0     = 130
+BLOB_X1     = BLOB_X0 + BLOB_W            # 1100 (off-canvas right; rounded corner hides it)
+BLOB_Y1     = BLOB_Y0 + BLOB_H            # 950
+BLOB_RADIUS = 80
+
 def render_side_blob(canvas: Image.Image, primary_rgb: tuple[int, int, int]) -> None:
     """
     Right-side blob filled with primary brand color. Approximated as a
     soft-edged rounded rectangle sweeping from the right edge inward,
     with the top/bottom angled slightly for a banner feel.
     """
-    blob_w = 500
-    blob_h = 820
-    blob_x0 = CANVAS_W - blob_w + 20
-    blob_y0 = 130
-    # Build the blob on its own layer so we can soft-feather the inner edge.
     layer = Image.new("RGBA", (CANVAS_W, CANVAS_H), (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
     d.rounded_rectangle(
-        (blob_x0, blob_y0, blob_x0 + blob_w, blob_y0 + blob_h),
-        radius=80,
+        (BLOB_X0, BLOB_Y0, BLOB_X1, BLOB_Y1),
+        radius=BLOB_RADIUS,
         fill=(*primary_rgb, 255),
     )
     canvas.alpha_composite(layer)
+
+def build_blob_clip_mask() -> Image.Image:
+    """
+    L-mode mask the size of the canvas: 255 inside the blob, fading to 0
+    outside via a Gaussian blur. Used to clip the coach cutout so action
+    shots with outstretched arms (Bielema pointing, Dillingham's thumbs-up,
+    Kelly mid-celebration) fade out before colliding with the stat column.
+    The blur radius gives roughly a 40px soft transition zone.
+    """
+    mask = Image.new("L", (CANVAS_W, CANVAS_H), 0)
+    d = ImageDraw.Draw(mask)
+    # Slight inset (12px) so the blur softens INSIDE the blob fill, giving
+    # a subtle vignette feel rather than a hard equality with the blob edge.
+    inset = 12
+    d.rounded_rectangle(
+        (BLOB_X0 + inset, BLOB_Y0 + inset, BLOB_X1 - inset, BLOB_Y1 - inset),
+        radius=BLOB_RADIUS,
+        fill=255,
+    )
+    return mask.filter(ImageFilter.GaussianBlur(radius=18))
 
 def render_coach_cutout(
     canvas: Image.Image,
@@ -290,19 +327,32 @@ def render_coach_cutout(
     cache_dir: Path,
 ) -> None:
     """
-    Drop the rembg-cut coach over the side blob. If no cutout exists,
-    fall back to a centered helmet logo. If neither, leave blob plain.
+    Drop the rembg-cut coach over the side blob, then clip to the blob
+    shape with a soft edge. The clip is the important part — action
+    photos with outstretched arms (Bielema, Dillingham, Kelly) bleed
+    into the stat column otherwise.
     """
-    target_h = 760
     if cutout is not None:
+        target_h = 780
         ratio = target_h / cutout.height
         new_w = int(cutout.width * ratio)
         scaled = cutout.resize((new_w, target_h), Image.LANCZOS)
-        # Anchor: bottom edge sits ~95px from canvas bottom; centered in blob
-        blob_center_x = CANVAS_W - 250
+        # Anchor: bottom edge sits ~85px from canvas bottom; centered in blob
+        blob_center_x = (BLOB_X0 + BLOB_X1) // 2
         x = blob_center_x - new_w // 2
-        y = CANVAS_H - 95 - target_h
-        canvas.alpha_composite(scaled, (x, y))
+        y = CANVAS_H - 85 - target_h
+
+        # Build a full-canvas layer so we can mask in one shot.
+        layer = Image.new("RGBA", (CANVAS_W, CANVAS_H), (0, 0, 0, 0))
+        layer.paste(scaled, (x, y), scaled)
+
+        # Multiply layer alpha by the blob mask: anything outside the
+        # blob silhouette fades to transparent over the blur region.
+        src_alpha   = layer.split()[3]
+        clipped_alpha = ImageChops.multiply(src_alpha, build_blob_clip_mask())
+        layer.putalpha(clipped_alpha)
+
+        canvas.alpha_composite(layer)
         return
 
     # Fallback to helmet logo
@@ -313,7 +363,7 @@ def render_coach_cutout(
             ratio = helmet_h / helmet.height
             new_w = int(helmet.width * ratio)
             scaled = helmet.resize((new_w, helmet_h), Image.LANCZOS)
-            x = CANVAS_W - 250 - new_w // 2
+            x = (BLOB_X0 + BLOB_X1) // 2 - new_w // 2
             y = 280
             canvas.alpha_composite(scaled, (x, y))
 
@@ -323,19 +373,24 @@ def render_team_name(
     primary_rgb: tuple[int, int, int],
     alt_rgb: tuple[int, int, int],
 ) -> None:
-    """Big serif team name in primary brand (or alt if primary too light)."""
+    """
+    Tall condensed display name in primary brand (or alt if too light).
+    Bebas Neue is the design intent — falls back to a heavy serif if
+    the .ttf isn't installed yet, per FONT_CANDIDATES.
+    """
     name = (payload.get("school") or "").upper()
     color = primary_rgb if readable_on_cream(primary_rgb) else alt_rgb
 
     d = ImageDraw.Draw(canvas)
-    # Auto-fit: shrink font until it fits in 560px width
+    # Bebas Neue is condensed so we can size it bigger than a serif.
+    # Auto-fit: shrink only if the name overflows the 560px column.
     max_w = 560
-    size = 96
-    f = font("serif_bold", size)
-    while d.textlength(name, font=f) > max_w and size > 56:
+    size = 140
+    f = font("display_team", size)
+    while d.textlength(name, font=f) > max_w and size > 70:
         size -= 4
-        f = font("serif_bold", size)
-    d.text((60, 60), name, font=f, fill=(*color, 255))
+        f = font("display_team", size)
+    d.text((60, 50), name, font=f, fill=(*color, 255))
 
 def render_tag_bar(canvas: Image.Image, payload: dict, year: int) -> None:
     """Gold pill bar reading '{YEAR} {CONF} DIAGNOSTIC'."""
