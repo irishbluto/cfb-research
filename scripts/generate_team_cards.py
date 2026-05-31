@@ -610,7 +610,10 @@ def render_takeaway(canvas: Image.Image, copy_block: dict) -> None:
     x_text = 84
     max_w = 540 - x_text
     line_h = 32
-    max_lines = 2
+    # max_lines bumped 2→3 on 2026-05-30 to give the editorial copy room for
+    # ~50 more chars. Vertical budget: y_top=720, 3 lines × 32 = 96, so the
+    # block ends ~y=816, leaving ~38px before the WATCH FOR label at y=854.
+    max_lines = 3
     y_top = 720
 
     # "OUTLOOK" mini-label above the takeaway text. Small Poppins SemiBold
