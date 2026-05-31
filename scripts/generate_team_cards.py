@@ -613,6 +613,13 @@ def render_takeaway(canvas: Image.Image, copy_block: dict) -> None:
     max_lines = 2
     y_top = 720
 
+    # "OUTLOOK" mini-label above the takeaway text. Small Poppins SemiBold
+    # in INK_MUTED so it reads as a tag/heading without competing with the
+    # italic body copy. Sits in the empty gap between the stat block (ends
+    # ~y=665) and the takeaway (starts y=720).
+    label_f = font("sans_bold", 14)
+    d.text((x_text, y_top - 24), "OUTLOOK", font=label_f, fill=(*INK_MUTED, 255))
+
     # Greedy word-wrap. Stop building once we'd exceed max_lines.
     words = takeaway.split()
     lines: list[str] = []
@@ -665,6 +672,14 @@ def render_watch_for(canvas: Image.Image, copy_block: dict) -> None:
     cx, cy = 80, 830
     d.ellipse((cx - 14, cy - 14, cx + 14, cy + 14), outline=(*GOLD, 255), width=3)
     d.ellipse((cx - 6, cy - 6, cx + 6, cy + 6), fill=(*GOLD, 255))
+
+    # "WATCH FOR" mini-label above the watch_for text. Mirrors the OUTLOOK
+    # label above the takeaway — small Poppins SemiBold in INK_MUTED. Sits
+    # in the gap between the takeaway block (ends ~y=784) and the bullseye
+    # (top edge y=cy-14=816).
+    label_f = font("sans_bold", 14)
+    d.text((cx + 24, cy - 36), "WATCH FOR", font=label_f, fill=(*INK_MUTED, 255))
+
     f = font("sans_bold", 22)
     d.text((cx + 24, cy - 14), watch, font=f, fill=(*INK, 255))
 
