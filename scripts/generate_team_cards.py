@@ -41,6 +41,13 @@ Usage
         --api-key "$X_API_KEY" \\
         --out team_cards/
 
+    # One conference (matches case-insensitively on abbrev or full name)
+    python scripts/generate_team_cards.py \\
+        --conf SEC \\
+        --year 2026 \\
+        --api-key "$X_API_KEY" \\
+        --out team_cards/
+
     # Use a sidecar JSON for editorial overrides
     python scripts/generate_team_cards.py \\
         --team "LSU" --year 2026 --api-key "$X_API_KEY" \\
@@ -899,6 +906,10 @@ def parse_args() -> argparse.Namespace:
     group = p.add_mutually_exclusive_group(required=True)
     group.add_argument("--team", help="Single school name (e.g. 'Notre Dame').")
     group.add_argument("--all",  action="store_true", help="Render all 138 FBS teams.")
+    group.add_argument("--conf", help="Render all teams in one conference. Matches "
+                                      "case-insensitively against conference_abbr OR "
+                                      "the full conference name. Examples: 'SEC', 'B1G', "
+                                      "'Big Ten', 'AAC', 'American'.")
     p.add_argument("--year",    type=int, required=True, help="Season year.")
     p.add_argument("--api-key", required=True, help="X-API-Key for the shim.")
     p.add_argument("--out",     type=Path, default=Path("team_cards"),
@@ -931,12 +942,28 @@ def main() -> int:
         print(f"Wrote {path}")
         return 0
 
-    # --all
+    # --all or --conf — both pull every payload then optionally filter
     try:
         all_payloads = fetch_all(args.api_key, args.year)
     except Exception as e:
         print(f"FATAL: {e}", file=sys.stderr)
         return 1
+
+    if args.conf:
+        want = args.conf.strip().lower()
+        all_payloads = [
+            fp for fp in all_payloads
+            if (str(fp.payload.get("conference_abbr") or "").lower() == want
+                or str(fp.payload.get("conference")      or "").lower() == want)
+        ]
+        if not all_payloads:
+            print(f"FATAL: --conf '{args.conf}' matched zero teams. "
+                  f"Try the abbreviation (SEC, B1G, ACC, B12, AAC, MWC, MAC, "
+                  f"CUSA, SBC, Ind) or the full conference name.",
+                  file=sys.stderr)
+            return 1
+        print(f"Conference filter '{args.conf}' → {len(all_payloads)} teams.")
+
     print(f"Rendering {len(all_payloads)} cards…")
     failures = 0
     for i, fetched in enumerate(all_payloads, 1):
