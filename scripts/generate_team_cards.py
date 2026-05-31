@@ -667,16 +667,17 @@ def render_takeaway(canvas: Image.Image, copy_block: dict) -> None:
 def render_watch_for(canvas: Image.Image, copy_block: dict) -> None:
     watch = copy_block.get("watch_for") or PLACEHOLDER_COPY["watch_for"]
     d = ImageDraw.Draw(canvas)
-    # Bullseye glyph (concentric circles). cy bumped 800→830 to clear the
-    # 2-line takeaway block (y=720, max y=784) above it.
-    cx, cy = 80, 830
+    # Bullseye glyph (concentric circles). cy bumped 830→890 on 2026-05-30
+    # to (a) separate the WATCH FOR row from the OUTLOOK row above it and
+    # (b) fill the empty band between watch_for text and the navy footer
+    # (y=940). Vertical budget below: bullseye y=876-904, text y=876-898,
+    # gap to navy band ≈42px.
+    cx, cy = 80, 890
     d.ellipse((cx - 14, cy - 14, cx + 14, cy + 14), outline=(*GOLD, 255), width=3)
     d.ellipse((cx - 6, cy - 6, cx + 6, cy + 6), fill=(*GOLD, 255))
 
     # "WATCH FOR" mini-label above the watch_for text. Mirrors the OUTLOOK
-    # label above the takeaway — small Poppins SemiBold in INK_MUTED. Sits
-    # in the gap between the takeaway block (ends ~y=784) and the bullseye
-    # (top edge y=cy-14=816).
+    # label above the takeaway — small Poppins SemiBold in INK_MUTED.
     label_f = font("sans_bold", 14)
     d.text((cx + 24, cy - 36), "WATCH FOR", font=label_f, fill=(*INK_MUTED, 255))
 
