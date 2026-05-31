@@ -369,15 +369,9 @@ def render_background(canvas: Image.Image) -> None:
 
 # Single source of truth for the blob bounds — both the fill and the
 # cutout clip mask reference these so they always line up.
-BLOB_W      = 440                          # was 500; narrowed 2026-05-30 so the
-                                           #   40-char watch_for line clears the
-                                           #   blob (Auburn "Can portal replacements
-                                           #   win in the SEC?" was kissing the edge)
+BLOB_W      = 500
 BLOB_H      = 765                          # was 820; trimmed top 2026-05-30
-BLOB_X0     = CANVAS_W - BLOB_W + 20      # 660 (was 600; shifted right by the same
-                                           #   60px the width shrank — keeps BLOB_X1
-                                           #   at 1100 so the off-canvas overhang +
-                                           #   rounded corner are unchanged)
+BLOB_X0     = CANVAS_W - BLOB_W + 20      # 600
 BLOB_Y0     = 175                          # was 130; pushed down to clear the team logo (y=50-160)
 BLOB_X1     = BLOB_X0 + BLOB_W            # 1100 (off-canvas right; rounded corner hides it)
 BLOB_Y1     = BLOB_Y0 + BLOB_H            # 940 — touches the navy quote band exactly
@@ -670,19 +664,34 @@ def render_watch_for(canvas: Image.Image, copy_block: dict) -> None:
 def render_nameplate(canvas: Image.Image, payload: dict) -> None:
     """
     Brushstroke-style nameplate over the coach cutout bottom.
-    v1: a slightly-tilted gold band with a subtle drop shadow, white
-    serif coach name centered inside. Easy to swap for a real
-    brushstroke texture PNG later.
+    v2: auto-fits plate width to the coach name so the left edge doesn't
+    extend past the coach image and crowd the watch_for line above it.
+    Right edge is anchored at the old fixed-width position (~x=1100); the
+    plate shrinks left for shorter names. Min width 280 so very short
+    names ("Bo Nix" etc.) don't look like a button.
     """
     head_coach = payload.get("head_coach") or "—"
 
-    plate_w = 540
+    # Measure name with the real font so the padding is consistent across
+    # short and long names. textlength() needs a draw context — create a
+    # throwaway one on the canvas.
+    f = font("serif_bold_italic", 36)
+    tmp_d = ImageDraw.Draw(canvas)
+    text_w = int(tmp_d.textlength(head_coach, font=f))
+
+    PADDING_X    = 80      # 40px on each side of the name
+    MIN_PLATE_W  = 280
+    plate_w = max(MIN_PLATE_W, text_w + PADDING_X)
     plate_h = 80
-    # Position it bottom-right area, just above the quote band
-    cx = CANVAS_W - 250
+
+    # Anchor right edge where the old fixed-540 plate ended:
+    # center was CANVAS_W - 250 = 830, half-width 270 → right edge x=1100.
+    # Keep that right edge; new center is right_edge - new_half_width.
+    OLD_RIGHT_EDGE = CANVAS_W - 250 + 540 // 2   # 1100
+    cx = OLD_RIGHT_EDGE - plate_w // 2
     cy = 870
 
-    # Layer for rotation/shadow
+    # Layer for rotation/shadow — sized to the new plate_w
     layer = Image.new("RGBA", (plate_w + 60, plate_h + 60), (0, 0, 0, 0))
     ld = ImageDraw.Draw(layer)
     # Drop shadow
@@ -691,8 +700,8 @@ def render_nameplate(canvas: Image.Image, payload: dict) -> None:
     ld = ImageDraw.Draw(layer)
     # Gold band
     ld.rounded_rectangle((20, 20, 20 + plate_w, 20 + plate_h), radius=6, fill=(*GOLD, 255))
-    # Coach name
-    f = font("serif_bold_italic", 36)
+    # Coach name — re-measure inside this draw context (textlength is the
+    # same across contexts but this keeps the API tidy)
     text_w = ld.textlength(head_coach, font=f)
     ld.text(
         (20 + (plate_w - text_w) / 2, 20 + (plate_h - 36) / 2 - 6),
