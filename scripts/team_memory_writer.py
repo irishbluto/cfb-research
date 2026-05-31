@@ -98,6 +98,56 @@ def _is_ourlads_contaminated(text):
 
 
 # ---------------------------------------------------------------------------
+# Forbidden-topic filter — national-policy noise that has no place in any
+# team-level storyline thread. Agent prompt rules (research_agent.py +
+# conference_research_agent.py) are the primary defense; this filter is the
+# belt-and-suspenders catch for any phrasing that slips through. Anything
+# matching here is dropped before being appended to a thread or persisted.
+#
+# Scope reminder: these belong in the NATIONAL landscape writeup, not in
+# team or conference threads. CFB fans do not want federal-policy recap on
+# their team's page. State-level NIL tied to a specific team is fine and
+# will not trigger these patterns (no "congressional," no "federal," no
+# bill name).
+# ---------------------------------------------------------------------------
+FORBIDDEN_TOPIC_PATTERNS = (
+    # Federal NIL legislation — named bills + generic framings
+    "score act",
+    "protect college sports act",
+    "cruz/cantwell", "cruz-cantwell",
+    "cruz/ cantwell",                # tolerate odd spacing
+    "congressional nil",
+    "federal nil",
+    "nil legislation",
+    "nil antitrust",
+    "antitrust exemption",
+    "federal preemption",
+    # Generic Congress/federal-government framings
+    "congressional hearing",
+    "congressional bill",
+    "senate hearing on college",
+    "house hearing on college",
+    # CFP expansion / format-change speculation
+    "cfp expansion",
+    "playoff expansion",
+    "expanded playoff",
+    "expanded cfp",
+    "14-team playoff", "14 team playoff",
+    "16-team playoff", "16 team playoff",
+    "5+11 format", "5+11 model",
+)
+
+
+def _is_forbidden_topic(text):
+    """Return True if a storyline string is national-policy noise that
+    must not be persisted on a team or conference thread."""
+    if not text:
+        return False
+    lowered = text.lower()
+    return any(pat in lowered for pat in FORBIDDEN_TOPIC_PATTERNS)
+
+
+# ---------------------------------------------------------------------------
 # DB connection
 # ---------------------------------------------------------------------------
 def get_db():
@@ -397,6 +447,20 @@ def write_team_memory(slug, db):
         dropped = pre_filter_count - len(new_storylines)
         logging.warning(f"  [{slug}] Dropped {dropped} Ourlads-contaminated storyline(s) before threading")
 
+    # Strip any storyline matching the forbidden-topic filter (federal NIL
+    # legislation, Congressional bills, CFP expansion, etc.). These are
+    # national-policy stories that don't belong on a team page. The agent
+    # prompt rule is the primary defense; this is the belt-and-suspenders
+    # catch. Log the drops so we can audit which teams the agent tried to
+    # contaminate.
+    pre_filter_count = len(new_storylines)
+    dropped_forbidden = [s for s in new_storylines if _is_forbidden_topic(s)]
+    new_storylines = [s for s in new_storylines if not _is_forbidden_topic(s)]
+    if dropped_forbidden:
+        for s in dropped_forbidden:
+            preview = (s or "")[:120].replace("\n", " ")
+            logging.warning(f"  [{slug}] Dropped FORBIDDEN-TOPIC storyline before threading: {preview}…")
+
     matched_ids = set()
 
     for storyline_text in new_storylines:
@@ -640,9 +704,13 @@ def write_team_memory(slug, db):
     # Filter Ourlads-contaminated storylines out of prior_storylines so the
     # next agent run doesn't see them echoed back as its own prior reporting.
     # The threading step above already drops them from the DB; this catches
-    # the parallel raw-pass-through cache field.
+    # the parallel raw-pass-through cache field. Same logic for forbidden
+    # topics (federal NIL legislation, Congressional bills, CFP expansion).
     _raw_priors = data.get("key_storylines", [])[:5]
-    prior_storylines_clean = [s for s in _raw_priors if not _is_ourlads_contaminated(s)]
+    prior_storylines_clean = [
+        s for s in _raw_priors
+        if not _is_ourlads_contaminated(s) and not _is_forbidden_topic(s)
+    ]
 
     cache = {
         "team":              team_name,
@@ -722,9 +790,15 @@ def rebuild_cache_only(slug, db):
             logging.warning(f"  [{slug}] Could not read research file ({e}); proceeding with DB-only fields")
 
     # Apply the contamination filter so retired Ourlads storylines never
-    # reach the cache as raw prior_storylines text.
+    # reach the cache as raw prior_storylines text. Same for forbidden-topic
+    # storylines (federal NIL legislation, Congressional bills, CFP
+    # expansion) — they must not echo back to the next agent run as its
+    # own prior reporting.
     _raw_priors = data.get("key_storylines", [])[:5]
-    prior_storylines_clean = [s for s in _raw_priors if not _is_ourlads_contaminated(s)]
+    prior_storylines_clean = [
+        s for s in _raw_priors
+        if not _is_ourlads_contaminated(s) and not _is_forbidden_topic(s)
+    ]
 
     # Pull active+stale storyline_threads from the DB (already excludes retired).
     cur.execute(

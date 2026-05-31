@@ -369,9 +369,15 @@ def render_background(canvas: Image.Image) -> None:
 
 # Single source of truth for the blob bounds — both the fill and the
 # cutout clip mask reference these so they always line up.
-BLOB_W      = 500
+BLOB_W      = 440                          # was 500; narrowed 2026-05-30 so the
+                                           #   40-char watch_for line clears the
+                                           #   blob (Auburn "Can portal replacements
+                                           #   win in the SEC?" was kissing the edge)
 BLOB_H      = 765                          # was 820; trimmed top 2026-05-30
-BLOB_X0     = CANVAS_W - BLOB_W + 20      # 600
+BLOB_X0     = CANVAS_W - BLOB_W + 20      # 660 (was 600; shifted right by the same
+                                           #   60px the width shrank — keeps BLOB_X1
+                                           #   at 1100 so the off-canvas overhang +
+                                           #   rounded corner are unchanged)
 BLOB_Y0     = 175                          # was 130; pushed down to clear the team logo (y=50-160)
 BLOB_X1     = BLOB_X0 + BLOB_W            # 1100 (off-canvas right; rounded corner hides it)
 BLOB_Y1     = BLOB_Y0 + BLOB_H            # 940 — touches the navy quote band exactly
