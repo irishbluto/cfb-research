@@ -186,6 +186,17 @@ FONT_CANDIDATES = {
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         r"C:\Windows\Fonts\arialbd.ttf",
     ],
+    "marker": [
+        # Permanent Marker — Sharpie-on-paper feel for the right-column
+        # stat values. Single weight from Google Fonts. Drop the .ttf at
+        # cfb-research/scripts/fonts/PermanentMarker-Regular.ttf.
+        # Falls back to serif_bold paths so the renderer doesn't break
+        # if the file isn't installed yet.
+        str(_REPO_FONT_DIR / "PermanentMarker-Regular.ttf"),
+        "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
+        r"C:\Windows\Fonts\georgiab.ttf",
+    ],
 }
 
 _font_path_cache: dict[str, str] = {}
@@ -559,7 +570,11 @@ def render_stat_rows(canvas: Image.Image, payload: dict) -> None:
     stats = payload.get("stats") or {}
     d = ImageDraw.Draw(canvas)
     label_f = font("sans_bold", 22)
-    value_f = font("serif_bold", 38)
+    # Right-column values in Permanent Marker — Sharpie-on-paper feel that
+    # makes the numbers pop against the cream background. 36pt (vs. 38pt
+    # for the old serif) because Marker's heavier weight already carries
+    # the visual emphasis. Falls back to serif_bold if the .ttf is missing.
+    value_f = font("marker", 36)
 
     # Stat block lives strictly LEFT of the coach blob: label x=60,
     # value right-aligned at x=540, divider hairline through x=540.
