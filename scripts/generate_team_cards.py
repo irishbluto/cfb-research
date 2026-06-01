@@ -554,9 +554,8 @@ def render_team_logo(canvas: Image.Image, payload: dict, cache_dir: Path) -> Non
     canvas.alpha_composite(scaled, (x, y))
 
 def render_tag_bar(canvas: Image.Image, payload: dict, year: int) -> None:
-    """Gold pill bar reading '{YEAR} {CONF} DIAGNOSTIC'."""
-    conf = (payload.get("conference_abbr") or "FBS").upper()
-    text = f"{year}  {conf}  DIAGNOSTIC"
+    """Gold pill bar reading '{YEAR} TEAM PREVIEW' (was 'CONF DIAGNOSTIC')."""
+    text = f"{year}  TEAM PREVIEW"
 
     d = ImageDraw.Draw(canvas)
     f = font("sans_bold", 22)
