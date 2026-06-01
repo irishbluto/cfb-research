@@ -27,26 +27,18 @@ cleanly.
 
 Usage
 -----
+    # Day-to-day: API key resolves from DEFAULT_API_KEY / env / .env, so
+    # the only thing you usually edit is --conf.
+    python3 scripts/generate_team_cards.py --year 2026 --conf SEC
+
     # Single team
-    python scripts/generate_team_cards.py \\
-        --team "Notre Dame" \\
-        --year 2026 \\
-        --api-key "$X_API_KEY" \\
-        --out team_cards/
+    python3 scripts/generate_team_cards.py --year 2026 --team "Notre Dame"
 
-    # All 138 (writes one PNG per team into --out)
-    python scripts/generate_team_cards.py \\
-        --all \\
-        --year 2026 \\
-        --api-key "$X_API_KEY" \\
-        --out team_cards/
+    # All 138
+    python3 scripts/generate_team_cards.py --year 2026 --all
 
-    # One conference (matches case-insensitively on abbrev or full name)
-    python scripts/generate_team_cards.py \\
-        --conf SEC \\
-        --year 2026 \\
-        --api-key "$X_API_KEY" \\
-        --out team_cards/
+    # Override the resolved key if needed (overrides env / DEFAULT)
+    python3 scripts/generate_team_cards.py --year 2026 --conf SEC --api-key "..."
 
     # Use a sidecar JSON for editorial overrides
     python scripts/generate_team_cards.py \\
@@ -89,6 +81,25 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 API_BASE = "https://www.puntandrally.com/api/coach_card_stats.php"
 PR_LOGO_URL = "https://www.puntandrally.com/stylesheets/images/pr_logo.png"
+
+# ---------------------------------------------------------------------------
+# API key resolution
+# ---------------------------------------------------------------------------
+# DEFAULT_API_KEY is the script-level fallback the renderer uses when no
+# --api-key flag is passed and no X_API_KEY env var is set. Paste your
+# shim key between the quotes to skip typing it on every run.
+#
+# IMPORTANT: this file IS in git. If the cfb-research repo ever becomes
+# public, scrub this value first. Until then it's fine for a private
+# personal repo on a personal VPS — the convenience tradeoff is
+# Jonathan's call (asked for and accepted 2026-05-30).
+#
+# Resolution order at runtime (first non-empty wins):
+#   1. --api-key CLI arg
+#   2. X_API_KEY environment variable
+#   3. .env file at repo root (KEY=VALUE format, parsed inline below)
+#   4. DEFAULT_API_KEY (this constant)
+DEFAULT_API_KEY = ""
 
 CANVAS_W = 1080
 CANVAS_H = 1080
@@ -919,6 +930,47 @@ def render_card(
 
     return canvas.convert("RGB")
 
+def _load_dotenv_value(key: str) -> str:
+    """
+    Light-weight .env reader so we don't pull python-dotenv. Looks for a
+    .env file at the repo root (one level above this script) and returns
+    the value for `key`, stripping optional surrounding quotes. Returns
+    empty string when the file or key is missing.
+
+    Format expected: one `KEY=value` per line, # for comments.
+    """
+    repo_root = Path(__file__).resolve().parent.parent
+    env_path = repo_root / ".env"
+    if not env_path.is_file():
+        return ""
+    try:
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, _, v = line.partition("=")
+            if k.strip() == key:
+                return v.strip().strip('"').strip("'")
+    except OSError:
+        return ""
+    return ""
+
+def resolve_api_key(cli_arg: Optional[str]) -> str:
+    """
+    Pick the API key from the first non-empty source. See DEFAULT_API_KEY
+    docstring for the resolution order.
+    """
+    candidates = [
+        cli_arg or "",
+        os.environ.get("X_API_KEY", ""),
+        _load_dotenv_value("X_API_KEY"),
+        DEFAULT_API_KEY,
+    ]
+    for c in candidates:
+        if c:
+            return c
+    return ""
+
 def load_copy_overrides(path: Optional[Path]) -> dict:
     if not path:
         return {}
@@ -947,7 +999,10 @@ def parse_args() -> argparse.Namespace:
                                       "the full conference name. Examples: 'SEC', 'B1G', "
                                       "'Big Ten', 'AAC', 'American'.")
     p.add_argument("--year",    type=int, required=True, help="Season year.")
-    p.add_argument("--api-key", required=True, help="X-API-Key for the shim.")
+    p.add_argument("--api-key", default=None,
+                   help="X-API-Key for the shim. Optional — defaults to "
+                        "DEFAULT_API_KEY in this file, X_API_KEY env var, "
+                        "or .env at repo root (in that order).")
     p.add_argument("--out",     type=Path, default=Path("team_cards"),
                    help="Output directory (default: team_cards/).")
     p.add_argument("--cache",   type=Path, default=Path(".cache/cutouts"),
@@ -963,9 +1018,19 @@ def main() -> int:
     args = parse_args()
     copy_map = load_copy_overrides(args.copy)
 
+    api_key = resolve_api_key(args.api_key)
+    if not api_key:
+        print("FATAL: no API key found. Either:\n"
+              "  - pass --api-key on the command line, OR\n"
+              "  - set the X_API_KEY environment variable, OR\n"
+              "  - add X_API_KEY=... to .env at the repo root, OR\n"
+              "  - paste the key into DEFAULT_API_KEY near the top of this script.",
+              file=sys.stderr)
+        return 1
+
     if args.team:
         try:
-            fetched = fetch_team(args.api_key, args.team, args.year)
+            fetched = fetch_team(api_key, args.team, args.year)
         except Exception as e:
             print(f"FATAL: {e}", file=sys.stderr)
             return 1
@@ -980,7 +1045,7 @@ def main() -> int:
 
     # --all or --conf — both pull every payload then optionally filter
     try:
-        all_payloads = fetch_all(args.api_key, args.year)
+        all_payloads = fetch_all(api_key, args.year)
     except Exception as e:
         print(f"FATAL: {e}", file=sys.stderr)
         return 1
