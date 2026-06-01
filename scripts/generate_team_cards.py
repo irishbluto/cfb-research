@@ -187,11 +187,13 @@ FONT_CANDIDATES = {
         r"C:\Windows\Fonts\arialbd.ttf",
     ],
     "marker": [
-        # Permanent Marker — Sharpie-on-paper feel for the right-column
-        # stat values. Single weight from Google Fonts. Drop the .ttf at
-        # cfb-research/scripts/fonts/PermanentMarker-Regular.ttf.
-        # Falls back to serif_bold paths so the renderer doesn't break
-        # if the file isn't installed yet.
+        # Hand-drawn display font for the right-column stat values. Prefers
+        # Kalam Bold (clean professional hand-print) over Permanent Marker
+        # (heavier Sharpie feel) — swap order to switch back.
+        # Drop .ttfs at cfb-research/scripts/fonts/.
+        # Falls back to serif_bold paths so the renderer doesn't break if
+        # neither file is installed yet.
+        str(_REPO_FONT_DIR / "Kalam-Bold.ttf"),
         str(_REPO_FONT_DIR / "PermanentMarker-Regular.ttf"),
         "/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
