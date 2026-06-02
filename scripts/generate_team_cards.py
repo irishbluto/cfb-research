@@ -1050,16 +1050,36 @@ def main() -> int:
         return 1
 
     if args.conf:
-        want = args.conf.strip().lower()
-        all_payloads = [
-            fp for fp in all_payloads
-            if (str(fp.payload.get("conference_abbr") or "").lower() == want
-                or str(fp.payload.get("conference")      or "").lower() == want)
-        ]
+        # Normalize on both sides: lowercase, strip non-alphanumeric. So
+        # "Pac-12", "PAC-12", "Pac12", "pac 12", "PAC" all collapse to "pac"
+        # and match either the abbr ('PAC') or full name ('Pac-12') in the
+        # DB. Also allows a digit-tailed prefix variant ("pac12" ↔ "pac")
+        # so users don't have to know whether the abbrev includes the
+        # number. Guarded against "secret" hitting "sec" by requiring the
+        # extra characters to be digits only.
+        import re
+        def _norm(s: str) -> str:
+            return re.sub(r"[^a-z0-9]+", "", s.lower())
+        want = _norm(args.conf)
+        def _matches(fp) -> bool:
+            if not want:
+                return False
+            for c in (_norm(str(fp.payload.get("conference_abbr") or "")),
+                      _norm(str(fp.payload.get("conference")      or ""))):
+                if not c:
+                    continue
+                if want == c:
+                    return True
+                if want.startswith(c) and want[len(c):].isdigit():
+                    return True
+                if c.startswith(want) and c[len(want):].isdigit():
+                    return True
+            return False
+        all_payloads = [fp for fp in all_payloads if _matches(fp)]
         if not all_payloads:
             print(f"FATAL: --conf '{args.conf}' matched zero teams. "
-                  f"Try the abbreviation (SEC, B1G, ACC, B12, AAC, MWC, MAC, "
-                  f"CUSA, SBC, Ind) or the full conference name.",
+                  f"Try the abbreviation (SEC, B1G, ACC, B12, PAC, AAC, MWC, "
+                  f"MAC, CUSA, SBC, Ind) or the full conference name.",
                   file=sys.stderr)
             return 1
         print(f"Conference filter '{args.conf}' → {len(all_payloads)} teams.")
