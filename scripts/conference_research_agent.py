@@ -44,6 +44,14 @@ AGENT_TIMEOUT_SECS = 7200  # 120 min — Big Ten (18 teams, largest conf) timed 
                            # storyline context push it past. ACC/SEC (14-16 teams) still
                            # finish well under. Bounded to prevent runaway runs.
 
+# Retry configuration — ported from research_agent.py 2026-06-04.
+# Cost log analysis showed the same conference prompt sometimes succeeds (~70-105k
+# output tokens) and sometimes burns to the CLI's hard 128k session cap and exits 1.
+# Failure is stochastic, not deterministic — one automatic retry catches most of these
+# without manual intervention. Timeouts and unexpected exceptions skip the retry.
+MAX_ATTEMPTS = 2    # initial attempt + (MAX_ATTEMPTS - 1) retries
+RETRY_DELAY  = 30   # seconds between attempts
+
 # Import canonical conference list from build_team_context.py
 sys.path.insert(0, str(BASE_DIR / "scripts"))
 from build_team_context import CONFERENCE_TEAMS  # noqa: E402
@@ -940,10 +948,14 @@ def merge_context_into_preview(conf_slug):
 # ---------------------------------------------------------------------------
 # Run Claude agent (mirrors national_landscape_agent.py pattern)
 # ---------------------------------------------------------------------------
-def run_agent(conf_slug, prompt, dry_run=False, mode=None):
+def run_agent(conf_slug, prompt, dry_run=False, mode=None, model=None):
     """Spawn a Claude Code session with the conference prompt. Validate JSON output.
     Writes the rendered prompt to logs/prompt_conference_<slug>.txt in both
-    dry-run and live modes — that file is the canonical review artifact."""
+    dry-run and live modes — that file is the canonical review artifact.
+
+    `model` (optional): pass through to the Claude CLI's --model flag (e.g.
+    "opus", "sonnet", or a full model name). None = use CLI default.
+    """
     # Strip null bytes (safety — same as national_landscape_agent.py)
     prompt = prompt.replace('\x00', '')
 
@@ -975,87 +987,103 @@ def run_agent(conf_slug, prompt, dry_run=False, mode=None):
                                 # burning extended-thinking budget on cross-rule
                                 # verification loops without ever writing acc.json. Drop
                                 # to medium to let the agent converge on the JSON output.
-        "-p", prompt,
     ]
+    if model:
+        cmd += ["--model", model]
+    cmd += ["-p", prompt]
 
-    logging.info(f"  [{conf_slug}] Running Claude (prompt: {len(prompt)} chars)")
-    start = time.time()
+    model_label = f" (model={model})" if model else ""
+    logging.info(f"  [{conf_slug}] Running Claude (prompt: {len(prompt)} chars){model_label}")
 
-    try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=AGENT_TIMEOUT_SECS,
-            cwd=str(BASE_DIR),
-        )
-        elapsed = round(time.time() - start, 1)
+    # Retry loop — initial attempt + (MAX_ATTEMPTS - 1) retries on transient failure.
+    # Conference runs are stochastic against the CLI's 128k output-token session cap;
+    # the same prompt sometimes converges at ~70k tokens and sometimes burns to the
+    # ceiling and exits 1. Retries catch the unlucky-loop case without manual rerun.
+    # Timeouts and unexpected exceptions break out early — rarely transient.
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        if attempt > 1:
+            logging.info(f"  [{conf_slug}] Retry {attempt - 1}/{MAX_ATTEMPTS - 1} — waiting {RETRY_DELAY}s")
+            time.sleep(RETRY_DELAY)
 
-        # Capture cost + token usage from the JSON envelope on stdout.
-        # Writes one row to logs/agent_cost_log.csv; never raises.
-        log_run(
-            pipeline   = "conference_preview",
-            slug       = conf_slug,
-            mode       = mode,
-            elapsed    = elapsed,
-            returncode = result.returncode,
-            stdout     = result.stdout,
-        )
+        start = time.time()
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=AGENT_TIMEOUT_SECS,
+                cwd=str(BASE_DIR),
+            )
+            elapsed = round(time.time() - start, 1)
 
-        if result.returncode == 0:
-            output_file = CONF_PREVIEWS / f"{conf_slug}.json"
-            if output_file.exists():
-                try:
-                    data = json.loads(output_file.read_text())
-                    blurb_count = len(data.get('team_blurbs', []) or [])
-                    storyline_count = len(data.get('key_storylines', []) or [])
-                    logging.info(
-                        f"  [{conf_slug}] ✔ valid JSON ({elapsed}s) — "
-                        f"{blurb_count} blurbs, {storyline_count} storylines"
-                    )
-                    # Merge in the deterministic data layer so the public URL
-                    # is a single source of truth (PHP only fetches one file).
-                    if not merge_context_into_preview(conf_slug):
-                        logging.warning(f"  [{conf_slug}] ⚠ merge step failed — "
-                                        f"preview JSON has prose only, no data layer")
-                    return True
-                except json.JSONDecodeError as e:
-                    logging.error(f"  [{conf_slug}] ✗ invalid JSON: {e}")
-                    return False
+            # Capture cost + token usage from the JSON envelope on stdout.
+            # Writes one row to logs/agent_cost_log.csv per attempt; never raises.
+            log_run(
+                pipeline   = "conference_preview",
+                slug       = conf_slug,
+                mode       = mode,
+                elapsed    = elapsed,
+                returncode = result.returncode,
+                stdout     = result.stdout,
+            )
+
+            if result.returncode == 0:
+                output_file = CONF_PREVIEWS / f"{conf_slug}.json"
+                if output_file.exists():
+                    try:
+                        data = json.loads(output_file.read_text())
+                        blurb_count = len(data.get('team_blurbs', []) or [])
+                        storyline_count = len(data.get('key_storylines', []) or [])
+                        logging.info(
+                            f"  [{conf_slug}] ✔ valid JSON ({elapsed}s) — "
+                            f"{blurb_count} blurbs, {storyline_count} storylines"
+                        )
+                        # Merge in the deterministic data layer so the public URL
+                        # is a single source of truth (PHP only fetches one file).
+                        if not merge_context_into_preview(conf_slug):
+                            logging.warning(f"  [{conf_slug}] ⚠ merge step failed — "
+                                            f"preview JSON has prose only, no data layer")
+                        return True
+                    except json.JSONDecodeError as e:
+                        logging.error(f"  [{conf_slug}] ✗ invalid JSON: {e}")
+                        # fall through to retry
+                else:
+                    logging.warning(f"  [{conf_slug}] ✗ agent ran but no output file ({elapsed}s)")
+                    if result.stdout:
+                        logging.debug(f"  stdout tail: {result.stdout[-500:]}")
+                    # fall through to retry
             else:
-                logging.warning(f"  [{conf_slug}] ✗ agent ran but no output file ({elapsed}s)")
+                logging.error(f"  [{conf_slug}] ✗ exit {result.returncode} ({elapsed}s)")
+                if result.stderr:
+                    logging.error(f"  stderr: {result.stderr[:400]}")
                 if result.stdout:
-                    logging.debug(f"  stdout tail: {result.stdout[-500:]}")
-                return False
-        else:
-            logging.error(f"  [{conf_slug}] ✗ exit {result.returncode} ({elapsed}s)")
-            if result.stderr:
-                logging.error(f"  stderr: {result.stderr[:400]}")
-            if result.stdout:
-                logging.error(f"  stdout tail: {result.stdout[-400:]}")
+                    logging.error(f"  stdout tail: {result.stdout[-400:]}")
+                # fall through to retry
+
+        except subprocess.TimeoutExpired:
+            logging.error(f"  [{conf_slug}] ✗ timed out after {AGENT_TIMEOUT_SECS}s (no retry)")
+            # Timeout — log a row with blanks so the run is still visible in the CSV.
+            log_run(
+                pipeline   = "conference_preview",
+                slug       = conf_slug,
+                mode       = mode,
+                elapsed    = round(time.time() - start, 1),
+                returncode = None,
+                stdout     = "",
+            )
+            return False
+        except Exception as e:
+            logging.error(f"  [{conf_slug}] ✗ unexpected error: {e} (no retry)")
             return False
 
-    except subprocess.TimeoutExpired:
-        logging.error(f"  [{conf_slug}] ✗ timed out after {AGENT_TIMEOUT_SECS}s")
-        # Timeout — log a row with blanks so the run is still visible in the CSV.
-        log_run(
-            pipeline   = "conference_preview",
-            slug       = conf_slug,
-            mode       = mode,
-            elapsed    = round(time.time() - start, 1),
-            returncode = None,
-            stdout     = "",
-        )
-        return False
-    except Exception as e:
-        logging.error(f"  [{conf_slug}] ✗ unexpected error: {e}")
-        return False
+    logging.error(f"  [{conf_slug}] ✗ all {MAX_ATTEMPTS} attempts failed")
+    return False
 
 
 # ---------------------------------------------------------------------------
 # Per-conference orchestration
 # ---------------------------------------------------------------------------
-def run_conference(conf_slug, dry_run=False, debug=False):
+def run_conference(conf_slug, dry_run=False, debug=False, model=None):
     """Load all inputs, build prompt, run agent. Returns True on success."""
     logging.info(f"\n[{conf_slug}] starting")
 
@@ -1079,7 +1107,7 @@ def run_conference(conf_slug, dry_run=False, debug=False):
     logging.info(f"  [{conf_slug}] mode={mode} | prompt={len(prompt)} chars")
 
     CONF_PREVIEWS.mkdir(exist_ok=True)
-    return run_agent(conf_slug, prompt, dry_run=dry_run, mode=mode)
+    return run_agent(conf_slug, prompt, dry_run=dry_run, mode=mode, model=model)
 
 
 # ---------------------------------------------------------------------------
@@ -1100,6 +1128,9 @@ def main():
                         help='Print the assembled prompt without running Claude')
     parser.add_argument('--debug',      action='store_true',
                         help='Verbose logging')
+    parser.add_argument('--model',      default=None,
+                        help='Override the Claude CLI model (e.g. "opus", "sonnet", or a full '
+                             'model name). Default = CLI default (Sonnet 4.6 as of 2026-06).')
     args = parser.parse_args()
 
     log_file = setup_logging()
@@ -1110,7 +1141,7 @@ def main():
     success = failed = 0
     for conf in confs:
         try:
-            if run_conference(conf, dry_run=args.dry_run, debug=args.debug):
+            if run_conference(conf, dry_run=args.dry_run, debug=args.debug, model=args.model):
                 success += 1
             else:
                 failed += 1
