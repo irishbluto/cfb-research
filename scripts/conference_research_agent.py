@@ -22,6 +22,29 @@ Usage:
     python3 scripts/conference_research_agent.py --all
     python3 scripts/conference_research_agent.py --conf sec --debug
 
+Model selection (--model, added 2026-06-04):
+    Default (no flag)              → whatever the Claude CLI defaults to (Sonnet 4.6
+                                     as of CLI 2.1.162). Fine for SEC, B1G, smaller
+                                     G6 conferences with light editor notes.
+    --model claude-opus-4-6        → Opus 4.6. Recommended for any conference with
+                                     dense editor_notes or many cross-rule landmines
+                                     (ACC, Big 12, eventually Pac-12 once filled out).
+                                     Empirically faster (10-15 min vs 30-45 min for
+                                     Sonnet) AND comparable cost, because the prompt
+                                     caches so well that input cost evaporates.
+    --model sonnet                 → short alias for the current Sonnet
+    --model claude-sonnet-4-6      → pin to Sonnet 4.6 explicitly
+    See `claude --help` for the full alias/model-name list.
+
+    Reliability data behind the recommendation (2026-06-04):
+      - Sonnet ACC: 3 consecutive failures at the CLI's 128k output-token session
+        cap. One historical success at 104k tokens (stochastic).
+      - Opus ACC: 1/1 success, 37k output tokens, 14.8 min, $2.06.
+      - Opus Big 12: 1/1 success, 29k output tokens, 11.5 min, $1.67.
+      - Both Opus runs sat well below the 128k ceiling — no cap risk.
+
+    The retry wrapper (MAX_ATTEMPTS=2) is belt-and-suspenders regardless of model.
+
 Importable:
     from conference_research_agent import build_prompt, run_agent
 """
@@ -1129,8 +1152,12 @@ def main():
     parser.add_argument('--debug',      action='store_true',
                         help='Verbose logging')
     parser.add_argument('--model',      default=None,
-                        help='Override the Claude CLI model (e.g. "opus", "sonnet", or a full '
-                             'model name). Default = CLI default (Sonnet 4.6 as of 2026-06).')
+                        help='Override the Claude CLI model. Recommended: '
+                             '"claude-opus-4-6" for ACC / Big 12 / any conf with dense '
+                             'editor_notes (avoids the 128k cap, converges in ~12-15 min). '
+                             'Leave unset to use the CLI default (Sonnet 4.6 — fine for '
+                             'SEC, Big Ten, smaller G6 confs). See module docstring for the '
+                             'reliability/cost data behind this recommendation.')
     args = parser.parse_args()
 
     log_file = setup_logging()
