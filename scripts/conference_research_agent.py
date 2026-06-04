@@ -970,6 +970,11 @@ def run_agent(conf_slug, prompt, dry_run=False, mode=None):
     cmd = [
         CLAUDE_BIN, "--dangerously-skip-permissions",
         "--output-format", "json",
+        "--effort", "medium",   # 2026-06-04: was hitting 128k output-token session cap on
+                                # ACC under the default effort level (likely high/max),
+                                # burning extended-thinking budget on cross-rule
+                                # verification loops without ever writing acc.json. Drop
+                                # to medium to let the agent converge on the JSON output.
         "-p", prompt,
     ]
 
