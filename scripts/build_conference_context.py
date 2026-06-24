@@ -14,6 +14,7 @@ skipped with a warning rather than aborting the run -- the agent will see
 which teams were missing in the meta block.
 
 Usage:
+Testing
     python3 scripts/build_conference_context.py --conf sec
     python3 scripts/build_conference_context.py --conference big10
     python3 scripts/build_conference_context.py --all
