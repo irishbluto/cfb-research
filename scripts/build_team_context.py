@@ -165,7 +165,7 @@ SBC_TEAMS = [
 ]
 MWC_TEAMS = [
     ("Air Force Falcons",          "Air Force",        "air-force"),
-    ("Hawai'i Rainbow Warriors",   "Hawai",            "hawaii"),
+    ("Hawai'i Rainbow Warriors",   "Hawai'i",          "hawaii"),  # url_param MUST keep the apostrophe — DB stores "Hawai'i" (U+0027)
     ("Nevada Wolf Pack",           "Nevada",           "nevada"),
     ("New Mexico Lobos",           "New Mexico",       "new-mexico"),
     ("North Dakota State Bison",   "North Dakota State","north-dakota-state"),
@@ -306,6 +306,12 @@ def build_header(conn, team, season):
         WHERE team = %s AND year = %s
         LIMIT 1
     """, (team, season))
+    if not p:
+        # powerrating should have a row for every FBS team. A miss almost always
+        # means the url_param doesn't match the DB's team string (e.g. the Hawai'i
+        # apostrophe bug). Surface it loudly instead of silently slotting last.
+        print(f"  [WARN] no powerrating row for team={team!r} year={season} "
+              f"— url_param likely doesn't match the DB team key", flush=True)
     if p and p.get('expectedwins') is not None and p.get('expectedlosses') is not None:
         ew = int(round(float(p['expectedwins'])))
         el = int(round(float(p['expectedlosses'])))

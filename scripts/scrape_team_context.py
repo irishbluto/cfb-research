@@ -150,7 +150,7 @@ SBC_TEAMS = [
 
 MWC_TEAMS = [
     ("Air Force Falcons",          "Air Force",        "air-force"),
-    ("Hawai'i Rainbow Warriors",   "Hawai",            "hawaii"),
+    ("Hawai'i Rainbow Warriors",   "Hawai'i",          "hawaii"),  # url_param MUST keep the apostrophe — DB stores "Hawai'i" (U+0027)
     ("Nevada Wolf Pack",           "Nevada",           "nevada"),
     ("New Mexico Lobos",           "New Mexico",       "new-mexico"),
     ("North Dakota State Bison",   "North Dakota State","north-dakota-state"),
