@@ -23,7 +23,7 @@ Testing
 Output: /cfb-research/conference_context/<slug>.json
 """
 
-import json, os, sys, argparse
+import json, os, sys, argparse, unicodedata
 from datetime import datetime
 from pathlib import Path
 
@@ -435,6 +435,21 @@ def _bool_in(col, truthy):
     return f"{col} IN ({placeholders})", list(truthy)
 
 
+def _norm_team(s):
+    """Accent- and case-insensitive team-name key for cross-table matching.
+
+    The `games` table stores CFBD's canonical spelling (e.g. 'San José State'
+    with the accent), while the slug-tuple `url_param` is the ASCII form
+    ('San Jose State'). Without normalization the history lookup misses and a
+    returning member shows all em-dashes. NFKD + ASCII-drop folds 'é'→'e' on
+    both sides; lowercasing is safe because no two members of a single
+    conference collide after folding. (ASCII apostrophes survive, so Hawai'i —
+    stored identically in both tables — is unaffected.)
+    """
+    return (unicodedata.normalize('NFKD', str(s or ''))
+            .encode('ascii', 'ignore').decode('ascii').strip().lower())
+
+
 def build_history(conn, conf_games_name, member_url_params,
                   current_season=SEASON, years=PAST_YEARS):
     """
@@ -470,10 +485,12 @@ def build_history(conn, conf_games_name, member_url_params,
     )
     rows = query_all(conn, sql, params)
 
-    # Aggregate (team, season) -> [wins, losses]
+    # Aggregate (normalized_team, season) -> [wins, losses]. Normalize the
+    # games-table team string so accented spellings ('San José State') match
+    # the ASCII url_param ('San Jose State') on lookup below.
     agg = {}
     for r in rows:
-        key = (r['team'], r['season'])
+        key = (_norm_team(r['team']), r['season'])
         if key not in agg:
             agg[key] = [0, 0]
         agg[key][0 if r['won'] else 1] += 1
@@ -484,7 +501,7 @@ def build_history(conn, conf_games_name, member_url_params,
         total_w = 0
         total_l = 0
         for yr in range(start_season, end_season + 1):
-            wl = agg.get((url_param, yr))
+            wl = agg.get((_norm_team(url_param), yr))
             if wl:
                 seasons[str(yr)] = f"{wl[0]}-{wl[1]}"
                 total_w += wl[0]
