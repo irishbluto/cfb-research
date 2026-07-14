@@ -985,6 +985,60 @@ def write_card(img: Image.Image, slug: str, year: int, out_dir: Path) -> Path:
     return path
 
 # ---------------------------------------------------------------------------
+# Deploy — push rendered PNGs to Hostinger so teamprofile.php Quick Preview
+# (/stylesheets/team_cards/{slug}_{year}.png) serves the fresh cards.
+#
+# Runs automatically after every successful render unless --no-deploy is
+# passed. Config lives in .env at the repo root (same file as X_API_KEY):
+#
+#   DEPLOY_SSH=u989528531@<hostinger-host>
+#   DEPLOY_PORT=65002
+#   DEPLOY_REMOTE_DIR=/home/u989528531/domains/puntandrally.com/public_html/stylesheets/team_cards
+#
+# One-time setup on the VPS (passwordless key so cron can run this):
+#   ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
+#   ssh-copy-id -p 65002 -i ~/.ssh/id_ed25519.pub u989528531@<hostinger-host>
+#
+# If the .env keys are missing the deploy is skipped with a notice, so the
+# script stays safe to run before setup. BatchMode=yes means a missing key
+# fails fast with an error instead of hanging on a password prompt.
+# ---------------------------------------------------------------------------
+
+def deploy_cards(paths: list) -> bool:
+    """scp this run's rendered PNGs to Hostinger. True on success/skip."""
+    import subprocess
+    if not paths:
+        return True
+    host   = os.environ.get("DEPLOY_SSH", "")        or _load_dotenv_value("DEPLOY_SSH")
+    port   = os.environ.get("DEPLOY_PORT", "")       or _load_dotenv_value("DEPLOY_PORT") or "65002"
+    remote = os.environ.get("DEPLOY_REMOTE_DIR", "") or _load_dotenv_value("DEPLOY_REMOTE_DIR")
+    if not host or not remote:
+        print("Deploy skipped: DEPLOY_SSH / DEPLOY_REMOTE_DIR not set in .env "
+              "(add them to auto-push cards to Hostinger, or pass --no-deploy "
+              "to silence this notice).")
+        return True
+    print(f"Deploying {len(paths)} card(s) → {host}:{remote} …")
+    cmd = ["scp", "-P", str(port), "-o", "BatchMode=yes",
+           "-o", "ConnectTimeout=15"]
+    cmd += [str(p) for p in paths]
+    cmd.append(f"{host}:{remote.rstrip('/')}/")
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    except (subprocess.TimeoutExpired, OSError) as e:
+        print(f"Deploy FAILED: {e}", file=sys.stderr)
+        return False
+    if res.returncode != 0:
+        print(f"Deploy FAILED (scp exit {res.returncode}): "
+              f"{(res.stderr or '').strip()[:500]}", file=sys.stderr)
+        print("Check: SSH key installed on Hostinger? Host/port right in .env? "
+              "Test with: ssh -p " + str(port) + " " + host + " 'echo ok'",
+              file=sys.stderr)
+        return False
+    print(f"Deploy OK — {len(paths)} card(s) live on puntandrally.com "
+          f"(?v=filemtime cache-bust is automatic).")
+    return True
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -1011,6 +1065,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--refresh", action="store_true",
                    help="Bypass the cutout cache: re-download every cutout being "
                         "rendered. Use after pushing updated cutouts to Hostinger.")
+    p.add_argument("--no-deploy", action="store_true",
+                   help="Skip the automatic scp of rendered cards to Hostinger "
+                        "(deploy runs by default when DEPLOY_SSH/DEPLOY_REMOTE_DIR "
+                        "are set in .env).")
     return p.parse_args()
 
 def main() -> int:
@@ -1040,6 +1098,8 @@ def main() -> int:
         )
         path = write_card(img, fetched.payload["team_slug"], args.year, args.out)
         print(f"Wrote {path}")
+        if not args.no_deploy and not deploy_cards([path]):
+            return 1
         return 0
 
     # --all or --conf — both pull every payload then optionally filter
@@ -1086,6 +1146,7 @@ def main() -> int:
 
     print(f"Rendering {len(all_payloads)} cards…")
     failures = 0
+    written: list = []
     for i, fetched in enumerate(all_payloads, 1):
         try:
             copy_block = copy_map.get(fetched.school, {})
@@ -1094,6 +1155,7 @@ def main() -> int:
                 refresh=args.refresh,
             )
             path = write_card(img, fetched.payload["team_slug"], args.year, args.out)
+            written.append(path)
             print(f"  [{i:>3}/{len(all_payloads)}] {path.name}")
         except Exception as e:
             failures += 1
@@ -1101,7 +1163,10 @@ def main() -> int:
                   file=sys.stderr)
     print(f"Done. Success: {len(all_payloads) - failures}/{len(all_payloads)}, "
           f"Failures: {failures}.")
-    return 0 if failures == 0 else 1
+    deploy_ok = True
+    if not args.no_deploy:
+        deploy_ok = deploy_cards(written)
+    return 0 if (failures == 0 and deploy_ok) else 1
 
 
 if __name__ == "__main__":
