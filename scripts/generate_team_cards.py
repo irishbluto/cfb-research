@@ -1004,6 +1004,15 @@ def write_card(img: Image.Image, slug: str, year: int, out_dir: Path) -> Path:
 # fails fast with an error instead of hanging on a password prompt.
 # ---------------------------------------------------------------------------
 
+def subprocess_run_safe(cmd: list) -> bool:
+    """Run a command, swallow errors, return True on exit 0."""
+    import subprocess
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True,
+                              timeout=60).returncode == 0
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+
 def deploy_cards(paths: list) -> bool:
     """scp this run's rendered PNGs to Hostinger. True on success/skip."""
     import subprocess
@@ -1018,6 +1027,19 @@ def deploy_cards(paths: list) -> bool:
               "to silence this notice).")
         return True
     print(f"Deploying {len(paths)} card(s) → {host}:{remote} …")
+    # Ensure the target dir exists with web-servable permissions BEFORE the
+    # copy. A git deploy once pruned this dir; its recreation came back mode
+    # 744 (no traverse bit) and LiteSpeed 404'd every card while PHP could
+    # still see them (2026-07-14 incident). mkdir -p + chmod 755 is cheap
+    # insurance against both the missing-dir and bad-perms failure modes.
+    remote_dir = remote.rstrip("/")
+    prep = subprocess_run_safe(
+        ["ssh", "-p", str(port), "-o", "BatchMode=yes",
+         "-o", "ConnectTimeout=15", host,
+         f"mkdir -p '{remote_dir}' && chmod 755 '{remote_dir}'"])
+    if not prep:
+        print("  ! dir-prep ssh failed (continuing — scp will surface the "
+              "real error if the target is unreachable)", file=sys.stderr)
     cmd = ["scp", "-P", str(port), "-o", "BatchMode=yes",
            "-o", "ConnectTimeout=15"]
     cmd += [str(p) for p in paths]
