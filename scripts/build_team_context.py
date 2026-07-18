@@ -1250,8 +1250,14 @@ def build_current_season_one_score(conn, team, season):
     Mirrors _one_score_record() in build_one_score_games() but limited to the
     running current season. Used in in_season / postseason modes.
 
-    Filters to season = current_season AND home_points IS NOT NULL (completed
-    games only). Returns empty dict if no completed current-season games.
+    Filters to season = current_season AND completed-game test (see below).
+    Returns empty dict if no completed current-season games.
+
+    COMPLETED-GAME TEST: future 2026 schedule rows carry 0/0 points, NOT
+    NULL (confirmed on the VPS 2026-07-18), so IS NOT NULL alone counts the
+    whole schedule as played. Mirror the site's filter (classTeams ~L6313):
+    points non-null AND (home > 0 OR away > 0) — a 0-0 final is impossible
+    in CFB, so this is safe.
 
     Also emits current_season_games_played so the prompt layer can gate
     emission on a minimum sample size (one or two games is meaningless on TO
@@ -1269,6 +1275,7 @@ def build_current_season_one_score(conn, team, season):
         WHERE (home_team = %s OR away_team = %s)
           AND season = %s
           AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND (CAST(home_points AS SIGNED) > 0 OR CAST(away_points AS SIGNED) > 0)
           AND season_type = 'regular'
     """, (team, team, season))
     games_played = inum(games_row.get('played')) if games_row else 0
@@ -1305,6 +1312,7 @@ def build_current_season_one_score(conn, team, season):
         WHERE (home_team = %s OR away_team = %s)
           AND season = %s
           AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND (CAST(home_points AS SIGNED) > 0 OR CAST(away_points AS SIGNED) > 0)
           AND season_type = 'regular'
     """, (team, team, team, team, team, team, season))
 
@@ -1344,7 +1352,13 @@ def build_current_season_one_score(conn, team, season):
 def build_current_season_record(conn, team, season):
     """Running current-season W-L from the games table (completed regular +
     postseason games). Parallel of build_last_season_record's _record() but
-    for season = current. Emits nothing when no completed games yet."""
+    for season = current. Emits nothing when no completed games yet.
+
+    NOTE all current-season games queries add the completed-game test
+    `(home_points > 0 OR away_points > 0)` on top of IS NOT NULL: future
+    2026 schedule rows carry 0/0 points, not NULL (VPS dry-run 2026-07-18).
+    Mirrors the site's own filter (classTeams ~L6313); a 0-0 CFB final is
+    impossible, so no real game is ever excluded."""
     row = query_one(conn, """
         SELECT
             SUM(CASE WHEN home_team = %s AND CAST(home_points AS SIGNED) > CAST(away_points AS SIGNED) THEN 1
@@ -1357,6 +1371,7 @@ def build_current_season_record(conn, team, season):
         WHERE (home_team = %s OR away_team = %s)
           AND season = %s
           AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND (CAST(home_points AS SIGNED) > 0 OR CAST(away_points AS SIGNED) > 0)
           AND season_type IN ('regular', 'postseason')
     """, (team, team, team, team, team, team, season))
     if not row:
@@ -1386,6 +1401,7 @@ def build_current_season_scoring(conn, team, season):
         FROM games
         WHERE home_team = %s AND season = %s
           AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND (CAST(home_points AS SIGNED) > 0 OR CAST(away_points AS SIGNED) > 0)
           AND season_type IN ('regular', 'postseason')
     """, (team, season))
     away = query_one(conn, """
@@ -1396,6 +1412,7 @@ def build_current_season_scoring(conn, team, season):
         FROM games
         WHERE away_team = %s AND season = %s
           AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND (CAST(home_points AS SIGNED) > 0 OR CAST(away_points AS SIGNED) > 0)
           AND season_type IN ('regular', 'postseason')
     """, (team, season))
     hg = (inum(home.get('games')) if home else 0) or 0
@@ -1682,6 +1699,7 @@ def _opponent_rankings_snapshot(conn, name, season):
         WHERE (home_team = %s OR away_team = %s)
           AND season = %s
           AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND (CAST(home_points AS SIGNED) > 0 OR CAST(away_points AS SIGNED) > 0)
           AND season_type IN ('regular', 'postseason')
     """, (name, name, name, name, name, name, season))
     w = inum(rec.get('wins')) if rec else 0
@@ -1740,8 +1758,11 @@ def build_opponent_snapshots(conn, team, season):
     reliably signed (memory: gamelines-unsigned-spread), so the display
     string formattedSpread ('Georgia -7.5') is what gets surfaced.
 
-    Upcoming = unplayed games dated today or later; a past game with no
-    final (canceled/postponed) is skipped rather than shown as 'this week'.
+    Completed-game test: points non-null AND (home > 0 OR away > 0) —
+    future 2026 schedule rows carry 0/0 points, not NULL (VPS dry-run
+    2026-07-18), mirroring the site's filter (classTeams ~L6313). Upcoming =
+    not-completed games dated today or later; a past game with no real final
+    (canceled/postponed) is skipped rather than shown as 'this week'.
     days_until lets the prompt layer detect a bye week (next game > 7 days
     out). games.neutral_site has mixed storage ('0'/'1'/'Y') per the schema
     quirk in memory — treated as truthy-string here."""
@@ -1772,10 +1793,14 @@ def build_opponent_snapshots(conn, team, season):
         except (ValueError, TypeError):
             return None
 
-    completed = [g for g in rows
-                 if g.get('home_points') is not None and g.get('away_points') is not None]
+    def _played(g):
+        hp = inum(g.get('home_points'))
+        ap = inum(g.get('away_points'))
+        return hp is not None and ap is not None and (hp > 0 or ap > 0)
+
+    completed = [g for g in rows if _played(g)]
     upcoming  = [g for g in rows
-                 if (g.get('home_points') is None or g.get('away_points') is None)
+                 if not _played(g)
                  and (_gdate(g) is None or _gdate(g) >= today)]
 
     out = {}
