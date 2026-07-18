@@ -1331,6 +1331,502 @@ def build_current_season_one_score(conn, team, season):
     return data
 
 
+# ---------------------------------------------------------------------------
+# In-season weekly_writeup data layer (docs/inseason_writeup_spec.md §5/§11
+# step 1 — session 2). All builders below read the RUNNING season and emit
+# current_season_* keys (or the opponent_snapshots block) so they coexist
+# with the prior-year builders in the same JSON. Every one returns {} (or a
+# minimal stub) until 2026 rows land in its source table — cron.php `stats`/
+# `builds`/`polls` groups populate them weekly from late August — so running
+# these preseason is harmless.
+# ---------------------------------------------------------------------------
+
+def build_current_season_record(conn, team, season):
+    """Running current-season W-L from the games table (completed regular +
+    postseason games). Parallel of build_last_season_record's _record() but
+    for season = current. Emits nothing when no completed games yet."""
+    row = query_one(conn, """
+        SELECT
+            SUM(CASE WHEN home_team = %s AND CAST(home_points AS SIGNED) > CAST(away_points AS SIGNED) THEN 1
+                     WHEN away_team = %s AND CAST(away_points AS SIGNED) > CAST(home_points AS SIGNED) THEN 1
+                     ELSE 0 END) AS wins,
+            SUM(CASE WHEN home_team = %s AND CAST(home_points AS SIGNED) < CAST(away_points AS SIGNED) THEN 1
+                     WHEN away_team = %s AND CAST(away_points AS SIGNED) < CAST(home_points AS SIGNED) THEN 1
+                     ELSE 0 END) AS losses
+        FROM games
+        WHERE (home_team = %s OR away_team = %s)
+          AND season = %s
+          AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND season_type IN ('regular', 'postseason')
+    """, (team, team, team, team, team, team, season))
+    if not row:
+        return {}
+    w = inum(row.get('wins')) or 0
+    l = inum(row.get('losses')) or 0
+    if not (w or l):
+        return {}
+    return {
+        'current_season_record': f"{w}-{l}",
+        'current_season_wins':   w,
+        'current_season_losses': l,
+    }
+
+
+def build_current_season_scoring(conn, team, season):
+    """Running current-season PPG for/against + margin from the games table.
+    Parallel of build_last_season_scoring (home/road splits kept) plus a
+    combined overall PPG for/against the offseason builder never needed —
+    the writeup wants "scoring (PPG for/against)" as one read."""
+    data = {}
+    home = query_one(conn, """
+        SELECT AVG(CAST(home_points AS SIGNED)) AS ppg,
+               AVG(CAST(away_points AS SIGNED)) AS ppg_allowed,
+               AVG(CAST(home_points AS SIGNED) - CAST(away_points AS SIGNED)) AS margin,
+               COUNT(*) AS games
+        FROM games
+        WHERE home_team = %s AND season = %s
+          AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND season_type IN ('regular', 'postseason')
+    """, (team, season))
+    away = query_one(conn, """
+        SELECT AVG(CAST(away_points AS SIGNED)) AS ppg,
+               AVG(CAST(home_points AS SIGNED)) AS ppg_allowed,
+               AVG(CAST(away_points AS SIGNED) - CAST(home_points AS SIGNED)) AS margin,
+               COUNT(*) AS games
+        FROM games
+        WHERE away_team = %s AND season = %s
+          AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND season_type IN ('regular', 'postseason')
+    """, (team, season))
+    hg = (inum(home.get('games')) if home else 0) or 0
+    ag = (inum(away.get('games')) if away else 0) or 0
+    if home and home.get('ppg') is not None:
+        data['current_season_scoring_home_ppg']    = fnum(home['ppg'], 1)
+        data['current_season_scoring_home_margin'] = fnum(home['margin'], 1)
+        data['current_season_scoring_home_games']  = hg
+    if away and away.get('ppg') is not None:
+        data['current_season_scoring_road_ppg']    = fnum(away['ppg'], 1)
+        data['current_season_scoring_road_margin'] = fnum(away['margin'], 1)
+        data['current_season_scoring_road_games']  = ag
+    if hg + ag > 0:
+        pf = pa = 0.0
+        if hg:
+            pf += float(home['ppg']) * hg
+            pa += float(home['ppg_allowed']) * hg
+        if ag:
+            pf += float(away['ppg']) * ag
+            pa += float(away['ppg_allowed']) * ag
+        data['current_season_ppg']            = round(pf / (hg + ag), 1)
+        data['current_season_ppg_allowed']    = round(pa / (hg + ag), 1)
+        data['current_season_scoring_margin'] = round((pf - pa) / (hg + ag), 1)
+    return data
+
+
+def build_current_season_advanced_stats(conn, team, season):
+    """team_rankings + advancedstats for the RUNNING season. Widened vs the
+    offseason build_advanced_stats(): adds the eight rush/pass split ranks,
+    points-per-opportunity (the site's red-zone language, classTeams ~L6654),
+    OL line yards / stuff rate, and the havoc breakdown (front seven / DB)
+    on top of the core PPA / success rate / explosiveness trio.
+
+    Ranks only (ranks read in prose; raw rates don't), except
+    current_season_offense_profile which is recomputed from current-season
+    advancedstats raw success rates, mirroring the offseason logic."""
+    result = {}
+    row = query_one(conn, """
+        SELECT
+            offense_ppa_ranking, defense_ppa_ranking,
+            offense_success_rate_ranking, defense_success_rate_ranking,
+            offense_explosiveness_ranking, defense_explosiveness_ranking,
+            offense_rushing_plays_success_rate_ranking,
+            offense_rushing_plays_explosiveness_ranking,
+            offense_passing_plays_success_rate_ranking,
+            offense_passing_plays_explosiveness_ranking,
+            defense_rushing_plays_success_rate_ranking,
+            defense_rushing_plays_explosiveness_ranking,
+            defense_passing_plays_success_rate_ranking,
+            defense_passing_plays_explosiveness_ranking,
+            offense_points_per_opportunity_ranking,
+            defense_points_per_opportunity_ranking,
+            offense_line_yards_ranking, offense_stuff_rate_ranking,
+            offense_havoc_total_ranking, defense_havoc_total_ranking,
+            defense_havoc_front_seven_ranking, defense_havoc_db_ranking
+        FROM team_rankings
+        WHERE team = %s AND season = %s
+        LIMIT 1
+    """, (team, season))
+    if row:
+        rank_map = {
+            'current_season_offense_ppa_rank':                'offense_ppa_ranking',
+            'current_season_defense_ppa_rank':                'defense_ppa_ranking',
+            'current_season_offense_success_rank':            'offense_success_rate_ranking',
+            'current_season_defense_success_rank':            'defense_success_rate_ranking',
+            'current_season_offense_explosiveness_rank':      'offense_explosiveness_ranking',
+            'current_season_defense_explosiveness_rank':      'defense_explosiveness_ranking',
+            'current_season_offense_rush_success_rank':       'offense_rushing_plays_success_rate_ranking',
+            'current_season_offense_rush_explosiveness_rank': 'offense_rushing_plays_explosiveness_ranking',
+            'current_season_offense_pass_success_rank':       'offense_passing_plays_success_rate_ranking',
+            'current_season_offense_pass_explosiveness_rank': 'offense_passing_plays_explosiveness_ranking',
+            'current_season_defense_rush_success_rank':       'defense_rushing_plays_success_rate_ranking',
+            'current_season_defense_rush_explosiveness_rank': 'defense_rushing_plays_explosiveness_ranking',
+            'current_season_defense_pass_success_rank':       'defense_passing_plays_success_rate_ranking',
+            'current_season_defense_pass_explosiveness_rank': 'defense_passing_plays_explosiveness_ranking',
+            'current_season_offense_ppo_rank':                'offense_points_per_opportunity_ranking',
+            'current_season_defense_ppo_rank':                'defense_points_per_opportunity_ranking',
+            'current_season_offense_line_yards_rank':         'offense_line_yards_ranking',
+            'current_season_offense_stuff_rate_rank':         'offense_stuff_rate_ranking',
+            'current_season_offense_havoc_rank':              'offense_havoc_total_ranking',
+            'current_season_defense_havoc_rank':              'defense_havoc_total_ranking',
+            'current_season_defense_havoc_front_seven_rank':  'defense_havoc_front_seven_ranking',
+            'current_season_defense_havoc_db_rank':           'defense_havoc_db_ranking',
+        }
+        for out_key, col in rank_map.items():
+            v = inum(row.get(col))
+            if v is not None:
+                result[out_key] = v
+
+    adv = query_one(conn, """
+        SELECT offense_passing_plays_success_rate, offense_rushing_plays_success_rate
+        FROM advancedstats
+        WHERE team = %s AND season = %s
+        LIMIT 1
+    """, (team, season))
+    if adv and adv.get('offense_passing_plays_success_rate') and adv.get('offense_rushing_plays_success_rate'):
+        pass_sr = float(adv['offense_passing_plays_success_rate'])
+        rush_sr = float(adv['offense_rushing_plays_success_rate'])
+        total   = pass_sr + rush_sr
+        if total > 0:
+            pass_pct = round(pass_sr / total * 100)
+            rush_pct = 100 - pass_pct
+            if pass_pct >= 55:
+                result['current_season_offense_profile'] = f"Pass Heavy ({pass_pct}% pass, {rush_pct}% run)"
+            elif rush_pct >= 55:
+                result['current_season_offense_profile'] = f"Run Heavy ({rush_pct}% run, {pass_pct}% pass)"
+            else:
+                result['current_season_offense_profile'] = f"Balanced ({pass_pct}% pass, {rush_pct}% run)"
+    return result
+
+
+def build_current_season_misc_stats(conn, team, season):
+    """stats_misc for the RUNNING season — points per drive, scoring per
+    opportunity (red zone), stop rate, and 3-and-out rate, with national
+    ranks. NOTE stats_misc keys on `year` (not `season`) and `team`.
+
+    Rank directions mirror the site's getMiscStatsWithRanks (classTeams
+    ~L7003): offense higher-is-better except stop rate / 3-and-out (lower
+    better); defense the reverse. RANK() window functions match the site's
+    competition-ranking policy."""
+    row = query_one(conn, """
+        SELECT * FROM (
+            SELECT
+                s.team,
+                s.points_per_drive_off, s.points_per_drive_def,
+                s.scoring_per_opp_off,  s.scoring_per_opp_def,
+                s.stop_rate_off,        s.stop_rate_def,
+                s.three_out_off,        s.three_out_def,
+                RANK() OVER (ORDER BY s.points_per_drive_off DESC) AS ppd_off_rank,
+                RANK() OVER (ORDER BY s.points_per_drive_def ASC)  AS ppd_def_rank,
+                RANK() OVER (ORDER BY s.scoring_per_opp_off DESC)  AS spo_off_rank,
+                RANK() OVER (ORDER BY s.scoring_per_opp_def ASC)   AS spo_def_rank,
+                RANK() OVER (ORDER BY s.stop_rate_off ASC)         AS stop_off_rank,
+                RANK() OVER (ORDER BY s.stop_rate_def DESC)        AS stop_def_rank,
+                RANK() OVER (ORDER BY s.three_out_off ASC)         AS to3_off_rank,
+                RANK() OVER (ORDER BY s.three_out_def DESC)        AS to3_def_rank
+            FROM stats_misc s
+            WHERE s.year = %s
+        ) ranked
+        WHERE ranked.team = %s
+        LIMIT 1
+    """, (season, team))
+    if not row:
+        return {}
+    return {
+        'current_season_ppd_off':                fnum(row.get('points_per_drive_off')),
+        'current_season_ppd_off_rank':           inum(row.get('ppd_off_rank')),
+        'current_season_ppd_def':                fnum(row.get('points_per_drive_def')),
+        'current_season_ppd_def_rank':           inum(row.get('ppd_def_rank')),
+        'current_season_scoring_per_opp_off':      fnum(row.get('scoring_per_opp_off')),
+        'current_season_scoring_per_opp_off_rank': inum(row.get('spo_off_rank')),
+        'current_season_scoring_per_opp_def':      fnum(row.get('scoring_per_opp_def')),
+        'current_season_scoring_per_opp_def_rank': inum(row.get('spo_def_rank')),
+        'current_season_stop_rate_off':          fnum(row.get('stop_rate_off')),
+        'current_season_stop_rate_off_rank':     inum(row.get('stop_off_rank')),
+        'current_season_stop_rate_def':          fnum(row.get('stop_rate_def')),
+        'current_season_stop_rate_def_rank':     inum(row.get('stop_def_rank')),
+        'current_season_three_out_off_rank':     inum(row.get('to3_off_rank')),
+        'current_season_three_out_def_rank':     inum(row.get('to3_def_rank')),
+    }
+
+
+# pff_team_grades stores accented/apostrophe school names; map the url_param
+# spellings that don't match. Mirrors getTeamPFFGradesWithRanks' normMap
+# (classTeams ~L8019) PLUS San José State, confirmed unmatched in the
+# 2026-07-17 DB sweep (DB stores the accented é; url_param is ASCII).
+_PFF_NORM_MAP = {
+    "Hawaii":         "Hawai'i",
+    "Hawai‘i":   "Hawai'i",     # curly left-quote variant
+    "San Jose State": "San José State",
+    "Texas A":        "Texas A&M",
+}
+
+def build_current_season_pff_ol(conn, team, season):
+    """pff_team_grades OL blocking grades for the RUNNING season, with
+    national ranks (higher grade = better). NOTE the table keys on `year`
+    and `name`.
+
+    Freshness caveat for the prompt layer: the site's PFF cron group is ON
+    HOLD (team-assignment bug); Jonathan imports manually Sunday mornings,
+    so grades may be ~a week stale for the Sunday postgame batch and fresh
+    by the Thursday preview run — acceptable per spec §5 cadence table.
+
+    Matching cascade mirrors getTeamPFFGradesWithRanks: normMap, exact name,
+    then apostrophe-stripped equality."""
+    name = _PFF_NORM_MAP.get(team, team)
+    cols = "grades_run_block, grades_pass_block, grades_overall, name"
+    row = query_one(conn, f"""
+        SELECT {cols} FROM pff_team_grades
+        WHERE year = %s AND name = %s
+        LIMIT 1
+    """, (season, name))
+    if not row:
+        row = query_one(conn, f"""
+            SELECT {cols} FROM pff_team_grades
+            WHERE year = %s
+              AND REPLACE(name, CHAR(39), '') = REPLACE(%s, CHAR(39), '')
+            LIMIT 1
+        """, (season, name))
+    if not row:
+        return {}
+    data = {}
+    grade_map = {
+        'current_season_ol_run_block_grade':  'grades_run_block',
+        'current_season_ol_pass_block_grade': 'grades_pass_block',
+        'current_season_pff_overall_grade':   'grades_overall',
+    }
+    for out_key, col in grade_map.items():
+        v = fnum(row.get(col), 1)
+        if v is None:
+            continue
+        data[out_key] = v
+        r = query_one(conn, f"""
+            SELECT COUNT(*) + 1 AS rnk FROM pff_team_grades
+            WHERE year = %s AND {col} > %s AND {col} IS NOT NULL
+        """, (season, row[col]))
+        data[out_key + '_rank'] = inum(r.get('rnk')) if r else None
+    return data
+
+
+def _latest_poll_rank(conn, school, season, poll_name):
+    """(week, rank) for a school in the most recent published week of a poll.
+    Polls carry ranked teams only (~49 schools/season): rank None with a
+    real week means CHECKED AND UNRANKED, not missing data. week None means
+    the poll hasn't published yet this season (CFP before ~Week 10)."""
+    latest = query_one(conn, """
+        SELECT MAX(week) AS wk FROM polls
+        WHERE season = %s AND poll = %s
+    """, (season, poll_name))
+    wk = inum(latest.get('wk')) if latest else None
+    if wk is None:
+        return None, None
+    row = query_one(conn, """
+        SELECT `rank` FROM polls
+        WHERE season = %s AND poll = %s AND week = %s AND school = %s
+        LIMIT 1
+    """, (season, poll_name, wk, school))
+    return wk, (inum(row.get('rank')) if row else None)
+
+
+def build_current_season_polls(conn, team, season):
+    """AP Top 25 + CFP rank for the RUNNING season (latest published week).
+    Poll names confirmed in the DB sweep: 'AP Top 25' weeks 1-17,
+    'Playoff Committee Rankings' weeks 11-17. Also emits the prior-week AP
+    rank so rank movement is available as narrative fuel (spec §10.3).
+
+    Poll-timing note (spec §5): AP releases Sunday afternoon, after the
+    Sunday-morning postgame batch — the postgame writeup naturally carries
+    the rank the team took INTO the game, which is correct usage."""
+    data = {}
+    ap_wk, ap_rank = _latest_poll_rank(conn, team, season, 'AP Top 25')
+    if ap_wk is not None:
+        data['current_season_ap_poll_week'] = ap_wk
+        data['current_season_ap_rank']      = ap_rank   # None = unranked
+        if ap_wk > 1:
+            prev = query_one(conn, """
+                SELECT `rank` FROM polls
+                WHERE season = %s AND poll = 'AP Top 25' AND week = %s AND school = %s
+                LIMIT 1
+            """, (season, ap_wk - 1, team))
+            data['current_season_ap_rank_prev'] = inum(prev.get('rank')) if prev else None
+    cfp_wk, cfp_rank = _latest_poll_rank(conn, team, season, 'Playoff Committee Rankings')
+    if cfp_wk is not None:
+        data['current_season_cfp_poll_week'] = cfp_wk
+        data['current_season_cfp_rank']      = cfp_rank  # None = unranked
+    return data
+
+
+def _opponent_rankings_snapshot(conn, name, season):
+    """Compact rankings snapshot for one opponent (spec §5 'Opponent rankings
+    snapshot'): record, power rating + rank, SP+ + rank, AP/CFP rank. No full
+    stat lines — matchup color comes from the beat."""
+    snap = {'opponent': name}
+
+    rec = query_one(conn, """
+        SELECT
+            SUM(CASE WHEN home_team = %s AND CAST(home_points AS SIGNED) > CAST(away_points AS SIGNED) THEN 1
+                     WHEN away_team = %s AND CAST(away_points AS SIGNED) > CAST(home_points AS SIGNED) THEN 1
+                     ELSE 0 END) AS wins,
+            SUM(CASE WHEN home_team = %s AND CAST(home_points AS SIGNED) < CAST(away_points AS SIGNED) THEN 1
+                     WHEN away_team = %s AND CAST(away_points AS SIGNED) < CAST(home_points AS SIGNED) THEN 1
+                     ELSE 0 END) AS losses
+        FROM games
+        WHERE (home_team = %s OR away_team = %s)
+          AND season = %s
+          AND home_points IS NOT NULL AND away_points IS NOT NULL
+          AND season_type IN ('regular', 'postseason')
+    """, (name, name, name, name, name, name, season))
+    w = inum(rec.get('wins')) if rec else 0
+    l = inum(rec.get('losses')) if rec else 0
+    snap['record'] = f"{w or 0}-{l or 0}"
+
+    # Power rating (powerrating keys on `year`)
+    p = query_one(conn, """
+        SELECT rating FROM powerrating
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (name, season))
+    if p and p.get('rating') is not None:
+        snap['power_rating'] = fnum(p['rating'])
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM powerrating
+            WHERE year = %s AND rating > %s
+        """, (season, p['rating']))
+        snap['power_rank'] = inum(r.get('rnk')) if r else None
+
+    # SP+ (SandPratings keys on `year`; prior-season fallback like build_sp_plus)
+    sp = query_one(conn, """
+        SELECT year, rating_overall FROM SandPratings
+        WHERE team = %s AND year = %s
+        LIMIT 1
+    """, (name, season))
+    if not sp:
+        sp = query_one(conn, """
+            SELECT year, rating_overall FROM SandPratings
+            WHERE team = %s AND year = %s
+            LIMIT 1
+        """, (name, season - 1))
+    if sp and sp.get('rating_overall') is not None:
+        snap['sp_plus']      = fnum(sp['rating_overall'])
+        snap['sp_plus_year'] = inum(sp.get('year'))
+        r = query_one(conn, """
+            SELECT COUNT(*) + 1 AS rnk FROM SandPratings
+            WHERE year = %s AND rating_overall > %s
+        """, (sp['year'], sp['rating_overall']))
+        snap['sp_plus_rank'] = inum(r.get('rnk')) if r else None
+
+    _, ap_rank  = _latest_poll_rank(conn, name, season, 'AP Top 25')
+    _, cfp_rank = _latest_poll_rank(conn, name, season, 'Playoff Committee Rankings')
+    snap['ap_rank']  = ap_rank    # None = unranked (or poll not out yet)
+    snap['cfp_rank'] = cfp_rank   # None before ~Week 10 or unranked
+    return snap
+
+
+def build_opponent_snapshots(conn, team, season):
+    """Last game played + this week's and next week's opponents from the
+    games table, each upcoming opponent with a rankings snapshot; the
+    immediate game also carries the betting line (spec §5).
+
+    Spread comes from gamelines, which has NO season/week columns — it joins
+    on gamelines.id = games.id (classTeams ~L9217). gamelines.spread is not
+    reliably signed (memory: gamelines-unsigned-spread), so the display
+    string formattedSpread ('Georgia -7.5') is what gets surfaced.
+
+    Upcoming = unplayed games dated today or later; a past game with no
+    final (canceled/postponed) is skipped rather than shown as 'this week'.
+    days_until lets the prompt layer detect a bye week (next game > 7 days
+    out). games.neutral_site has mixed storage ('0'/'1'/'Y') per the schema
+    quirk in memory — treated as truthy-string here."""
+    rows = query_all(conn, """
+        SELECT id, week, start_date, season_type, home_team, away_team,
+               neutral_site, home_points, away_points
+        FROM games
+        WHERE (home_team = %s OR away_team = %s)
+          AND season = %s
+          AND season_type IN ('regular', 'postseason')
+        ORDER BY start_date ASC
+    """, (team, team, season))
+    if not rows:
+        return {}
+
+    today = datetime.now().date()
+
+    def _side(g):
+        is_home = g.get('home_team') == team
+        opp     = g.get('away_team') if is_home else g.get('home_team')
+        ns      = str(g.get('neutral_site') or '').strip().upper()
+        site    = 'neutral' if ns in ('1', 'Y', 'YES', 'TRUE') else ('home' if is_home else 'away')
+        return opp, site, is_home
+
+    def _gdate(g):
+        try:
+            return datetime.strptime(str(g.get('start_date'))[:10], '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            return None
+
+    completed = [g for g in rows
+                 if g.get('home_points') is not None and g.get('away_points') is not None]
+    upcoming  = [g for g in rows
+                 if (g.get('home_points') is None or g.get('away_points') is None)
+                 and (_gdate(g) is None or _gdate(g) >= today)]
+
+    out = {}
+    if completed:
+        g = completed[-1]
+        opp, site, is_home = _side(g)
+        us   = inum(g['home_points'] if is_home else g['away_points'])
+        them = inum(g['away_points'] if is_home else g['home_points'])
+        res  = 'W' if us > them else ('L' if us < them else 'T')
+        d    = _gdate(g)
+        vs_at = 'at' if site == 'away' else 'vs'
+        out['last_game'] = {
+            'result':   f"{res} {us}-{them}",
+            'opponent': opp,
+            'site':     site,
+            'week':     inum(g.get('week')),
+            'date':     d.isoformat() if d else str(g.get('start_date'))[:10],
+            'display':  f"{res} {us}-{them} {vs_at} {opp} ({d.isoformat() if d else '?'})",
+        }
+
+    for label, g in zip(('this_week', 'next_week'), upcoming[:2]):
+        opp, site, is_home = _side(g)
+        snap = _opponent_rankings_snapshot(conn, opp, season)
+        d = _gdate(g)
+        snap['site'] = site
+        snap['week'] = inum(g.get('week'))
+        snap['date'] = d.isoformat() if d else str(g.get('start_date'))[:10]
+        snap['season_type'] = g.get('season_type')
+        if d:
+            snap['day_of_week'] = d.strftime('%a')
+            snap['days_until']  = (d - today).days
+        if label == 'this_week':
+            line = query_one(conn, """
+                SELECT spread, formattedSpread, overUnder, provider
+                FROM gamelines
+                WHERE id = %s
+                LIMIT 1
+            """, (g.get('id'),))
+            if line:
+                if line.get('formattedSpread'):
+                    snap['spread'] = str(line['formattedSpread'])
+                if line.get('overUnder') is not None:
+                    snap['over_under'] = fnum(line['overUnder'], 1)
+        out[label] = snap
+
+    if not out:
+        return {}
+    out['built_at'] = datetime.now().strftime('%Y-%m-%d')
+    return {'opponent_snapshots': out}
+
+
 def build_last_season_record(conn, team, season):
     """Prior season W-L from games table; also computes 2024 record."""
     data = {}
@@ -1493,6 +1989,17 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     # output can coexist in the JSON without collisions.
     context.update(build_current_season_turnover_margin(conn, url_param, SEASON))
     context.update(build_current_season_one_score(conn, url_param, SEASON))
+    # In-season weekly_writeup data layer (spec §5/§11 step 1 — session 2).
+    # Same current_season_* coexistence rule as the two builders above; the
+    # opponent_snapshots block additionally feeds the writeup's last_game /
+    # this_week / next_week metadata and the ## Upcoming Opponents prompt block.
+    context.update(build_current_season_record(conn, url_param, SEASON))
+    context.update(build_current_season_scoring(conn, url_param, SEASON))
+    context.update(build_current_season_advanced_stats(conn, url_param, SEASON))
+    context.update(build_current_season_misc_stats(conn, url_param, SEASON))
+    context.update(build_current_season_pff_ol(conn, url_param, SEASON))
+    context.update(build_current_season_polls(conn, url_param, SEASON))
+    context.update(build_opponent_snapshots(conn, url_param, SEASON))
 
     # --- Regression flags (derived from fields already on context) ----------
     # One-score: extreme records in close games tend to regress toward .500.
@@ -1615,6 +2122,41 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
         print(f"  portal_class_rank=#{context.get('portal_class_rank')} "
               f"top_portal={len(context.get('top_portal_additions', []))} "
               f"top_recruits={len(context.get('top_recruits', []))}")
+        # In-season data layer summary
+        if context.get('current_season_record'):
+            print(f"  IN-SEASON rec={context.get('current_season_record')} "
+                  f"ppg={context.get('current_season_ppg')}/{context.get('current_season_ppg_allowed')} "
+                  f"(margin {context.get('current_season_scoring_margin')})")
+            print(f"    cs adv: ppa O#{context.get('current_season_offense_ppa_rank')}/D#{context.get('current_season_defense_ppa_rank')} "
+                  f"ppo O#{context.get('current_season_offense_ppo_rank')}/D#{context.get('current_season_defense_ppo_rank')} "
+                  f"havoc D#{context.get('current_season_defense_havoc_rank')} "
+                  f"OL ly#{context.get('current_season_offense_line_yards_rank')}")
+            print(f"    cs misc: ppd O#{context.get('current_season_ppd_off_rank')}/D#{context.get('current_season_ppd_def_rank')} "
+                  f"| pff OL run={context.get('current_season_ol_run_block_grade')} "
+                  f"(#{context.get('current_season_ol_run_block_grade_rank')}) "
+                  f"pass={context.get('current_season_ol_pass_block_grade')} "
+                  f"(#{context.get('current_season_ol_pass_block_grade_rank')})")
+            print(f"    cs polls: AP={context.get('current_season_ap_rank')} "
+                  f"(wk {context.get('current_season_ap_poll_week')}, "
+                  f"prev {context.get('current_season_ap_rank_prev')}) "
+                  f"CFP={context.get('current_season_cfp_rank')}")
+        else:
+            print(f"  in-season layer: no completed {SEASON} games yet (preseason — expected)")
+        snaps = context.get('opponent_snapshots') or {}
+        if snaps:
+            lg = snaps.get('last_game') or {}
+            tw = snaps.get('this_week') or {}
+            nw = snaps.get('next_week') or {}
+            if lg:
+                print(f"    last_game: {lg.get('display')}")
+            if tw:
+                print(f"    this_week: {tw.get('site')} {tw.get('opponent')} {tw.get('date')} "
+                      f"({tw.get('record')}, pwr#{tw.get('power_rank')}, sp+#{tw.get('sp_plus_rank')}, "
+                      f"AP {tw.get('ap_rank')}/CFP {tw.get('cfp_rank')}) "
+                      f"spread={tw.get('spread')} days_until={tw.get('days_until')}")
+            if nw:
+                print(f"    next_week: {nw.get('site')} {nw.get('opponent')} {nw.get('date')} "
+                      f"({nw.get('record')}, pwr#{nw.get('power_rank')})")
 
 
 # ---------------------------------------------------------------------------

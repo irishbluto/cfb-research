@@ -153,8 +153,52 @@ current-season rows land), **EXTEND** (builder must be widened to pull it),
 
 Name-matching watchout for the new builders: `pff_team_grades` matches on
 `name`/`franchise_id` with an apostrophe normalization map (Hawai'i, Texas A&M) —
-mirror `getTeamPFFGradesWithRanks`'s normalization, and note `stats_misc` uses
-`year` while most tables use `season`.
+mirror `getTeamPFFGradesWithRanks`'s normalization **and add San José State**
+(confirmed unmatched in the DB sweep), and note `stats_misc` uses `year` while
+most tables use `season`.
+
+### Verification results (check_inseason_data.py run on VPS, 2026-07-17)
+
+**All green.** 62/63 required columns exist (the one "missing" was this script
+assuming `SandPratings.rating` — actual column is `rating_overall` with `year`,
+which `build_sp_plus` already handles). Deep history everywhere: advancedstats/
+team_rankings/pff_team_grades 2021–2025 (~136 rows/season), stats_misc 2016–2025
+(the "PPD only 2025" teamprofile comment was wrong/stale — 10 seasons present),
+polls 2025 = AP wks 1–17 + Coaches + CFP wks 11–17. `games` 2026: 893 regular
+rows, zero missing week numbers, Sat 756 / Fri 65 / Thu 35 / Tue 18 / Wed 15 /
+Sun 3 / Mon 1. 2025 finals: 888/888 populated. Column-convention notes for the
+builders: `powerrating`, `powerrating_history`, `SandPratings`, `player_ratings`,
+`stats_misc` all use `year`; `gamelines` has no season/week — it joins on
+`gamelines.id = games.id` (classTeams ~L9217); `powerrating_history` has no week
+column (`built_at` timestamp is the snapshot key). Polls carry ranked teams only
+(~49 schools/season) — absence = unranked, not a join failure.
+
+### In-season cadence — resolved by cron.php (site scripts/cron.php)
+
+The site already has a centralized cron dispatcher with the exact chains the
+writeup depends on; "no 2026 rows yet" in stats tables is simply preseason.
+Dependencies for the writeup dispatcher:
+
+| cron.php group | Contents | Schedule | Writeup dependency |
+|---|---|---|---|
+| `gameday` | updategames + gamelines + weather | DEFINED: Sat 9am–Sun 3:45am ET every 15 min, hourly otherwise | Finals + spreads land same-night → Sunday-morning postgame batch is safe |
+| `stats` | drives import → adv stats → season stats → ranks → stats_misc | **TBD — manual only** (intent: Sun after finals + Mon morning) | MUST run before the Sunday postgame batch (populates advancedstats, team_rankings, stats_misc weekly) |
+| `builds` | game control, CSS, composite, matchup rolling, power ratings | **TBD — manual only** (chains after stats) | Same — powerrating freshness |
+| `polls` | polls.php (AP/Coaches/CFP) | **TBD** (intent: Sun night + Tue night for CFP) | See poll-timing note below |
+| PFF | pffteamgrades.php | **ON HOLD** (team-assignment data issue); Jonathan runs manually Sunday mornings | OL grades may be a week stale for Sunday batch; fresh by Thursday — acceptable |
+
+**Poll timing is editorially self-solving:** AP releases Sunday afternoon, after
+the Sunday-morning postgame batch — so the postgame writeup naturally uses the
+rank the team carried INTO the game ("No. 14 Oklahoma beat..."), which is correct
+usage; the Thursday preview run picks up the new poll (and Wednesday+ CFP).
+No engineering needed — just an agent prompt note.
+
+**Scheduling requirement to carry into session 4:** the research postgame batch
+must be sequenced AFTER cron.php's `stats` + `builds` groups complete on Sunday
+morning (e.g. stats/builds ~4–6 AM ET, research slots from 8 AM), and the
+`stats`/`builds`/`polls` groups need their TBD schedules actually enabled in
+hPanel before Aug 29. The PFF group's team-assignment data issue (Sorsby wrong
+team) is a pre-season fix item on the site side.
 
 The `build_current_season_advanced_stats` builder from the handoff doc is the
 workhorse here — this spec widens its column list to cover the splits, red zone/PPO,
