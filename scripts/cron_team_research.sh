@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------
-# cron_team_research.sh  (slot-staggered v2 — 2026-04-30)
+# cron_team_research.sh  (slot-staggered v3 — game-aware in_season, 2026-07-18)
 #
-# Runs ONE conference per invocation. Five cron entries hit five
-# slots across the day at 6 AM / 10 AM / 2 PM / 6 PM / 10 PM ET.
-# This keeps each Claude session well below the token ceiling and
-# spreads load across the day so morning content publishes can
-# settle before afternoon runs.
+# Offseason: runs ONE conference per invocation. In-season: runs this
+# slot's shard of the game-aware batch (see in_season notes below).
+# Five cron entries hit five slots across the day at
+# 6 AM / 10 AM / 2 PM / 6 PM / 10 PM ET. This keeps each Claude
+# session well below the token ceiling and spreads load across the
+# day so morning content publishes can settle before afternoon runs.
 #
 # Crontab (Eastern via TZ header — VPS clock is UTC):
 #   TZ=America/New_York
@@ -23,16 +24,29 @@
 #   N=4: slot1, slot2, slot3, slot4          (6am, 10am, 2pm, 6pm)
 #   N=5: all five                            (reserved for future)
 #
-# Conference units (10 — sec+fbsind bundled to match big10's size):
+# Conference units (10 — sec+fbsind bundled to match big10's size),
+# used by the OFFSEASON modes only:
 #   sec_fbsind (18) | big10 (18) | acc (17) | big12 (16)
 #   pac12 (8) | aac (14) | mwc (10) | sbc (14) | mac (13) | cusa (10)
 #
 # Modes (calendar boundaries — must stay in sync with research_agent.py,
 # national_landscape_agent.py, and classTeams.php _researchModeAt):
-#   early_offseason  : Jan 26 – Mar 31   FBS once/wk
-#   spring_offseason : Apr 1  – Jun 30   P4 twice/wk, G6 once/wk
-#   preseason        : Jul 1  – Aug 28   P4 twice/wk, G6 once/wk
-#   in_season        : Aug 29 – Dec 5    FBS twice/wk
+#   early_offseason  : Jan 26 – Mar 31   FBS once/wk (conference units)
+#   spring_offseason : Apr 1  – Jun 30   P4 twice/wk, G6 once/wk (conf units)
+#   preseason        : Jul 1  – Aug 28   P4 twice/wk, G6 once/wk (conf units)
+#   in_season        : Aug 29 – Dec 5    GAME-AWARE dispatch (session 4,
+#                      spec §7): every slot, every day, asks
+#                      resolve_inseason_batch.py for its shard. Postgame
+#                      batch (finals dated yesterday, >0-points test) fires
+#                      daily; Thursday adds the preview batch (game in next
+#                      7 days), postgame wins on overlap. Batch is ordered
+#                      postgame-first + P4-first and split into 5 contiguous
+#                      chunks, so Sunday (~110 teams) and Thursday (~130)
+#                      land ~22-26 teams/slot ≈ 90-105 min — inside the
+#                      4-hour slot window. Each team runs with an explicit
+#                      --run-type (batch semantics beat per-team derivation).
+#                      SEQUENCING (spec §5): cron.php stats+builds groups
+#                      must complete before slot1 (6 AM) postgame mornings.
 #   postseason       : Dec 6  – Jan 25   manual CFP list (Mon+Thu, slot2 only)
 #
 # 2027 future build: replace date constants with first/last-game
@@ -57,6 +71,9 @@ BASE_DIR="/cfb-research"
 LOG_DIR="${BASE_DIR}/logs"
 CRON_LOG="${LOG_DIR}/cron_team_research.log"
 PYTHON="/usr/bin/python3"
+# The batch resolver imports build_team_context (pymysql) — needs the venv.
+VENV_PY="${BASE_DIR}/venv/bin/python3"
+[ -x "$VENV_PY" ] || VENV_PY="$PYTHON"
 POSTSEASON_CFG="${BASE_DIR}/config/postseason_teams.json"
 REFRESH_URL="https://www.puntandrally.com/research/test.php?refresh_all=letsBu1LdSh1t"
 
@@ -128,15 +145,10 @@ resolve_targets() {
             esac
             ;;
         in_season)
-            case "$dow" in
-                0) echo "big10 sec_fbsind acc big12" ;;
-                1) echo "pac12 aac mwc" ;;
-                2) echo "sbc mac cusa" ;;
-                3) echo "big10 sec_fbsind acc big12" ;;
-                4) echo "pac12 aac mwc" ;;
-                5) echo "sbc mac cusa" ;;
-                *) echo "" ;;
-            esac
+            # Game-aware dispatch (session 4): every slot, every day. The
+            # resolver decides what (if anything) this slot actually runs —
+            # quiet days produce an empty shard and the slot exits cleanly.
+            echo "GAMEAWARE"
             ;;
         postseason)
             case "$dow" in
@@ -205,17 +217,24 @@ if [ -z "$TARGETS_STR" ]; then
     exit 0
 fi
 
-read -ra TARGETS <<< "$TARGETS_STR"
-N=${#TARGETS[@]}
+if [ "$TARGETS_STR" = "GAMEAWARE" ]; then
+    # In-season game-aware dispatch: every slot participates; the resolver
+    # hands each slot its own contiguous shard of today's batch.
+    PICK="GAMEAWARE"
+    log "       picked: game-aware shard for slot $SLOT_NUM"
+else
+    read -ra TARGETS <<< "$TARGETS_STR"
+    N=${#TARGETS[@]}
 
-IDX=$(slot_to_idx "$SLOT_NUM" "$N")
-if [ -z "$IDX" ]; then
-    log "DONE : slot $SLOT_NUM unused today (N=$N conferences scheduled)"
-    exit 0
+    IDX=$(slot_to_idx "$SLOT_NUM" "$N")
+    if [ -z "$IDX" ]; then
+        log "DONE : slot $SLOT_NUM unused today (N=$N conferences scheduled)"
+        exit 0
+    fi
+
+    PICK="${TARGETS[$IDX]}"
+    log "       picked: $PICK (idx $IDX of $N)"
 fi
-
-PICK="${TARGETS[$IDX]}"
-log "       picked: $PICK (idx $IDX of $N)"
 
 # ---------------------------------------------------------------
 # Run pipeline for the picked conference. sec_fbsind expands to
@@ -253,8 +272,40 @@ run_team() {
     fi
 }
 
+# Game-aware in-season runs: explicit --run-type per team (spec §13 — batch
+# semantics beat research_agent.py's per-team calendar derivation).
+run_team_rt() {
+    local team="$1" rtype="$2"
+    log "  RUN : --team $team --run-type $rtype"
+    if "$PYTHON" "${BASE_DIR}/scripts/run_pipeline.py" --team "$team" --run-type "$rtype" >> "$RUN_LOG" 2>&1; then
+        log "    OK : --team $team ($rtype)"
+        SUCCESS=$((SUCCESS + 1))
+    else
+        ec=$?
+        log "    FAIL: --team $team ($rtype, exit $ec) — see $RUN_LOG"
+        FAIL=$((FAIL + 1))
+    fi
+}
+
 set +e
 case "$PICK" in
+    GAMEAWARE)
+        BATCH_FILE=$(mktemp)
+        if ! "$VENV_PY" "${BASE_DIR}/scripts/resolve_inseason_batch.py" --slot "$SLOT_NUM" \
+                > "$BATCH_FILE" 2>> "$CRON_LOG"; then
+            log "  ERROR: batch resolver failed (DB down? see resolver stderr above)"
+            FAIL=$((FAIL + 1))
+        elif [ ! -s "$BATCH_FILE" ]; then
+            log "  shard empty for $SLOT today — nothing to run (normal on quiet days)"
+        else
+            log "  game-aware shard: $(wc -l < "$BATCH_FILE") team(s)"
+            while IFS=$'\t' read -r team rtype; do
+                [ -n "$team" ] || continue
+                run_team_rt "$team" "${rtype:-manual}"
+            done < "$BATCH_FILE"
+        fi
+        rm -f "$BATCH_FILE"
+        ;;
     sec_fbsind)
         # Bundle: SEC (16) + FBS Ind (2) = 18 teams, matches Big Ten.
         # Run sequentially in the same slot.
@@ -295,6 +346,14 @@ esac
 set -e
 
 log "PIPELINE: $SUCCESS ok, $FAIL failed"
+
+# Nothing ran (empty game-aware shard on a quiet day): skip the expensive
+# all-138-team Hostinger cache refresh and exit clean.
+if [ "$SUCCESS" -eq 0 ] && [ "$FAIL" -eq 0 ]; then
+    log "DONE : $SLOT | mode=$MODE | day=$DOW_NAME | pick=$PICK (no runs — cache refresh skipped)"
+    log "================================================================"
+    exit 0
+fi
 
 # ---------------------------------------------------------------
 # Refresh Hostinger PHP cache so teamprofile.php picks up new data.

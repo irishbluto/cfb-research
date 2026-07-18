@@ -48,6 +48,10 @@ Pass-through flags:
   --days N        Lookback window in days for YouTube + written sources (default: 14)
   --no-ytdlp      Disable yt-dlp fallback in youtube_fetcher
   --no-prefetch   Disable article body prefetch in written_sources_fetcher
+  --run-type T    In-season weekly_writeup run type (postgame|preview|manual),
+                  passed through to research_agent.py. The game-aware cron
+                  dispatcher sets this explicitly per batch; omitted = derived
+                  per team from the calendar. Ignored offseason.
 
 -------------------------------------------------------------------------------
 USAGE EXAMPLES
@@ -176,6 +180,12 @@ def main():
                         help='Disable yt-dlp fallback in youtube_fetcher')
     parser.add_argument('--no-prefetch', action='store_true',
                         help='Disable article body prefetch in written_sources_fetcher')
+    parser.add_argument('--run-type',   default=None, dest='run_type',
+                        choices=['postgame', 'preview', 'manual'],
+                        help='In-season weekly_writeup run type, passed through to '
+                             'research_agent.py (spec §4). The game-aware dispatcher '
+                             'passes this explicitly; when omitted, research_agent.py '
+                             'derives it per team. Ignored offseason.')
 
     args = parser.parse_args()
 
@@ -274,7 +284,10 @@ def main():
 
     # Step 5 — Research agent
     if run_research:
-        if not step("5. Research agent", "research_agent.py"):
+        ra_extra = []
+        if args.run_type:
+            ra_extra += ['--run-type', args.run_type]
+        if not step("5. Research agent", "research_agent.py", ra_extra or None):
             print("\n[ABORT] Research agent failed.", flush=True)
             sys.exit(1)
 

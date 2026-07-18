@@ -1,8 +1,8 @@
 # In-Season Weekly Writeup — Design Spec
 
 **Created:** 2026-07-17
-**Status:** IN BUILD — step 1 (data layer) SHIPPED 2026-07-18, VPS-verified (see §12 for the field contract); step 2 (research_agent.py prompt + injection) SHIPPED 2026-07-18 (see §13 for the prompt-layer contract); next = step 3, validator in run_pipeline.py
-**Owner files:** `scripts/research_agent.py`, `scripts/build_team_context.py`, `scripts/cron_team_research.sh`, `scripts/run_pipeline.py`, site-side `includes/functions.php` / `includes/classTeams.php` / `teamprofile.php`
+**Status:** IN BUILD — step 1 (data layer) SHIPPED 2026-07-18, VPS-verified (see §12 for the field contract); step 2 (research_agent.py prompt + injection) SHIPPED 2026-07-18 (see §13 for the prompt-layer contract); steps 3+4 (validator + game-aware dispatch) SHIPPED 2026-07-18 (see §14 for the enforcement/dispatch contract); next = step 5, site-side PHP
+**Owner files:** `scripts/research_agent.py`, `scripts/build_team_context.py`, `scripts/cron_team_research.sh`, `scripts/run_pipeline.py`, `scripts/resolve_inseason_batch.py`, site-side `includes/functions.php` / `includes/classTeams.php` / `teamprofile.php`
 
 ---
 
@@ -364,8 +364,11 @@ Prompt instructions alone won't hold a 200/350 hard limit. Add to the pipeline
    injury availability extension. Mode-gated injection blocks per the close_games
    pattern. Contract in §13. 40-case mock-context test sweep passed, incl. byte-identical
    offseason prompts.
-3. Validator (§8) wired into `run_pipeline.py`.
-4. `cron_team_research.sh`: game-aware in_season dispatch + `--run-type` plumbing.
+3. ✅ **DONE 2026-07-18** — Validator (§8) — lives in `research_agent.py` (NOT
+   run_pipeline.py: the corrective retry needs the original prompt in hand),
+   `run_pipeline.py` plumbs `--run-type`. Contract in §14.
+4. ✅ **DONE 2026-07-18** — `cron_team_research.sh`: game-aware in_season dispatch
+   via new `resolve_inseason_batch.py` + `--run-type` plumbing. Contract in §14.
 5. Site-side: `functions.php`/`classTeams.php` map + teamprofile render + fallback.
 6. Force `mode="in_season"` dry-runs on 2-3 teams (P4 Saturday team, MACtion team,
    bye-week team) before the Aug 29 boundary.
@@ -515,3 +518,77 @@ map `weekly_writeup`, `beat_predictions`, AND `injury_report` in functions.php
   last game on postgame runs (spec §8). One corrective retry, then accept+log.
 - Also worth checking: `weekly_writeup.run_type` echoes the dispatched
   run type, and `injury_report[].game_status` values are in the enum.
+
+---
+
+## 14. Validator + game-aware dispatch — SHIPPED 2026-07-18 (session 4)
+
+Tested: 53-case sandbox sweep (validator units, enforce integration with
+stubbed agent, resolver batch/dedupe/shard units) + functional cron dry-runs
+(faked date, stubbed pipeline/resolver: in-season slot with shard, empty
+shard, and legacy preseason path) + offseason build_prompt byte-identity
+re-verified after the session-4 edits. All four files pure LF.
+
+### Validator (research_agent.py — NOT run_pipeline.py)
+
+Placement decision: the corrective retry re-runs the agent with the ORIGINAL
+prompt + a corrective suffix, and only research_agent.py has the prompt in
+hand — run_pipeline.py would have to re-run the whole research step blind.
+`enforce_weekly_writeup(slug, prompt, run_type, mode)` runs in main() right
+after a successful `run_agent()`, no-ops outside `_IN_SEASON_MODES` (now a
+module-level constant) and on `--dry-run`. `build_prompt()` now returns
+`(prompt, mode, run_type)`.
+
+- HARD violations → ONE corrective re-run (original prompt + suffix quoting
+  the failed text + the violation list), then accept-but-log-loudly
+  (`WRITEUP STILL INVALID ... ACCEPTED AS-IS`): not exactly 2 paragraphs on
+  the `\n\n` split; word count outside [200, 350]; markdown in text
+  (headers, `-`/`*`/`•` bullets, numbered lists, `**`); postgame runs where
+  P1 never mentions the last game (opponent name, any distinctive non-generic
+  word of it, or the score, parsed from the `last_game` metadata echo —
+  unparseable metadata never rejects).
+- FIXABLE issues → patched in place + logged, never retried: `word_count`
+  overwritten with the recomputed count; `run_type` overwritten with the
+  dispatched value; `injury_report[].game_status` normalized into the enum
+  when unambiguous ("OUT for season" → out_for_season), left as-is otherwise.
+- Safety: if the corrective re-run fails outright or leaves unreadable JSON,
+  the ORIGINAL output file is restored (an imperfect writeup beats a missing
+  one). Validator writes are `json.dumps(indent=2, ensure_ascii=False)` UTF-8.
+
+### Game-aware dispatch (cron_team_research.sh v3 + resolve_inseason_batch.py)
+
+- in_season `resolve_targets` now returns the `GAMEAWARE` sentinel every day;
+  every slot participates and asks `resolve_inseason_batch.py --slot N` for
+  its shard (venv python — the resolver imports build_team_context/pymysql).
+  Offseason + postseason dispatch are untouched (dry-run verified).
+- Resolver: postgame batch (daily) = teams in finals dated yesterday, using
+  the §12 completed-game test (points non-null AND >0 — 0/0 future rows
+  excluded, verified in tests); preview batch (Thursday only) = teams with a
+  game in the next 7 days. Date filtering happens in Python via the same
+  `str(start_date)[:10]` parse the data layer uses. FCS opponents fall out
+  naturally (not in the url_param→slug index).
+- Decisions locked session 4: overlap teams (played Wed, game within window)
+  run ONCE as postgame; batch ordered postgame-first then P4-first
+  (big10, sec, fbsind, acc, big12, then G6) so marquee teams hit morning
+  slots; contiguous 5-chunk shard (Sunday ~110 → 22/slot ≈ 90 min, Thursday
+  ~130 → 26/slot ≈ 105 min, inside the 4-hour windows; small batches fill
+  morning slots first). Each slot recomputes the same deterministic batch —
+  both queries are stable intra-day. No YouTube-quota guard in v1 (fetcher
+  already degrades non-fatally); watch the first big Sunday's logs.
+- Cron plumbing: `run_team_rt` runs `run_pipeline.py --team <slug>
+  --run-type <type>` (run_pipeline passes it to research_agent step 5);
+  empty shard → clean exit WITHOUT the all-138-team Hostinger cache refresh;
+  resolver failure → logged FAIL. Resolver stderr diagnostics land in the
+  wrapper cron log.
+- Dry-run helper: `resolve_inseason_batch.py --all [--date YYYY-MM-DD]`
+  prints the whole day's slot assignments without running anything.
+
+### Still open before Aug 29 (unchanged from §5/§11)
+
+cron.php `stats`/`builds`/`polls` schedules enabled in hPanel and sequenced
+before slot1 (6 AM) on postgame mornings; PFF team-assignment fix; forced
+`mode="in_season"` dry-runs on a P4 Saturday team, a MACtion team, and a
+bye-week team; live check of YouTube quota on the first ~110-team Sunday.
+Session 5 = site PHP: map `weekly_writeup`, `beat_predictions`,
+`injury_report` in functions.php (~L791) / classTeams.php (~L157) +
+teamprofile render with agent_summary fallback (PHP 7.4).

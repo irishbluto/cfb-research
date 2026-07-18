@@ -37,7 +37,7 @@ Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
 """
 
-import json, os, sys, time, argparse, subprocess, logging
+import json, os, re, sys, time, argparse, subprocess, logging
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -139,6 +139,11 @@ CONFERENCE_TEAMS = {
 
 # How many days before a research file is considered stale and needs refresh
 STALE_DAYS = 6
+
+# Modes that carry the in-season prompt layer + weekly_writeup deliverable
+# (docs/inseason_writeup_spec.md). Used by build_prompt() gating and the
+# post-run weekly_writeup validator.
+_IN_SEASON_MODES = {'in_season', 'postseason'}
 
 # ---------------------------------------------------------------------------
 # Retry configuration
@@ -311,7 +316,6 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
     # Keys match position_group values in team_context full_roster.
     # Fallback cap of 5 applies to any group not listed here.
     # ---------------------------------------------------------------------------
-    _IN_SEASON_MODES = {'in_season', 'postseason'}
     ROSTER_CAPS = {
         'Quarterbacks':    3 if mode in _IN_SEASON_MODES else 5,
         'Running Backs':   5,
@@ -1315,7 +1319,7 @@ Always earn observations with concrete specifics from the context and sources �
 
 **sentiment_score:** 0.0 = extremely negative · 0.5 = neutral · 1.0 = extremely positive.
 """
-    return prompt, mode
+    return prompt, mode, run_type
 
 # ---------------------------------------------------------------------------
 # Check if output is fresh enough to skip
@@ -1438,6 +1442,205 @@ def run_agent(slug, prompt, dry_run=False, debug=False):
     return False
 
 # ---------------------------------------------------------------------------
+# weekly_writeup validator (spec §8 + §13 session-4 notes)
+#
+# Prompt instructions alone won't hold a 200/350 hard limit. After the agent
+# writes {slug}_latest.json, validate weekly_writeup; on a HARD violation,
+# one corrective re-run (original prompt + corrective suffix), then accept
+# whatever came back but log loudly — a slightly-off writeup beats a missing
+# one, and the site renders regardless.
+#
+# HARD (trigger the corrective re-run):
+#   - not exactly 2 paragraphs on the \n\n split
+#   - word count outside [200, 350]
+#   - markdown headers / bullets / bold inside text (prose only)
+#   - postgame runs: paragraph 1 never mentions the game just played
+# FIXABLE (patched in place, logged, never retried):
+#   - word_count field != actual count            → overwritten with actual
+#   - run_type != the dispatched run type         → overwritten (template echo)
+#   - injury_report game_status not in the enum   → normalized when unambiguous
+# ---------------------------------------------------------------------------
+_WW_MIN_WORDS = 200
+_WW_MAX_WORDS = 350
+_GAME_STATUS_ENUM = {'out_for_season', 'out', 'doubtful', 'questionable',
+                     'probable', 'day_to_day'}
+
+def _ww_markdown_check(text):
+    """Return a short description of markdown found in text, or None."""
+    for line in text.splitlines():
+        ls = line.lstrip()
+        if ls.startswith('#'):
+            return "a markdown header ('#')"
+        if re.match(r'^[-*•]\s', ls):
+            return "a bullet list"
+        if re.match(r'^\d+[.)]\s', ls):
+            return "a numbered list"
+    if '**' in text:
+        return "bold markup ('**')"
+    return None
+
+def _ww_p1_mentions_last_game(p1, ww):
+    """Postgame P1 must anchor on the game just played (spec §8 item 3).
+    The last_game metadata echo looks like 'W 31-24 vs Missouri (2026-10-10)'.
+    Accept the opponent name, any distinctive word of it, or the score.
+    If the metadata doesn't parse, don't reject on a heuristic."""
+    m = re.match(r'^\s*([WLT])\s+(\d+)-(\d+)\s+(?:vs|at)\s+(.+?)\s*\(',
+                 str(ww.get('last_game') or ''))
+    if not m:
+        return True
+    score    = f"{m.group(2)}-{m.group(3)}"
+    opponent = m.group(4).strip()
+    p1_low   = p1.lower()
+    if opponent.lower() in p1_low or score in p1:
+        return True
+    # Multi-word opponents ("Mississippi State", "Texas A&M"): accept any
+    # distinctive word — generic suffixes alone don't count.
+    generic = {'state', 'tech', 'a&m', 'southern', 'northern', 'eastern',
+               'western', 'north', 'south', 'east', 'west', 'new', 'old'}
+    words = [w for w in re.split(r'[\s()]+', opponent) if w and w.lower() not in generic]
+    return any(re.search(r'\b' + re.escape(w.lower()) + r'\b', p1_low) for w in words)
+
+def validate_weekly_writeup(data, run_type):
+    """Validate (and patch fixable issues on) one research output dict.
+    Returns (hard_problems, fix_notes); mutates `data` in place for fixes."""
+    hard, fixes = [], []
+
+    ww = data.get('weekly_writeup')
+    if not isinstance(ww, dict) or not str(ww.get('text') or '').strip():
+        return (["weekly_writeup is missing or has empty text"], fixes)
+
+    text  = str(ww['text']).replace('\r\n', '\n').strip()
+    paras = [p.strip() for p in text.split('\n\n') if p.strip()]
+    if len(paras) != 2:
+        hard.append(f"text has {len(paras)} paragraph(s) — must be exactly 2, "
+                    f"separated by one blank line")
+
+    words = len(text.split())
+    if words < _WW_MIN_WORDS:
+        hard.append(f"text is {words} words — below the hard minimum of {_WW_MIN_WORDS}")
+    elif words > _WW_MAX_WORDS:
+        hard.append(f"text is {words} words — above the hard maximum of {_WW_MAX_WORDS}")
+
+    md = _ww_markdown_check(text)
+    if md:
+        hard.append(f"text contains {md} — prose only")
+
+    if run_type == 'postgame' and paras and not _ww_p1_mentions_last_game(paras[0], ww):
+        hard.append("paragraph 1 never mentions the game just played "
+                    "(postgame run — P1 must anchor on it)")
+
+    # --- fixable: word_count echo -----------------------------------------
+    if ww.get('word_count') != words:
+        fixes.append(f"word_count {ww.get('word_count')!r} -> {words} (recomputed)")
+        ww['word_count'] = words
+
+    # --- fixable: run_type echo (template prefill the agent must copy) ----
+    if run_type and ww.get('run_type') != run_type:
+        fixes.append(f"run_type {ww.get('run_type')!r} -> {run_type!r} (dispatched value)")
+        ww['run_type'] = run_type
+
+    # --- fixable: injury_report game_status enum ---------------------------
+    for entry in (data.get('injury_report') or []):
+        if not isinstance(entry, dict):
+            continue
+        gs = entry.get('game_status')
+        if gs and gs not in _GAME_STATUS_ENUM:
+            norm = re.sub(r'[\s\-]+', '_', str(gs).strip().lower())
+            if norm in _GAME_STATUS_ENUM:
+                fixes.append(f"injury_report game_status {gs!r} -> {norm!r}")
+                entry['game_status'] = norm
+            else:
+                fixes.append(f"injury_report game_status {gs!r} not in enum — left as-is")
+
+    return hard, fixes
+
+def _corrective_suffix(problems, data):
+    """Suffix appended to the ORIGINAL prompt for the corrective re-run."""
+    ww   = data.get('weekly_writeup') if isinstance(data.get('weekly_writeup'), dict) else {}
+    prev = str(ww.get('text') or '(missing)')[:2500]
+    return (
+        "\n\n---\n\n"
+        "**CORRECTIVE RE-RUN — the pipeline validator REJECTED your previous "
+        "weekly_writeup for these violations:**\n"
+        + "".join(f"- {p}\n" for p in problems)
+        + "\nYour previous weekly_writeup.text was:\n"
+        f'"""\n{prev}\n"""\n\n'
+        "Produce the complete JSON output again per all instructions above, with "
+        "weekly_writeup corrected so it passes validation: exactly TWO paragraphs "
+        "separated by one blank line, 200-350 total words, prose only (no markdown "
+        "headers, bullets, or bold), and on postgame runs paragraph 1 must name the "
+        "opponent from the game just played. If the text was too long, cut the "
+        "weakest sentences rather than compressing every sentence. Keep all other "
+        "fields consistent with your research."
+    )
+
+def enforce_weekly_writeup(slug, prompt, run_type, mode, debug=False):
+    """Post-run enforcement wrapper. Reads {slug}_latest.json, patches fixable
+    issues, and on hard violations does ONE corrective re-run. Always accepts
+    the final state (spec §8: accept-but-log on second failure). The original
+    output is restored if the corrective re-run leaves nothing usable."""
+    if mode not in _IN_SEASON_MODES:
+        return
+    output_file = OUTPUT_DIR / f"{slug}_latest.json"
+
+    def _load():
+        try:
+            return json.loads(output_file.read_text(encoding='utf-8'))
+        except Exception as e:
+            logging.error(f"  [{slug}] writeup validator could not read output: {e}")
+            return None
+
+    def _save(data):
+        try:
+            output_file.write_text(json.dumps(data, indent=2, ensure_ascii=False),
+                                   encoding='utf-8')
+        except Exception as e:
+            logging.error(f"  [{slug}] writeup validator could not write output: {e}")
+
+    data = _load()
+    if data is None:
+        return
+    hard, fixes = validate_weekly_writeup(data, run_type)
+    for f in fixes:
+        logging.info(f"  [{slug}] writeup fix: {f}")
+    if fixes:
+        _save(data)
+    if not hard:
+        wc = (data.get('weekly_writeup') or {}).get('word_count')
+        logging.info(f"  [{slug}] weekly_writeup valid ({wc} words)")
+        return
+
+    logging.warning(f"  [{slug}] weekly_writeup REJECTED: {' | '.join(hard)}")
+    logging.warning(f"  [{slug}] corrective re-run (one attempt, then accept+log)")
+
+    original_raw = output_file.read_text(encoding='utf-8')
+    ok = run_agent(slug, prompt + _corrective_suffix(hard, data), debug=debug)
+
+    if not ok:
+        # Re-run failed entirely — restore the original output so the site
+        # still gets the (imperfect) first version rather than nothing.
+        output_file.write_text(original_raw, encoding='utf-8')
+        logging.error(f"  [{slug}] WRITEUP INVALID + corrective re-run FAILED — "
+                      f"restored original output. Violations: {' | '.join(hard)}")
+        return
+
+    data2 = _load()
+    if data2 is None:
+        output_file.write_text(original_raw, encoding='utf-8')
+        logging.error(f"  [{slug}] corrective re-run output unreadable — restored original")
+        return
+    hard2, fixes2 = validate_weekly_writeup(data2, run_type)
+    for f in fixes2:
+        logging.info(f"  [{slug}] writeup fix (retry): {f}")
+    if fixes2:
+        _save(data2)
+    if hard2:
+        logging.error(f"  [{slug}] WRITEUP STILL INVALID after corrective re-run — "
+                      f"ACCEPTED AS-IS (spec §8): {' | '.join(hard2)}")
+    else:
+        logging.info(f"  [{slug}] weekly_writeup valid after corrective re-run")
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 def main():
@@ -1528,13 +1731,18 @@ def main():
 
         logging.info(f"[{slug}] Starting research ({i+1}/{len(teams)})")
 
-        prompt, mode = build_prompt(slug, context, {}, no_youtube=args.no_youtube,
-                                    run_type=args.run_type)
+        prompt, mode, run_type = build_prompt(slug, context, {}, no_youtube=args.no_youtube,
+                                              run_type=args.run_type)
 
         if args.debug:
             logging.info(f"[{slug}] Mode: {mode} | Prompt length: {len(prompt)} chars")
 
         success = run_agent(slug, prompt, dry_run=args.dry_run, debug=args.debug)
+
+        # In-season: enforce the weekly_writeup hard limits (spec §8) — patch
+        # fixable issues, one corrective re-run on hard violations, then accept.
+        if success and not args.dry_run:
+            enforce_weekly_writeup(slug, prompt, run_type, mode, debug=args.debug)
 
         if success:
             results['success'].append(slug)
