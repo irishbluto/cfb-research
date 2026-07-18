@@ -27,6 +27,12 @@ Usage:
     # Check quota before deciding which mode to use
     python3 scripts/youtube_fetcher.py --quota
 
+    # In-season: which of the twice-weekly runs this is (shifts weekly_writeup
+    # emphasis — see docs/inseason_writeup_spec.md §4). If omitted, derived
+    # from the calendar vs the team's last completed game. Ignored offseason.
+    python3 scripts/research_agent.py --team georgia --run-type postgame
+    python3 scripts/research_agent.py --team georgia --run-type preview
+
 Output: /cfb-research/research/{slug}_latest.json
 Logs:   /cfb-research/logs/research_{date}.log
 """
@@ -163,7 +169,7 @@ def setup_logging():
 # ---------------------------------------------------------------------------
 # Build the research prompt for one team
 # ---------------------------------------------------------------------------
-def build_prompt(slug, context, channels, no_youtube=False):
+def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
     team_name   = context.get('team', slug)
     coach       = context.get('head_coach', 'Unknown Coach')
     prev_coach  = context.get('previous_head_coach', '')
@@ -409,6 +415,323 @@ def build_prompt(slug, context, channels, no_youtube=False):
             f"2025 Turnover Margin: {turnover_display}\n"
             f"Regression Flags: {regression_display}"
         )
+
+    # ---------------------------------------------------------------------------
+    # In-season weekly_writeup additions (docs/inseason_writeup_spec.md).
+    # Everything below resolves to empty strings outside in_season/postseason,
+    # so offseason prompts are unchanged. Data layer contract: spec §12 —
+    # every current_season_* key and the opponent_snapshots block may be
+    # absent (preseason, or stats job not yet run), so .get() everything.
+    # ---------------------------------------------------------------------------
+    snaps     = context.get('opponent_snapshots') or {}
+    last_game = snaps.get('last_game') or {}
+    this_week = snaps.get('this_week') or {}
+    next_week = snaps.get('next_week') or {}
+
+    if mode in _IN_SEASON_MODES:
+        # Run type — explicit --run-type wins; otherwise derive from the
+        # calendar vs the team's last completed game (spec §4). last_game only
+        # exists when a real final does (the >0-points completed-game test in
+        # the data layer), so "yesterday's game" is a safe postgame trigger.
+        if run_type not in ('postgame', 'preview', 'manual'):
+            run_type = None
+        if run_type is None:
+            _lg_date = None
+            try:
+                _lg_date = datetime.strptime(str(last_game.get('date', ''))[:10], '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                pass
+            if _lg_date is not None and (_now.date() - _lg_date).days <= 1:
+                run_type = 'postgame'
+            elif _now.weekday() == 3:   # Thursday
+                run_type = 'preview'
+            else:
+                run_type = 'manual'
+        logging.info(f"  [{slug}] weekly_writeup run_type: {run_type}")
+    else:
+        run_type = None
+
+    # --- ## Upcoming Opponents prompt block -----------------------------------
+    def _snap_is_fcs(s):
+        # FCS opponents legitimately carry 0-0 records and all-None ratings
+        # (spec §12) — no powerrating AND no SP+ row is the discriminator
+        # (every FBS team has both, even preseason).
+        return s.get('power_rating') is None and s.get('sp_plus') is None
+
+    def _snap_lines(label, s):
+        vs_at  = {'home': 'vs', 'away': 'at', 'neutral': 'vs (neutral site)'}.get(s.get('site', ''), 'vs')
+        dow    = s.get('day_of_week', '')
+        header = f"{label}: {vs_at} {s.get('opponent', 'TBD')}, {dow} {s.get('date', '?')}".replace('  ', ' ')
+        lines  = [header]
+        if _snap_is_fcs(s):
+            lines.append(
+                "  FCS opponent — no FBS ratings exist for this team. A 0-0 record and "
+                "missing ranks are EXPECTED here, not missing data. Frame as a "
+                "tune-up/payday game, never as an unknown quantity."
+            )
+        else:
+            bits = []
+            if s.get('record'):
+                bits.append(f"record {s['record']}")
+            if s.get('power_rating') is not None:
+                pr = f"power rating {s['power_rating']}"
+                if s.get('power_rank'):
+                    pr += f" (#{s['power_rank']})"
+                bits.append(pr)
+            if s.get('sp_plus') is not None:
+                sp = f"SP+ {s['sp_plus']}"
+                if s.get('sp_plus_rank'):
+                    sp += f" (#{s['sp_plus_rank']})"
+                if s.get('sp_plus_year') and s.get('sp_plus_year') != cycle_year:
+                    sp += f" [{s['sp_plus_year']} rating — current-year SP+ not out yet]"
+                bits.append(sp)
+            if s.get('cfp_rank'):
+                bits.append(f"CFP #{s['cfp_rank']}")
+            if s.get('ap_rank'):
+                bits.append(f"AP #{s['ap_rank']}")
+            elif 'ap_rank' in s:
+                bits.append("unranked")
+            if bits:
+                lines.append("  " + " | ".join(bits))
+        if s.get('spread'):
+            bet = f"  Betting: spread {s['spread']}"
+            if s.get('over_under') is not None:
+                bet += f", O/U {s['over_under']}"
+            lines.append(bet)
+        return "\n".join(lines)
+
+    upcoming_opponents_block = ""
+    if mode in _IN_SEASON_MODES:
+        parts = []
+        if last_game.get('display'):
+            parts.append(f"Last game: {last_game['display']}")
+        else:
+            parts.append(
+                "Last game: none completed yet — the season opener is upcoming. "
+                "Use the opener-week writeup shape (see Weekly Writeup edge cases)."
+            )
+        if this_week:
+            parts.append(_snap_lines("This week", this_week))
+            _du = this_week.get('days_until')
+            if isinstance(_du, int) and _du > 7:
+                parts.append(
+                    f"BYE WEEK: the next game is {_du} days out — this is a bye-week "
+                    f"writeup (see the bye-week shape in the Weekly Writeup rules)."
+                )
+        else:
+            parts.append("This week: no remaining scheduled games in the data layer.")
+        if next_week:
+            parts.append(_snap_lines("Next week", next_week))
+        upcoming_opponents_block = (
+            "## Upcoming Opponents (rankings snapshots — rank priority in prose: CFP > AP > power rating)\n\n"
+            + "\n".join(parts) + "\n\n"
+        )
+
+    # --- ## Current-Season Stats prompt block ---------------------------------
+    current_season_block = ""
+    if mode in _IN_SEASON_MODES:
+        gp = context.get('current_season_games_played', 0) or 0
+
+        def _rk(key):
+            v = context.get(key)
+            return f"#{v}" if v is not None else "n/a"
+
+        def _raw_rk(raw_key, rank_key):
+            raw = context.get(raw_key)
+            if raw is None:
+                return "n/a"
+            r = context.get(rank_key)
+            return f"{raw} ({f'#{r}' if r is not None else 'rank n/a'})"
+
+        def _pm(v):
+            # Signed display for scoring margins; tolerates a missing value
+            # rather than crashing the team's whole run on a format error.
+            return f"{v:+}" if isinstance(v, (int, float)) else "n/a"
+
+        # Poll line is rendered regardless of the games-played gate — a rank is
+        # a rank. Key-absent = poll not out; key-present-but-None = unranked.
+        poll_bits = []
+        if 'current_season_cfp_rank' in context:
+            _cfp = context.get('current_season_cfp_rank')
+            poll_bits.append(f"CFP #{_cfp}" if _cfp else "CFP: unranked")
+        if 'current_season_ap_rank' in context:
+            _ap = context.get('current_season_ap_rank')
+            if _ap:
+                _mv = ""
+                _ap_prev = context.get('current_season_ap_rank_prev')
+                if 'current_season_ap_rank_prev' in context:
+                    if _ap_prev and _ap_prev != _ap:
+                        _mv = f" (was #{_ap_prev} last week)"
+                    elif _ap_prev is None:
+                        _mv = " (unranked last week)"
+                poll_bits.append(f"AP #{_ap}{_mv}")
+            else:
+                poll_bits.append("AP: unranked")
+        poll_line = " | ".join(poll_bits)
+
+        if gp >= _MIN_IN_SEASON_GAMES and context.get('current_season_record'):
+            lines = [f"## Current-Season Stats ({cycle_year}, through {gp} games — national ranks; prefer ranks in prose)\n"]
+            rec_line = f"Record: {context.get('current_season_record')}"
+            if poll_line:
+                rec_line += f" | {poll_line}"
+            lines.append(rec_line)
+            if context.get('current_season_ppg') is not None:
+                lines.append(
+                    f"Scoring: {context.get('current_season_ppg')} PPG for, "
+                    f"{context.get('current_season_ppg_allowed')} against "
+                    f"(margin {_pm(context.get('current_season_scoring_margin'))})"
+                )
+                if context.get('current_season_scoring_home_ppg') is not None and context.get('current_season_scoring_road_ppg') is not None:
+                    lines.append(
+                        f"  Home: {context.get('current_season_scoring_home_ppg')} PPG, margin {_pm(context.get('current_season_scoring_home_margin'))} "
+                        f"({context.get('current_season_scoring_home_games')} gm) | "
+                        f"Road: {context.get('current_season_scoring_road_ppg')} PPG, margin {_pm(context.get('current_season_scoring_road_margin'))} "
+                        f"({context.get('current_season_scoring_road_games')} gm)"
+                    )
+            if context.get('current_season_offense_ppa_rank') is not None:
+                lines.append(
+                    f"Offense: PPA {_rk('current_season_offense_ppa_rank')} | success {_rk('current_season_offense_success_rank')} | "
+                    f"explosiveness {_rk('current_season_offense_explosiveness_rank')}"
+                )
+                lines.append(
+                    f"  Rush: success {_rk('current_season_offense_rush_success_rank')}, explosiveness {_rk('current_season_offense_rush_explosiveness_rank')} | "
+                    f"Pass: success {_rk('current_season_offense_pass_success_rank')}, explosiveness {_rk('current_season_offense_pass_explosiveness_rank')}"
+                )
+                lines.append(
+                    f"Defense: PPA {_rk('current_season_defense_ppa_rank')} | success {_rk('current_season_defense_success_rank')} | "
+                    f"explosiveness {_rk('current_season_defense_explosiveness_rank')}"
+                )
+                lines.append(
+                    f"  Rush D: success {_rk('current_season_defense_rush_success_rank')}, explosiveness {_rk('current_season_defense_rush_explosiveness_rank')} | "
+                    f"Pass D: success {_rk('current_season_defense_pass_success_rank')}, explosiveness {_rk('current_season_defense_pass_explosiveness_rank')}"
+                )
+                lines.append(
+                    f"Red zone (points per opportunity — the site's red-zone metric): offense {_rk('current_season_offense_ppo_rank')}, "
+                    f"defense {_rk('current_season_defense_ppo_rank')}"
+                )
+                lines.append(
+                    f"Havoc: created (def) {_rk('current_season_defense_havoc_rank')} "
+                    f"[front seven {_rk('current_season_defense_havoc_front_seven_rank')}, DBs {_rk('current_season_defense_havoc_db_rank')}] | "
+                    f"allowed (off) {_rk('current_season_offense_havoc_rank')}"
+                )
+                lines.append(
+                    f"OL: line yards {_rk('current_season_offense_line_yards_rank')}, stuff rate {_rk('current_season_offense_stuff_rate_rank')}"
+                )
+            if context.get('current_season_ppd_off') is not None:
+                lines.append(
+                    f"Points per drive: offense {_raw_rk('current_season_ppd_off', 'current_season_ppd_off_rank')}, "
+                    f"defense {_raw_rk('current_season_ppd_def', 'current_season_ppd_def_rank')}"
+                )
+                lines.append(
+                    f"Scoring per opportunity: offense {_raw_rk('current_season_scoring_per_opp_off', 'current_season_scoring_per_opp_off_rank')}, "
+                    f"defense {_raw_rk('current_season_scoring_per_opp_def', 'current_season_scoring_per_opp_def_rank')}"
+                )
+                lines.append(
+                    f"Stop rate (% of drives ending in punt/turnover/turnover on downs): "
+                    f"defense forcing stops {_raw_rk('current_season_stop_rate_def', 'current_season_stop_rate_def_rank')} [higher = better], "
+                    f"offense getting stopped {_raw_rk('current_season_stop_rate_off', 'current_season_stop_rate_off_rank')} [lower = better] | "
+                    f"Three-and-outs: offense {_rk('current_season_three_out_off_rank')}, defense {_rk('current_season_three_out_def_rank')}"
+                )
+            if context.get('current_season_ol_run_block_grade') is not None:
+                lines.append(
+                    f"PFF OL (may lag ~1 week on Sunday runs — manual import): "
+                    f"run block {_raw_rk('current_season_ol_run_block_grade', 'current_season_ol_run_block_grade_rank')}, "
+                    f"pass block {_raw_rk('current_season_ol_pass_block_grade', 'current_season_ol_pass_block_grade_rank')}, "
+                    f"team overall {_raw_rk('current_season_pff_overall_grade', 'current_season_pff_overall_grade_rank')}"
+                )
+            if context.get('current_season_offense_profile'):
+                lines.append(f"Offense profile (current season): {context.get('current_season_offense_profile')}")
+            lines.append(
+                "These are the stat categories that ground Paragraph 1's WHY — use the ones "
+                "the game story actually runs through; you do not have to use them all."
+            )
+            current_season_block = "\n".join(lines) + "\n\n"
+        else:
+            _cs_note = (
+                f"only {gp} completed {cycle_year} game(s) in the data layer — below the "
+                f"{_MIN_IN_SEASON_GAMES}-game minimum for current-season ranks to mean anything"
+                if gp else f"no completed {cycle_year} games in the data layer yet"
+            )
+            _poll_note = f"\nPolls: {poll_line}" if poll_line else ""
+            current_season_block = (
+                f"## Current-Season Stats\n\n"
+                f"Unavailable: {_cs_note}.{_poll_note}\n"
+                f"PRIOR-YEAR CONTEXT ONLY: season-long ratings in the Team Context block above "
+                f"(power rating, PPA, SP+-derived profile) reflect preseason/prior-year information, "
+                f"not {cycle_year} results. Use them as background about who this team WAS projected "
+                f"to be — never as a read on how the {cycle_year} team is playing. Ground all "
+                f"current-form claims in beat coverage and game results instead.\n\n"
+            )
+
+    # --- JSON template additions (in-season only) -----------------------------
+    writeup_json_fields = ""
+    if mode in _IN_SEASON_MODES:
+        def _ww_upcoming(s):
+            if not s:
+                return None
+            vs_at = {'home': 'vs', 'away': 'at', 'neutral': 'vs (neutral)'}.get(s.get('site', ''), 'vs')
+            dow = s.get('day_of_week', '')
+            return f"{vs_at} {s.get('opponent', 'TBD')}, {dow} {s.get('date', '')}".replace('  ', ' ').strip().rstrip(',')
+
+        if run_type == 'postgame' and last_game.get('week') is not None:
+            _season_week = last_game.get('week')
+        else:
+            _season_week = this_week.get('week') if this_week.get('week') is not None else last_game.get('week')
+
+        writeup_json_fields = f'''  "beat_predictions": [
+    {{"source": "outlet name", "prediction": "the pick and/or score as stated, e.g. 'Georgia 31-24'", "url": "https://...", "published": "YYYY-MM-DD"}}
+  ],
+  "injury_report": [
+    {{"player": "Player Name", "position": "POS", "injury": "injury type or 'undisclosed'", "game_status": "out_for_season|out|doubtful|questionable|probable|day_to_day", "detail": "timeline; source note"}}
+  ],
+  "weekly_writeup": {{
+    "text": "Paragraph one...\\n\\nParagraph two...",
+    "word_count": 0,
+    "run_type": "{run_type}",
+    "season_week": {json.dumps(_season_week)},
+    "last_game": {json.dumps(last_game.get('display'))},
+    "this_week": {json.dumps(_ww_upcoming(this_week))},
+    "next_week": {json.dumps(_ww_upcoming(next_week))}
+  }},
+'''
+
+    # --- In-season extraction + writeup instruction sections ------------------
+    inseason_extraction_instructions = ""
+    weekly_writeup_instructions = ""
+    synthesis_writeup_line = ""
+    if mode in _IN_SEASON_MODES:
+        synthesis_writeup_line = ("\n   - The two-paragraph `weekly_writeup`, plus `beat_predictions` and "
+                                  "`injury_report` — see the Weekly Writeup rules below")
+        inseason_extraction_instructions = f"""**Beat predictions (`beat_predictions` — in-season extraction task):** When a pre-fetched article or podcast makes a prediction for this team's upcoming game (a pick and/or a score), capture it: outlet name, the prediction as stated, URL, publish date. Predictions must come from the sources — NEVER invent one, infer one from tone, or convert vague confidence into a pick. Attribute the outlet, not necessarily the individual writer. If no source makes a prediction (common on postgame runs — most beats publish picks Wed–Fri), return an empty array; that is the normal case, not a failure.
+
+**Structured injury report (`injury_report` — in-season):** For every player in `injury_flags` whose availability is in question for the upcoming game or beyond, ALSO emit a structured entry: player, position, injury, `game_status` (one of `out_for_season | out | doubtful | questionable | probable | day_to_day`), and a short detail string (timeline; source note). Use the most specific status the sourcing supports; use `day_to_day` when a beat writer has flagged a starter without a formal game designation. `injury_flags` (the prose list) remains the comprehensive snapshot and keeps its string format — in-season, end each entry with availability for the upcoming game where known (e.g. "— questionable Sat", "— OUT ~3 weeks"). Fully recovered/available players do not need an `injury_report` entry.
+
+"""
+        weekly_writeup_instructions = f"""**WEEKLY WRITEUP (`weekly_writeup` — the in-season deliverable):** In addition to `agent_summary` (UNCHANGED — write it exactly per its own spec above), produce `weekly_writeup.text`: a two-paragraph piece that lets a reader follow this team the way a local fan does — what happened in the game they just played, who's up this week, a peek at next week, who's hurt, and how the beat feels about it. This is the site's differentiator: nobody can follow 138 local beats; you do.
+
+  **Hard format (pipeline-enforced — violations are rejected):** exactly TWO paragraphs separated by one blank line (`\\n\\n` in the JSON string). Total length HARD 200–350 words (target ~270–300, ~12 sentences). Prose only — no markdown headers, bullets, or bold inside `text`. Set `word_count` to your actual word count. Copy `run_type`, `season_week`, `last_game`, `this_week`, and `next_week` into the JSON EXACTLY as prefilled in the template above — do not edit or re-derive them.
+
+  **Paragraph 1 — the game they just played (the anchor).** Result and one line of context (record, ranking movement if any), then WHY it went the way it did, grounded in the Current-Season Stats categories — "won the explosiveness battle," "stalled in the red zone again," "the OL gave up pressure all night." Prefer national ranks in prose (ranks read; raw rates don't). Who played well and who didn't, BY NAME — every player-name verification rule applies. Beat and fan reaction: what the locals took away from it, especially where vibes and numbers disagree. If the game confirmed or broke a tracked storyline thread, say so here.
+
+  **Paragraph 2 — looking ahead (the payoff).** This week's opponent with the rankings snapshot framing the stakes (their record, power rating, SP+, AP/CFP rank — rank priority: CFP > AP > power rating). Spread and ATS note ONLY when notable: a big favorite/dog, a short line in a rivalry, or an ATS record that is itself a story (6-0 ATS, 0-5 ATS at home). Silence is the betting default — this is a football writeup, not a betting card. Injuries and availability for the upcoming game: who is OUT and for how long, who is questionable, sourced from the beat. Include beat-writer game predictions when the sources make them (attribute the outlet). Close with a 1–2 sentence peek at the following week's opponent — lookahead/trap-game and short-week context lives there naturally.
+
+  **Anti-recap rule:** the writeup must never read like a box-score restatement. The score gets ONE clause; the real estate goes to why (stat-grounded) and what it means for the next two games. A reader who watched the game should still learn something.
+
+  **Run-type emphasis — this run is `{run_type}`:**
+  - `postgame` (morning after the game): ~60% of the writeup's weight on Paragraph 1 — the beat is all reaction, use it; weight sources published AFTER kickoff of the last game most heavily. Paragraph 2 is an early look — the spread may not be final, and beat predictions are usually not out yet: omit rather than invent. Injuries: what came out of the game (new injuries with severity unknown is fine — say so).
+  - `preview` (Thursday): ~40% Paragraph 1 — compress the game to its takeaways. ~60% Paragraph 2 — the beat is in preview mode: final injury reports (definitive OUT/questionable list for the game), matchup analysis, and the prime prediction-capture window.
+  - `manual` (ad-hoc): balance by what the sources give you.
+
+  **Poll usage note:** the AP poll releases Sunday afternoon — AFTER postgame runs. On a `postgame` run the freshest rank in the data is the rank the team carried INTO the game; using it is correct ("No. 14 Oklahoma beat..."). Never guess where the team will move in the next poll.
+
+  **Edge-case shapes:**
+  - Bye week (flagged in Upcoming Opponents): Paragraph 1 becomes a season-to-date stock-taking — record, trajectory, what the stats say this team actually is. Paragraph 2 previews the next game with the extra runway, plus the following-week peek; bye-week beat texture (rest, self-scouting, "getting healthy") belongs there.
+  - No game played yet (opener week): Paragraph 1 = camp finale + season expectations (compress preseason threads); Paragraph 2 = opener preview.
+  - FCS opponent (flagged in Upcoming Opponents): tune-up/payday framing; their 0-0 record and missing ranks are expected, not missing data.
+
+  **Composition rules carried over:** the lifecycle weighting (DEVELOPING leads, CONTINUING one tight pass, SETTLED one clause), forbidden national-policy topics, player-name verification paths, and "titles are not sources" all apply to `weekly_writeup` exactly as they do to `agent_summary`. In-season, DEVELOPING is almost always the game just played; season-long threads (QB situation, coach seat, award campaigns) compress as the calendar advances.
+
+"""
 
     # Format team notes for prompt
     notes_block = ""
@@ -711,7 +1034,7 @@ Portal Net: {portal_net:+d} ({len(portal_in)} in, {len(portal_out)} out)
 {schedule_block}
 {roster_block}
 {best_players_block}
-## Research Mode: {mode.upper()}
+{current_season_block}{upcoming_opponents_block}## Research Mode: {mode.upper()}
 Current focus: {mode_focus}
 Current cycle year: {cycle_year}
 Source recency floor: {min_source_date} — IGNORE any article, video, or web-search hit dated before this as current reporting. If a URL contains a year segment (e.g. `/2025/`, `/2024/`) that does not match the current cycle year ({cycle_year}), exclude it. If a source's publish date cannot be determined, treat it as background only — never place it in `agent_flags.high_confidence`.
@@ -756,7 +1079,7 @@ Source recency floor: {min_source_date} — IGNORE any article, video, or web-se
    - The 3-5 most important current storylines
    - Any injury flags not already in the context
    - Overall fanbase/media sentiment
-   - A 4-5 sentence summary a reader could scan in 10 seconds
+   - A 4-5 sentence summary a reader could scan in 10 seconds{synthesis_writeup_line}
 
 ## Output Format
 
@@ -796,7 +1119,7 @@ The file must be valid JSON matching this exact structure:
   "injury_flags": [
     "Player Name (Position): injury/status — timeline; corroboration note (see Injury reporting rules — comprehensive list, merged from Injury notes + discovered sources)"
   ],
-  "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
+{writeup_json_fields}  "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
   "coaching_snapshot": {{
     "head_coach": "{coach}",
@@ -955,7 +1278,7 @@ Format convention: Each entry should follow the pattern `"Player Name (Position)
 
 If there are genuinely no notable injuries on the roster (rare — most common in early offseason for healthy programs), return an empty array `[]`. Do not include placeholder entries like "no specific injury flags."
 
-**Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
+{inseason_extraction_instructions}**Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
 **Storyline continuity:** If prior run notes include tracked storyline threads, your key_storylines should update those threads where possible — use similar language and keywords so the memory system can match them across runs. If a tracked storyline has resolved (e.g. QB battle decided, coaching hire confirmed), you may drop it from key_storylines and it will age out naturally. If a storyline marked [STALE] is still relevant based on your sources, include it again to keep it active. Do NOT invent storyline updates — only update a thread if your current sources have new information.
 
@@ -973,7 +1296,7 @@ If there are genuinely no notable injuries on the roster (rare — most common i
 
   Stage tags on threads are advisory inputs to YOU — do not echo the tags themselves in the prose. The reader sees only the writeup, not the staging.
 
-**Prior-storyline sport audit (mandatory before treating any thread as football):** prior runs may have written storyline threads that quietly contain a non-football player (a basketball-podcast contamination, a misclassified portal name, a recruit later confirmed to a different sport). For every prior-run storyline thread you intend to "update" or "resolve," apply the same Football-Players-Only verification: if the thread names a player, that player must pass path (a) roster, (b) team data (portal_in/out, recruiting_class_2026, top_portal_additions), or (c) explicit football tag in a current source. If they fail all three, DO NOT update or "resolve" the thread — instead, leave it unmentioned so it ages out naturally, and treat the prior thread as suspect rather than as ground truth. A "resolution" of a contaminated prior thread (e.g., "the prior portal competition for [non-football player] is now resolved") propagates the original error and makes it look corroborated — that is the worst possible outcome.
+{weekly_writeup_instructions}**Prior-storyline sport audit (mandatory before treating any thread as football):** prior runs may have written storyline threads that quietly contain a non-football player (a basketball-podcast contamination, a misclassified portal name, a recruit later confirmed to a different sport). For every prior-run storyline thread you intend to "update" or "resolve," apply the same Football-Players-Only verification: if the thread names a player, that player must pass path (a) roster, (b) team data (portal_in/out, recruiting_class_2026, top_portal_additions), or (c) explicit football tag in a current source. If they fail all three, DO NOT update or "resolve" the thread — instead, leave it unmentioned so it ages out naturally, and treat the prior thread as suspect rather than as ground truth. A "resolution" of a contaminated prior thread (e.g., "the prior portal competition for [non-football player] is now resolved") propagates the original error and makes it look corroborated — that is the worst possible outcome.
 
 **Tone:** Write as a knowledgeable, even-handed CFB analyst who's covered fall Saturdays for twenty years out of genuine love for the sport. Quick with a dry one-liner when the moment calls for it (e.g., "Their O-line situation is held together with duct tape and prayer, but the tape is at least name-brand."), but grounded in specifics and film. Respects the offseason grind, holds defensible opinions, and has a soft spot for the beautiful quirks of college football and weird special-teams stories. Humor is a seasoning, not the main course — no hot takes, no shouting, more press-box veteran than studio yeller.
 Mode-aware calibration:
@@ -1131,6 +1454,10 @@ def main():
                         help='Print prompts without running agents')
     parser.add_argument('--no-youtube',  action='store_true',
                         help='Skip YouTube API fetches (use when quota is exhausted)')
+    parser.add_argument('--run-type',   default=None, dest='run_type',
+                        choices=['postgame', 'preview', 'manual'],
+                        help='In-season weekly_writeup run type (spec §4). Default: derived '
+                             'from calendar vs last completed game. Ignored offseason.')
     parser.add_argument('--debug',      action='store_true')
     parser.add_argument('--delay',      type=int, default=10,
                         help='Seconds to wait between teams (default: 10)')
@@ -1201,7 +1528,8 @@ def main():
 
         logging.info(f"[{slug}] Starting research ({i+1}/{len(teams)})")
 
-        prompt, mode = build_prompt(slug, context, {}, no_youtube=args.no_youtube)
+        prompt, mode = build_prompt(slug, context, {}, no_youtube=args.no_youtube,
+                                    run_type=args.run_type)
 
         if args.debug:
             logging.info(f"[{slug}] Mode: {mode} | Prompt length: {len(prompt)} chars")

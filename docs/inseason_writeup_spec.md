@@ -1,7 +1,7 @@
 # In-Season Weekly Writeup — Design Spec
 
 **Created:** 2026-07-17
-**Status:** DESIGN — approved decisions locked, implementation not started
+**Status:** IN BUILD — step 1 (data layer) SHIPPED 2026-07-18, VPS-verified (see §12 for the field contract); step 2 (research_agent.py prompt + injection) SHIPPED 2026-07-18 (see §13 for the prompt-layer contract); next = step 3, validator in run_pipeline.py
 **Owner files:** `scripts/research_agent.py`, `scripts/build_team_context.py`, `scripts/cron_team_research.sh`, `scripts/run_pipeline.py`, site-side `includes/functions.php` / `includes/classTeams.php` / `teamprofile.php`
 
 ---
@@ -355,13 +355,15 @@ Prompt instructions alone won't hold a 200/350 hard limit. Add to the pipeline
 
 ## 11. Implementation order (when build starts)
 
-1. Data layer: `build_current_season_advanced_stats` (widened per §5) + current-season
-   record/scoring builders + `build_opponent_snapshots` — plus the VERIFY sweep
-   (weekly cadence of powerrating/SandPratings/team_rankings/advancedstats 2026 rows;
-   AP/CFP source; spread source; PPD/red-zone source decision).
-2. `research_agent.py`: in_season prompt section — weekly_writeup field spec + two-
-   paragraph structure + run_type emphasis + beat_predictions task + injury
-   availability extension. Mode-gated injection blocks per the close_games pattern.
+1. ✅ **DONE 2026-07-18** — Data layer: `build_current_season_advanced_stats` (widened
+   per §5) + current-season record/scoring builders + `build_opponent_snapshots` —
+   plus stats_misc / PFF OL / polls readers. VERIFY sweep passed 2026-07-17.
+   Field contract in §12.
+2. ✅ **DONE 2026-07-18** — `research_agent.py`: in_season prompt section — weekly_writeup
+   field spec + two-paragraph structure + run_type emphasis + beat_predictions task +
+   injury availability extension. Mode-gated injection blocks per the close_games
+   pattern. Contract in §13. 40-case mock-context test sweep passed, incl. byte-identical
+   offseason prompts.
 3. Validator (§8) wired into `run_pipeline.py`.
 4. `cron_team_research.sh`: game-aware in_season dispatch + `--run-type` plumbing.
 5. Site-side: `functions.php`/`classTeams.php` map + teamprofile render + fallback.
@@ -373,3 +375,143 @@ tail-check on CRLF files (verify via Read on C:\ paths, not the laggy bash mirro
 PHP 7.4 on site-side; surgical paste-ready changes; keep mode boundaries in sync
 across cron script, research_agent.py, national_landscape_agent.py, and
 classTeams.php `_researchModeAt`.
+
+---
+
+## 12. Data layer — SHIPPED 2026-07-18 (the contract session 3 codes against)
+
+Seven builders in `build_team_context.py`, wired into the aggregator directly after
+the TO-margin/one-score pair, always run (`--team`/`--conf`/`--all`). Every stat
+builder returns `{}` preseason, so fields are simply absent until 2026 rows land —
+the injection layer must `.get()` everything. VPS-verified on Georgia: preseason
+emits only `opponent_snapshots` with the opener as `this_week`.
+
+### ⚠ games-table gotcha (binds session 4's dispatcher too)
+
+**Future-season schedule rows carry `0/0` points, NOT NULL.** Any "completed game"
+test must be: points non-null **AND** `(home_points > 0 OR away_points > 0)` —
+mirrors the site's own filter (classTeams ~L6313); a 0-0 CFB final is impossible.
+Applied to every current-season games query, including the pre-existing
+`build_current_season_one_score` games-played gate (which would otherwise have
+defeated `_MIN_IN_SEASON_GAMES = 3` in Week 1). The postgame dispatcher (§7) MUST
+use the same test when querying "finals dated yesterday."
+
+### Field inventory (all flat keys unless noted)
+
+**Record / scoring** (`build_current_season_record` / `_scoring`):
+`current_season_record` (`"5-1"`), `current_season_wins/losses`,
+`current_season_ppg`, `current_season_ppg_allowed`, `current_season_scoring_margin`,
+plus `current_season_scoring_home_ppg/_margin/_games` and `_road_` parallels.
+
+**Advanced stats** (`build_current_season_advanced_stats`, team_rankings ranks only):
+`current_season_{offense,defense}_{ppa,success,explosiveness}_rank`;
+splits `current_season_{offense,defense}_{rush,pass}_{success,explosiveness}_rank`
+(8 keys); red zone `current_season_{offense,defense}_ppo_rank`;
+OL `current_season_offense_line_yards_rank`, `current_season_offense_stuff_rate_rank`;
+havoc `current_season_{offense,defense}_havoc_rank`,
+`current_season_defense_havoc_{front_seven,db}_rank`;
+`current_season_offense_profile` ("Pass Heavy (58% pass, 42% run)" etc., from
+current-season advancedstats raws).
+
+**Misc stats** (`build_current_season_misc_stats`, stats_misc `year`+`team`, raw+rank):
+`current_season_ppd_{off,def}` + `_rank`; `current_season_scoring_per_opp_{off,def}`
++ `_rank`; `current_season_stop_rate_{off,def}` + `_rank`;
+`current_season_three_out_{off,def}_rank`. Rank directions mirror
+getMiscStatsWithRanks.
+
+**PFF OL** (`build_current_season_pff_ol`; may be ~1 week stale on Sundays — manual
+import — fresh by Thursday): `current_season_ol_{run,pass}_block_grade` + `_rank`,
+`current_season_pff_overall_grade` + `_rank`. Name matching: `_PFF_NORM_MAP`
+(Hawai'i variants, Texas A, **San Jose State → San José State**) + apostrophe-
+stripped SQL fallback.
+
+**Polls** (`build_current_season_polls`): `current_season_ap_rank` (**None =
+checked-and-unranked**, key absent = poll not out), `current_season_ap_poll_week`,
+`current_season_ap_rank_prev` (movement), `current_season_cfp_rank` +
+`current_season_cfp_poll_week` (absent before ~Week 11).
+
+**`opponent_snapshots`** (nested dict — feeds the writeup metadata echo and the
+`## Upcoming Opponents` prompt block):
+- `last_game`: `result` ("W 31-24"), `opponent`, `site`, `week`, `date`,
+  `display` ("W 31-24 vs Missouri (2026-10-10)") — absent until a real final exists.
+- `this_week` / `next_week`: `opponent`, `record`, `power_rating`+`power_rank`,
+  `sp_plus`+`sp_plus_rank`+`sp_plus_year`, `ap_rank`/`cfp_rank` (None = unranked),
+  `site` (home/away/neutral), `week`, `date`, `day_of_week`, `days_until`,
+  `season_type`; `this_week` only: `spread` (formattedSpread display string, e.g.
+  "Georgia -7.5") + `over_under` when a line exists.
+- `built_at` date stamp.
+
+Session-3 rendering notes: **FCS opponents** (e.g. Tennessee State) legitimately
+have `0-0` record and all-None ratings/ranks — render as "FCS opponent", don't
+treat as missing data. Bye detection: `this_week.days_until > 7`. Rank priority
+in prose stays CFP > AP > power rating. Early-season gate: key the
+`_MIN_IN_SEASON_GAMES = 3` fallback on `current_season_games_played` (already
+emitted by the one-score builder, now correctly 0 preseason).
+
+---
+
+## 13. Prompt layer — SHIPPED 2026-07-18 (the contract sessions 4–5 code against)
+
+All in `research_agent.py` `build_prompt()`, mode-gated on `_IN_SEASON_MODES`
+(`in_season`, `postseason`) — **offseason prompts are byte-identical to before**
+(verified in the test sweep). +327 lines; compiles on Windows checkout.
+
+### run_type (session 4 plumbs this)
+
+- New CLI flag: `--run-type postgame|preview|manual` (argparse `choices`,
+  default None), passed into `build_prompt(..., run_type=...)`.
+- Derivation when omitted (spec §4): last completed game dated today/yesterday
+  (`days <= 1` vs `opponent_snapshots.last_game.date`) → `postgame`; else
+  Thursday (`weekday() == 3`) → `preview`; else `manual`. Logged per team as
+  `weekly_writeup run_type: X`. Offseason: forced to None, nothing injected.
+- The dispatcher should still pass `--run-type` explicitly (batch semantics
+  beat per-team derivation — e.g. a Sunday batch is postgame by definition).
+
+### Prompt injections (in-season only)
+
+- `## Current-Season Stats` block — record + PPG/margin w/ home-road splits,
+  AP (with prev-week movement) / CFP line, efficiency trio + rush/pass splits
+  O&D, PPO red zone, havoc (F7/DB), OL line yards/stuff rate, PPD / scoring
+  per opp / stop rate / three-and-outs (raw + rank), PFF OL grades (with
+  "may lag ~1 week on Sunday runs" note), current-season offense profile.
+  Gated on `current_season_games_played >= 3` AND `current_season_record`
+  present; fallback text = "PRIOR-YEAR CONTEXT ONLY" framing (polls still
+  shown — a rank is a rank).
+- `## Upcoming Opponents` block — last_game display; this_week/next_week
+  snapshot lines (record | power rating (#) | SP+ (#, with prior-year tag when
+  sp_plus_year ≠ cycle) | CFP/AP or "unranked"); spread + O/U on this_week;
+  BYE WEEK flag on `days_until > 7`; FCS detection = no power_rating AND no
+  SP+ (framed as tune-up/payday, "expected, not missing data"); opener-week
+  notice when no last_game.
+- JSON template additions (inserted after `injury_flags`): `beat_predictions[]`
+  {source, prediction, url, published}; `injury_report[]` {player, position,
+  injury, game_status, detail} with `game_status` enum
+  `out_for_season|out|doubtful|questionable|probable|day_to_day`;
+  `weekly_writeup` {text, word_count, run_type, season_week, last_game,
+  this_week, next_week} — the five metadata fields are PREFILLED in the
+  template (json.dumps'd, null-safe) and the agent is told to copy them
+  verbatim. `season_week` = last_game.week on postgame runs, else
+  this_week.week.
+- Instruction sections: beat-predictions extraction task (never invent; empty
+  array normal on postgame), structured injury_report task, and the full
+  WEEKLY WRITEUP rules (two-paragraph structure, 200–350 hard limits stated
+  as pipeline-enforced, anti-recap rule, run-type emphasis stamped with this
+  run's type, poll-timing note, bye/opener/FCS edge shapes, composition rules
+  carried over). Synthesis task list gains a weekly_writeup line.
+
+### ⚠ Decision locked 2026-07-18: injury_flags stays strings
+
+The live site iterates `injury_flags` as strings (classTeams ~L253 stripos/
+preg_match) — so entries were NOT converted to objects. `game_status` lives in
+the new PARALLEL `injury_report` array; `injury_flags` keeps its prose format
+with availability appended in-season ("— questionable Sat"). **Session 5 must
+map `weekly_writeup`, `beat_predictions`, AND `injury_report` in functions.php
+(~L791) / classTeams.php (~L157).**
+
+### Session-4 validator notes
+
+- Validate `weekly_writeup.text`: exactly 2 paragraphs on `\n\n`, 200–350
+  words, `word_count` matches, no markdown headers/bullets; P1 mentions the
+  last game on postgame runs (spec §8). One corrective retry, then accept+log.
+- Also worth checking: `weekly_writeup.run_type` echoes the dispatched
+  run type, and `injury_report[].game_status` values are in the enum.
