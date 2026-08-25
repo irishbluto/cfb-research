@@ -6,6 +6,10 @@
 # into the nginx docroot on the teamcards subdomain. No scp step — unlike the
 # coach cards, these are served from this box.
 #
+# The teamcards docroot is NOT under /var/www -- it is the capture project's
+# team-cards/ directory (the AAC/ ACC/ B12/ ... folders you see at the root of
+# teamcards.puntandrally.com live there). Do not go looking in /var/www.
+#
 # TWO MODES, chosen by the argument:
 #
 #   fill     Draw anything queued that has no PNG yet. Cheap, idempotent,
@@ -36,7 +40,7 @@ LOG_DIR="${BASE_DIR}/logs"
 CRON_LOG="${LOG_DIR}/cron_matchup_cards.log"
 LOCK_FILE="/tmp/matchup_cards.lock"
 PYTHON="/usr/bin/python3"
-OUT_DIR="/var/www/teamcards.puntandrally.com/matchup"
+OUT_DIR="/opt/puntandrally/teamcard-capture/team-cards/matchup"
 
 MODE="${1:-fill}"
 
@@ -62,12 +66,48 @@ trap 'rm -f "$LOCK_FILE"' EXIT
 
 log "START: matchup cards, mode=${MODE}"
 
-# --- Output directory must be TRAVERSABLE, not just writable ---
-# 2026-07-14: a recreated card directory came back mode 744. LiteSpeed 404'd
-# every card while PHP's file_exists() still returned true, and Cloudflare
-# cached those 404s for ~5 minutes. Assert it every run; it costs nothing.
-mkdir -p "$OUT_DIR"
-chmod 755 "$OUT_DIR"
+# --- Output directory ---------------------------------------------------
+# Must exist, be WRITABLE by this user, and be TRAVERSABLE by the web server.
+#
+# All three are separate failures and a cron job must name which one it hit.
+# An earlier version just ran `mkdir -p` and died with a raw "Permission
+# denied", which at 6 AM in a log file tells you nothing.
+#
+# The traversable part is not paranoia: 2026-07-14 a recreated card directory
+# came back mode 744. LiteSpeed 404'd every card while PHP's file_exists()
+# still returned true, and Cloudflare cached those 404s for ~5 minutes.
+if [ ! -d "$OUT_DIR" ]; then
+    if ! mkdir -p "$OUT_DIR" 2>/dev/null; then
+        log "FAIL: ${OUT_DIR} does not exist and $(whoami) cannot create it."
+        log "      Create it once, as root:"
+        log "        sudo mkdir -p ${OUT_DIR}"
+        log "        sudo chown $(whoami):$(whoami) ${OUT_DIR}"
+        log "        sudo chmod 755 ${OUT_DIR}"
+        log "      Then re-run. (Check the parent exists and is the right path:"
+        log "        ls -la $(dirname "$OUT_DIR") )"
+        exit 2
+    fi
+    log "  created ${OUT_DIR}"
+fi
+
+if [ ! -w "$OUT_DIR" ]; then
+    log "FAIL: ${OUT_DIR} exists but is not writable by $(whoami)."
+    log "      sudo chown -R $(whoami):$(whoami) ${OUT_DIR}"
+    exit 2
+fi
+
+# chmod only if we own it — a non-owner cannot chmod, and that is not fatal
+# as long as the mode is already right.
+current_mode=$(stat -c '%a' "$OUT_DIR" 2>/dev/null || echo "")
+if [ "$current_mode" != "755" ]; then
+    if chmod 755 "$OUT_DIR" 2>/dev/null; then
+        log "  chmod 755 ${OUT_DIR} (was ${current_mode:-unknown})"
+    else
+        log "WARN: ${OUT_DIR} is mode ${current_mode:-unknown}, not 755, and could not be changed."
+        log "      If cards 404 from the web while the files clearly exist, THIS IS WHY."
+        log "      sudo chmod 755 ${OUT_DIR}"
+    fi
+fi
 
 case "$MODE" in
     fill)
