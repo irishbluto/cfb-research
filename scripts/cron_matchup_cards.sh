@@ -39,7 +39,12 @@ BASE_DIR="/cfb-research"
 LOG_DIR="${BASE_DIR}/logs"
 CRON_LOG="${LOG_DIR}/cron_matchup_cards.log"
 LOCK_FILE="/tmp/matchup_cards.lock"
-PYTHON="/usr/bin/python3"
+# The renderer imports playwright, PIL and requests -- all of which live in
+# the venv and NOT in system python. cron_team_research.sh falls back to
+# /usr/bin/python3 when the venv is missing; do NOT copy that here. A silent
+# fallback produces "ModuleNotFoundError: No module named 'PIL'" at 6 AM and
+# zero cards, which is worse than not running at all.
+PYTHON="${BASE_DIR}/venv/bin/python3"
 OUT_DIR="/opt/puntandrally/teamcard-capture/team-cards/matchup"
 
 MODE="${1:-fill}"
@@ -47,6 +52,13 @@ MODE="${1:-fill}"
 mkdir -p "$LOG_DIR"
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$CRON_LOG"; }
+
+if [ ! -x "$PYTHON" ]; then
+    log "FAIL: venv interpreter not found at ${PYTHON}"
+    log "      System python does not have playwright/PIL. Recreate the venv or"
+    log "      correct the path; do not point this at /usr/bin/python3."
+    exit 2
+fi
 
 # --- Prevent overlapping runs ---
 # A refresh can take a couple of minutes; the 6 AM and noon passes must never
