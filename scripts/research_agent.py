@@ -667,7 +667,16 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
                 f"current-form claims in beat coverage and game results instead.\n\n"
             )
 
-    # --- JSON template additions (in-season only) -----------------------------
+    # --- JSON template additions ----------------------------------------------
+    # injury_report is emitted in EVERY mode (2026-08-27): the site groups it into
+    # "Out for the Season" vs "Injured - Expected Back", and most season-enders are
+    # reported in fall camp, i.e. in preseason mode.
+    # Plain string (no interpolation): braces stay SINGLE here. It is substituted
+    # into the outer prompt f-string as a value, so it is never re-parsed.
+    injury_report_json_fields = '''  "injury_report": [
+    {"player": "Player Name", "position": "POS", "injury": "injury type or 'undisclosed'", "game_status": "out_for_season|out|doubtful|questionable|probable|day_to_day", "detail": "timeline; source note"}
+  ],
+'''
     writeup_json_fields = ""
     if mode in _IN_SEASON_MODES:
         def _ww_upcoming(s):
@@ -685,9 +694,6 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
         writeup_json_fields = f'''  "beat_predictions": [
     {{"source": "outlet name", "prediction": "the pick and/or score as stated, e.g. 'Georgia 31-24'", "url": "https://...", "published": "YYYY-MM-DD"}}
   ],
-  "injury_report": [
-    {{"player": "Player Name", "position": "POS", "injury": "injury type or 'undisclosed'", "game_status": "out_for_season|out|doubtful|questionable|probable|day_to_day", "detail": "timeline; source note"}}
-  ],
   "weekly_writeup": {{
     "text": "Paragraph one...\\n\\nParagraph two...",
     "word_count": 0,
@@ -702,13 +708,12 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
     # --- In-season extraction + writeup instruction sections ------------------
     inseason_extraction_instructions = ""
     weekly_writeup_instructions = ""
-    synthesis_writeup_line = ""
+    synthesis_writeup_line = ("\n   - The structured `injury_report` array that parallels "
+                              "`injury_flags` \u2014 see the injury reporting rules below")
     if mode in _IN_SEASON_MODES:
         synthesis_writeup_line = ("\n   - The two-paragraph `weekly_writeup`, plus `beat_predictions` and "
                                   "`injury_report` — see the Weekly Writeup rules below")
         inseason_extraction_instructions = f"""**Beat predictions (`beat_predictions` — in-season extraction task):** When a pre-fetched article or podcast makes a prediction for this team's upcoming game (a pick and/or a score), capture it: outlet name, the prediction as stated, URL, publish date. Predictions must come from the sources — NEVER invent one, infer one from tone, or convert vague confidence into a pick. Attribute the outlet, not necessarily the individual writer. If no source makes a prediction (common on postgame runs — most beats publish picks Wed–Fri), return an empty array; that is the normal case, not a failure.
-
-**Structured injury report (`injury_report` — in-season):** For every player in `injury_flags` whose availability is in question for the upcoming game or beyond, ALSO emit a structured entry: player, position, injury, `game_status` (one of `out_for_season | out | doubtful | questionable | probable | day_to_day`), and a short detail string (timeline; source note). Use the most specific status the sourcing supports; use `day_to_day` when a beat writer has flagged a starter without a formal game designation. `injury_flags` (the prose list) remains the comprehensive snapshot and keeps its string format — in-season, end each entry with availability for the upcoming game where known (e.g. "— questionable Sat", "— OUT ~3 weeks"). Fully recovered/available players do not need an `injury_report` entry.
 
 """
         weekly_writeup_instructions = f"""**WEEKLY WRITEUP (`weekly_writeup` — the in-season deliverable):** In addition to `agent_summary` (UNCHANGED — write it exactly per its own spec above), produce `weekly_writeup.text`: a two-paragraph piece that lets a reader follow this team the way a local fan does — what happened in the game they just played, who's up this week, a peek at next week, who's hurt, and how the beat feels about it. This is the site's differentiator: nobody can follow 138 local beats; you do.
@@ -1123,7 +1128,7 @@ The file must be valid JSON matching this exact structure:
   "injury_flags": [
     "Player Name (Position): injury/status — timeline; corroboration note (see Injury reporting rules — comprehensive list, merged from Injury notes + discovered sources)"
   ],
-{writeup_json_fields}  "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
+{injury_report_json_fields}{writeup_json_fields}  "overall_sentiment": "one of: optimistic|cautiously_optimistic|mixed|cautious|concerned",
   "sentiment_score": 0.0,
   "coaching_snapshot": {{
     "head_coach": "{coach}",
@@ -1281,6 +1286,15 @@ Format convention: Each entry should follow the pattern `"Player Name (Position)
   - "Jagusah (OL): undisclosed — possibly out for 2026 season; flagged in team notes, not yet corroborated by beat coverage"
 
 If there are genuinely no notable injuries on the roster (rare — most common in early offseason for healthy programs), return an empty array `[]`. Do not include placeholder entries like "no specific injury flags."
+
+**Structured injury report (`injury_report` — EVERY mode):** For every player in `injury_flags` whose availability is in question, ALSO emit a structured entry: player, position, injury, `game_status` (one of `out_for_season | out | doubtful | questionable | probable | day_to_day`), and a short `detail` string (timeline; source note). `injury_flags` (the prose list) stays the comprehensive snapshot in its string format; `injury_report` is the machine-readable parallel the site groups and badges. Players who have fully recovered need no `injury_report` entry. Every `injury_report` player must also appear in `injury_flags` — the two arrays never disagree.
+
+  **`out_for_season` is a CONFIRMED-ONLY status.** The site publishes it under an "Out for the Season" heading, so it must mean the player is done for the year: a season-ending injury or surgery, the school or head coach saying he will not play again this season, a medical redshirt or retirement, or a stated recovery timeline that runs past the team's last possible game. Hedged, partial, or open-ended reporting is NOT `out_for_season` — "expected to miss most of the season," "out indefinitely," "no timetable," "could miss the year," and "targeting a late-season return" all take `out`, with the uncertainty carried in `detail`. When you are unsure, use `out`. A player wrongly listed as done for the year is a worse error than one listed conservatively.
+
+  **Mode-aware status use (the current Research Mode is stated above):**
+  - `in_season` / `postseason`: pick the most specific status the sourcing supports for the UPCOMING GAME; use `day_to_day` when a beat writer has flagged a starter without a formal game designation. In-season, also end each `injury_flags` entry with availability for the upcoming game where known (e.g. "— questionable Sat", "— OUT ~3 weeks").
+  - `preseason`: fall camp is when most season-enders get reported, so this is the mode where `out_for_season` matters most — but the confirmed-only bar above still applies. There is no game designation yet: for anyone not confirmed out for the year use `out` (will miss the opener or the early schedule) or `questionable` / `day_to_day` (tracking toward Week 1), and put the Week 1 read in `detail`.
+  - `spring_offseason` / `early_offseason`: `out` for players who will miss spring or summer work with a recovery timeline; `out_for_season` only where the coming season is already confirmed gone (e.g. an Achilles tear in March with a stated 2027 return). Most offseason entries are `out` or `day_to_day`.
 
 {inseason_extraction_instructions}**Storylines:** key_storylines must be concrete and specific, not generic. Bad: "team has questions at QB." Good: "Austin Mack vs Keelon Russell QB battle unresolved after spring."
 
@@ -1500,6 +1514,47 @@ def _ww_p1_mentions_last_game(p1, ww):
     words = [w for w in re.split(r'[\s()]+', opponent) if w and w.lower() not in generic]
     return any(re.search(r'\b' + re.escape(w.lower()) + r'\b', p1_low) for w in words)
 
+def normalize_injury_report(data):
+    """Normalize injury_report[].game_status into _GAME_STATUS_ENUM.
+    Mode-independent — injury_report is emitted in every mode as of 2026-08-27.
+    Mutates `data` in place; returns a list of fix notes."""
+    fixes = []
+    for entry in (data.get('injury_report') or []):
+        if not isinstance(entry, dict):
+            continue
+        gs = entry.get('game_status')
+        if gs and gs not in _GAME_STATUS_ENUM:
+            norm = re.sub(r'[\s\-]+', '_', str(gs).strip().lower())
+            if norm in _GAME_STATUS_ENUM:
+                fixes.append(f"injury_report game_status {gs!r} -> {norm!r}")
+                entry['game_status'] = norm
+            else:
+                fixes.append(f"injury_report game_status {gs!r} not in enum — left as-is")
+    return fixes
+
+
+def enforce_injury_report(slug):
+    """Always-run post-processor: normalize injury_report game_status in
+    {slug}_latest.json. Runs in EVERY mode (the weekly_writeup enforcer is
+    in-season only, and re-normalizes after its own corrective re-run)."""
+    output_file = OUTPUT_DIR / f"{slug}_latest.json"
+    try:
+        data = json.loads(output_file.read_text(encoding='utf-8'))
+    except Exception as e:
+        logging.error(f"  [{slug}] injury_report normalizer could not read output: {e}")
+        return
+    fixes = normalize_injury_report(data)
+    if not fixes:
+        return
+    for f in fixes:
+        logging.info(f"  [{slug}] injury fix: {f}")
+    try:
+        output_file.write_text(json.dumps(data, indent=2, ensure_ascii=False),
+                               encoding='utf-8')
+    except Exception as e:
+        logging.error(f"  [{slug}] injury_report normalizer could not write output: {e}")
+
+
 def validate_weekly_writeup(data, run_type):
     """Validate (and patch fixable issues on) one research output dict.
     Returns (hard_problems, fix_notes); mutates `data` in place for fixes."""
@@ -1540,17 +1595,7 @@ def validate_weekly_writeup(data, run_type):
         ww['run_type'] = run_type
 
     # --- fixable: injury_report game_status enum ---------------------------
-    for entry in (data.get('injury_report') or []):
-        if not isinstance(entry, dict):
-            continue
-        gs = entry.get('game_status')
-        if gs and gs not in _GAME_STATUS_ENUM:
-            norm = re.sub(r'[\s\-]+', '_', str(gs).strip().lower())
-            if norm in _GAME_STATUS_ENUM:
-                fixes.append(f"injury_report game_status {gs!r} -> {norm!r}")
-                entry['game_status'] = norm
-            else:
-                fixes.append(f"injury_report game_status {gs!r} not in enum — left as-is")
+    fixes.extend(normalize_injury_report(data))
 
     return hard, fixes
 
@@ -1742,6 +1787,7 @@ def main():
         # In-season: enforce the weekly_writeup hard limits (spec §8) — patch
         # fixable issues, one corrective re-run on hard violations, then accept.
         if success and not args.dry_run:
+            enforce_injury_report(slug)
             enforce_weekly_writeup(slug, prompt, run_type, mode, debug=args.debug)
 
         if success:

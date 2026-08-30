@@ -45,6 +45,12 @@
 #                      land ~22-26 teams/slot ≈ 90-105 min — inside the
 #                      4-hour slot window. Each team runs with an explicit
 #                      --run-type (batch semantics beat per-team derivation).
+#                      RECOVERY (2026-08-30, dispatch_ledger.py): each slot
+#                      also picks up teams EARLIER slots today failed to
+#                      finish, then anything left over from yesterday. Every
+#                      team is claimed before it runs and recorded done/failed
+#                      after, so a usage limit or a slot that never fired no
+#                      longer costs a team its writeup silently.
 #                      SEQUENCING (spec §5): cron.php stats+builds groups
 #                      must complete before slot1 (6 AM) postgame mornings.
 #   postseason       : Dec 6  – Jan 25   manual CFP list (Mon+Thu, slot2 only)
@@ -75,6 +81,17 @@ PYTHON="/usr/bin/python3"
 VENV_PY="${BASE_DIR}/venv/bin/python3"
 [ -x "$VENV_PY" ] || VENV_PY="$PYTHON"
 POSTSEASON_CFG="${BASE_DIR}/config/postseason_teams.json"
+# Completion ledger (2026-08-30). Stdlib-only, so the system python is fine.
+LEDGER="${BASE_DIR}/scripts/dispatch_ledger.py"
+
+# Circuit breaker (2026-08-30). When the Max plan's usage window is exhausted
+# EVERY remaining team in the shard fails the same way — and each one burns its
+# 900s timeout and research_agent.py's automatic retry before giving up, so a
+# 28-team shard can spend an hour failing. Stop after this many consecutive
+# failures, release the rest of the shard, and let the next slot (4h later, and
+# very likely a fresh window) inherit the whole remainder. Three is high enough
+# that a run of ordinary one-off failures does not trip it.
+CONSEC_FAIL_LIMIT=3
 REFRESH_URL="https://www.puntandrally.com/research/test.php?refresh_all=letsBu1LdSh1t"
 
 mkdir -p "$LOG_DIR"
@@ -272,6 +289,64 @@ run_team() {
     fi
 }
 
+# Read a key from the environment, falling back to /cfb-research/.env — same
+# resolution order and same .env keys as deploy_cards() in generate_team_cards.py.
+_env_get() {
+    local key="$1" val=""
+    val="${!key:-}"
+    if [ -z "$val" ] && [ -f "${BASE_DIR}/.env" ]; then
+        val=$(grep -E "^[[:space:]]*${key}=" "${BASE_DIR}/.env" | tail -1 | cut -d= -f2- \
+              | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' \
+                    -e "s/^['\"]//" -e "s/['\"]$//")
+    fi
+    printf '%s' "$val"
+}
+
+# Roll the ledger up into one status file and scp it to the site, so the
+# Game-Week Ops row in tasks.php can see what this dispatcher did. tasks.php
+# runs on Hostinger and the ledger lives here on the VPS, so without this the
+# page has nothing to read. Follows the established VPS→Hostinger deploy
+# pattern (memory: vps-hostinger-deploy-pattern) — BatchMode so a missing key
+# fails fast instead of hanging a cron on a password prompt.
+#
+# Never fatal: an unshipped ledger costs visibility, not writeups.
+ship_ledger() {
+    [ -f "$LEDGER" ] || return 0
+    local status_file="${BASE_DIR}/state/dispatch_status.json"
+    if ! "$PYTHON" "$LEDGER" --export "$status_file" >> "$CRON_LOG" 2>&1; then
+        log "  WARN: ledger export failed — site row will go stale"
+        return 0
+    fi
+    local ssh_target port dest
+    ssh_target=$(_env_get DEPLOY_SSH)
+    port=$(_env_get DEPLOY_PORT)
+    dest=$(_env_get DEPLOY_STATE_DIR)
+    if [ -z "$ssh_target" ] || [ -z "$dest" ]; then
+        log "  ledger NOT shipped: set DEPLOY_SSH and DEPLOY_STATE_DIR in ${BASE_DIR}/.env"
+        return 0
+    fi
+    if scp -P "${port:-65002}" -o BatchMode=yes -o ConnectTimeout=20 \
+           "$status_file" "${ssh_target}:${dest}/" >> "$CRON_LOG" 2>&1; then
+        log "  ledger shipped to the site"
+    else
+        log "  WARN: ledger scp failed — the site row will report itself stale"
+    fi
+    return 0
+}
+
+# Completion ledger write. Lets LATER slots pick up what this slot lost.
+# Never allowed to fail the run — metering is not a dependency of dispatch.
+ledger_record() {
+    local team="$1" status="$2" rtype="$3" err="$4"
+    [ -f "$LEDGER" ] || return 0
+    if ! "$PYTHON" "$LEDGER" --record "$team" --status "$status" \
+            --slot "$SLOT_NUM" --run-type "$rtype" --error "$err" \
+            >> "$CRON_LOG" 2>&1; then
+        log "    WARN: ledger record failed for $team ($status)"
+    fi
+    return 0
+}
+
 # Game-aware in-season runs: explicit --run-type per team (spec §13 — batch
 # semantics beat research_agent.py's per-team calendar derivation).
 run_team_rt() {
@@ -280,10 +355,14 @@ run_team_rt() {
     if "$PYTHON" "${BASE_DIR}/scripts/run_pipeline.py" --team "$team" --run-type "$rtype" >> "$RUN_LOG" 2>&1; then
         log "    OK : --team $team ($rtype)"
         SUCCESS=$((SUCCESS + 1))
+        LAST_RUN_OK=1
+        ledger_record "$team" done "$rtype" ""
     else
         ec=$?
         log "    FAIL: --team $team ($rtype, exit $ec) — see $RUN_LOG"
         FAIL=$((FAIL + 1))
+        LAST_RUN_OK=0
+        ledger_record "$team" failed "$rtype" "run_pipeline exit $ec"
     fi
 }
 
@@ -299,10 +378,40 @@ case "$PICK" in
             log "  shard empty for $SLOT today — nothing to run (normal on quiet days)"
         else
             log "  game-aware shard: $(wc -l < "$BATCH_FILE") team(s)"
+            CONSEC_FAIL=0
+            ABORTED=0
             while IFS=$'\t' read -r team rtype; do
                 [ -n "$team" ] || continue
+                LAST_RUN_OK=0
                 run_team_rt "$team" "${rtype:-manual}"
+                if [ "$LAST_RUN_OK" = "1" ]; then
+                    CONSEC_FAIL=0
+                else
+                    CONSEC_FAIL=$((CONSEC_FAIL + 1))
+                    if [ "$CONSEC_FAIL" -ge "$CONSEC_FAIL_LIMIT" ]; then
+                        log "  ABORT: $CONSEC_FAIL consecutive failures — stopping $SLOT early."
+                        log "         Likely a usage limit or an expired credential; continuing"
+                        log "         would burn a 900s timeout + retry per remaining team."
+                        ABORTED=1
+                        break
+                    fi
+                fi
             done < "$BATCH_FILE"
+            # Hand the un-run remainder straight back so the NEXT slot owes it,
+            # instead of leaving it claimed until the 60-minute TTL expires.
+            if [ "$ABORTED" = "1" ] && [ -f "$LEDGER" ]; then
+                "$PYTHON" "$LEDGER" --release --slot "$SLOT_NUM" \
+                    --error "slot aborted after $CONSEC_FAIL consecutive failures" \
+                    >> "$CRON_LOG" 2>&1 || log "  WARN: could not release slot claims"
+            fi
+        fi
+        # Day summary — what is still outstanding after this slot. On a clean
+        # day this reads "N done, 0 failed"; anything else is the signal that
+        # a later slot has catch-up work queued.
+        if [ -f "$LEDGER" ]; then
+            "$PYTHON" "$LEDGER" --report >> "$CRON_LOG" 2>&1 || true
+            # Last slot of the day also trims old ledger files.
+            [ "$SLOT_NUM" = "5" ] && { "$PYTHON" "$LEDGER" --prune >> "$CRON_LOG" 2>&1 || true; }
         fi
         rm -f "$BATCH_FILE"
         ;;
@@ -345,12 +454,16 @@ except Exception as e:
 esac
 set -e
 
+if [ "$PICK" = "GAMEAWARE" ]; then
+    ship_ledger
+fi
+
 log "PIPELINE: $SUCCESS ok, $FAIL failed"
 
 # Nothing ran (empty game-aware shard on a quiet day): skip the expensive
 # all-138-team Hostinger cache refresh and exit clean.
-if [ "$SUCCESS" -eq 0 ] && [ "$FAIL" -eq 0 ]; then
-    log "DONE : $SLOT | mode=$MODE | day=$DOW_NAME | pick=$PICK (no runs — cache refresh skipped)"
+if [ "$SUCCESS" -eq 0 ]; then
+    log "DONE : $SLOT | mode=$MODE | day=$DOW_NAME | pick=$PICK ($FAIL failed, 0 written — cache refresh skipped)"
     log "================================================================"
     exit 0
 fi
