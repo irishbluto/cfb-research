@@ -67,7 +67,7 @@ Timezone: relies on TZ=America/New_York exported by cron_team_research.sh
 (and the crontab header) so date arithmetic matches ET wall-clock.
 """
 
-import sys, argparse
+import sys, argparse, unicodedata
 from datetime import datetime, date, timedelta
 from pathlib import Path
 
@@ -95,16 +95,59 @@ DEFAULT_MAX_TEAMS = 40
 CONF_ORDER = ['big10', 'sec', 'fbsind', 'acc', 'big12',
               'pac12', 'aac', 'mwc', 'sbc', 'mac', 'cusa']
 
+def fold_school(name):
+    """Accent- and apostrophe-insensitive key for a school name.
+
+    CONFIRMED 2026-08-30: `games` carries "San José State" while MWC_TEAMS
+    carries the url_param "San Jose State", so San Jose State was dropped from
+    EVERY in-season batch — silently, because build_batch cannot distinguish an
+    unresolved FBS team from an FCS opponent. USC ran off the same game row; its
+    opponent did not exist.
+
+    Folding here rather than editing the url_param is deliberate. The url_param
+    is a join key against several other tables (recruiting.school and friends —
+    and see the Hawai'i note in build_team_context, where the apostrophe MUST
+    stay because the DB has it). Changing the canonical string to fix one join
+    risks breaking the others; folding at lookup time fixes this one and is
+    correct whichever spelling either side happens to hold.
+
+    Same idea as me_school_key() in the staff-ratings writer, kept local so this
+    script stays importable without the site's PHP-side conventions.
+    """
+    if not name:
+        return ''
+    s = unicodedata.normalize('NFKD', str(name))
+    s = ''.join(c for c in s if not unicodedata.combining(c))   # é -> e
+    for ch in ('\u2019', '\u02bb', '\u02bc', '`'):            # curly/okina -> '
+        s = s.replace(ch, "'")
+    return ' '.join(s.lower().replace("'", '').replace('.', '').split())
+
+
 def _team_index():
     """url_param -> (order_key, slug). Order = CONF_ORDER, then the
-    conference's own team order (build_team_context tuple lists)."""
+    conference's own team order (build_team_context tuple lists).
+
+    Folded aliases are added alongside the exact url_params so a DB spelling
+    that differs only by an accent, an apostrophe or a period still resolves.
+    An exact match always wins; a folded key is only consulted when it does not
+    collide with a real url_param or with another team's fold.
+    """
     idx = {}
     order = 0
+    folded = {}
     for conf in CONF_ORDER:
         for (_display, url_param, slug) in CONFERENCE_TEAMS.get(conf, []):
-            if url_param not in idx:          # first conf listing wins
-                idx[url_param] = (order, slug)
-                order += 1
+            if url_param in idx:              # first conf listing wins
+                continue
+            idx[url_param] = (order, slug)
+            key = fold_school(url_param)
+            folded.setdefault(key, []).append((order, slug))
+            order += 1
+
+    for key, hits in folded.items():
+        if key in idx or len(hits) != 1:      # never let a fold shadow or guess
+            continue
+        idx[key] = hits[0]
     return idx
 
 # ---------------------------------------------------------------------------
@@ -146,9 +189,14 @@ def build_batch(rows, today, team_index, preview_day=None):
         elif is_thursday and today <= d <= today + timedelta(days=7):
             preview_params.update(teams)
 
+    def _resolve(p):
+        if p in team_index:
+            return team_index[p]
+        return team_index.get(fold_school(p))
+
     def _ordered(params):
-        known = [team_index[p] for p in params if p in team_index]
-        return [slug for _order, slug in sorted(known)]
+        known = [t for t in (_resolve(p) for p in params) if t]
+        return [slug for _order, slug in sorted(set(known))]
 
     batch = [(slug, 'postgame') for slug in _ordered(postgame_params)]
     seen  = {s for s, _ in batch}          # overlap rule: postgame wins
@@ -202,7 +250,7 @@ def unmatched_params(rows, today, team_index, preview_day=None):
         if not relevant:
             continue
         for p in (g.get('home_team'), g.get('away_team')):
-            if p and p not in team_index:
+            if p and p not in team_index and fold_school(p) not in team_index:
                 seen.add(p)
     return sorted(seen)
 
