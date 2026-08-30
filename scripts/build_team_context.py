@@ -639,6 +639,8 @@ def build_coaching(conn, team, season):
         LIMIT 1
     """, (team, season))
     if row:
+        if row.get('headcoach'):
+            data['head_coach_current'] = row['headcoach']
         data['offensive_coordinator']      = row.get('oc') or ""
         data['co_offensive_coordinator']   = row.get('cooc') or ""
         data['defensive_coordinator']      = row.get('dc') or ""
@@ -681,6 +683,42 @@ def build_coaching(conn, team, season):
         if prior.get('headcoach'): data['previous_head_coach'] = prior['headcoach']
         if prior.get('oc'):        data['previous_oc']         = prior['oc']
         if prior.get('dc'):        data['previous_dc']         = prior['dc']
+
+    # Derived: WHICH of these people are new this season.
+    #
+    # previous_* has been in the context all along, but the agent has to notice
+    # the mismatch and reason from it, and it does not. USC 2026-08-30 shipped
+    # "the same fourth-quarter softness that dogged Gary Patterson's defense
+    # last fall" about a FIRST-YEAR defensive coordinator. Per
+    # memory:llm-copy-no-cfb-knowledge the fix is to DERIVE the fact rather than
+    # hope the model infers it — and this shape is machine-checkable, so the
+    # writeup validator can reject the sentence outright.
+    def _same_person(a, b):
+        na = re.sub(r'[^a-z]', '', str(a or '').lower())
+        nb = re.sub(r'[^a-z]', '', str(b or '').lower())
+        return bool(na) and na == nb
+
+    tenure = []
+    for role, cur_key, prev_key in (
+        ('head coach',            'head_coach',              'previous_head_coach'),
+        ('offensive coordinator', 'offensive_coordinator',   'previous_oc'),
+        ('defensive coordinator', 'defensive_coordinator',   'previous_dc'),
+    ):
+        cur  = data.get('head_coach_current') if cur_key == 'head_coach' else data.get(cur_key)
+        prev = data.get(prev_key)
+        if not cur:
+            continue
+        entry = {'role': role, 'name': cur}
+        if prev:
+            entry['previous'] = prev
+            entry['first_season_with_team'] = not _same_person(cur, prev)
+        else:
+            # No prior-season row at all — cannot assert either way, and an
+            # unknown must never be reported as continuity.
+            entry['first_season_with_team'] = None
+        tenure.append(entry)
+    if tenure:
+        data['staff_tenure'] = tenure
 
     return data
 
@@ -1681,6 +1719,25 @@ def build_current_season_polls(conn, team, season):
     return data
 
 
+def _difficulty_label(edge):
+    """Power-rating gap -> a word the writeup may actually use.
+
+    A LABEL, not a number, on purpose. memory:projectgamespread-is-not-powerrating
+    is explicit that |rating diff| and the site's ourSpread disagree in BOTH
+    directions, so the gap must never be published as a point spread. But the
+    agent needs SOME honest read on whether a future game is hard, because left
+    to itself it uses AP ranked-vs-unranked — which is how Stanford's writeup
+    called a trip to a Duke team favoured by 9 "a get-right spot" (2026-08-30).
+    """
+    if edge is None:
+        return None
+    if edge >= 10:  return 'clear favorite'
+    if edge >= 3:   return 'slight favorite'
+    if edge > -3:   return 'toss-up'
+    if edge > -10:  return 'slight underdog'
+    return 'clear underdog'
+
+
 def _opponent_rankings_snapshot(conn, name, season):
     """Compact rankings snapshot for one opponent (spec §5 'Opponent rankings
     snapshot'): record, power rating + rank, SP+ + rank, AP/CFP rank. No full
@@ -1821,9 +1878,23 @@ def build_opponent_snapshots(conn, team, season):
             'display':  f"{res} {us}-{them} {vs_at} {opp} ({d.isoformat() if d else '?'})",
         }
 
+    # Our own rating, so each upcoming opponent can carry a directional read.
+    _own = query_one(conn, """
+        SELECT rating FROM powerrating WHERE team = %s AND year = %s LIMIT 1
+    """, (team, season))
+    own_rating = fnum(_own['rating']) if _own and _own.get('rating') is not None else None
+
     for label, g in zip(('this_week', 'next_week'), upcoming[:2]):
         opp, site, is_home = _side(g)
         snap = _opponent_rankings_snapshot(conn, opp, season)
+        if own_rating is not None and snap.get('power_rating') is not None:
+            edge = round(own_rating - snap['power_rating'], 1)
+            snap['rating_edge'] = edge
+            snap['difficulty']  = _difficulty_label(edge)
+            snap['rating_edge_note'] = ('DIRECTIONAL ONLY. Use the `difficulty` word. '
+                                        'Never publish rating_edge as a number and never '
+                                        'call it a spread — it is not projectGameSpread '
+                                        'and the two disagree in both directions.')
         d = _gdate(g)
         snap['site'] = site
         snap['week'] = inum(g.get('week'))

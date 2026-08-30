@@ -724,6 +724,16 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
 
   **Paragraph 2 — looking ahead (the payoff).** This week's opponent with the rankings snapshot framing the stakes (their record, power rating, SP+, AP/CFP rank — rank priority: CFP > AP > power rating). Spread and ATS note ONLY when notable: a big favorite/dog, a short line in a rivalry, or an ATS record that is itself a story (6-0 ATS, 0-5 ATS at home). Silence is the betting default — this is a football writeup, not a betting card. Injuries and availability for the upcoming game: who is OUT and for how long, who is questionable, sourced from the beat. Include beat-writer game predictions when the sources make them (attribute the outlet). Close with a 1–2 sentence peek at the following week's opponent — lookahead/trap-game and short-week context lives there naturally.
 
+  **HARD CONTENT RULES — each of these shipped as a real error on 2026-08-30 and each is now checked by the pipeline. A violation triggers a corrective re-run.**
+
+  1. **Never write about what the sources did NOT say.** No "no outlet has published a prediction for the SMU game yet", no "no beat predictions have surfaced", no "picks tend to land later in the week", no noting an absence of injury news or reaction. An absent source is not content — it is filler spending words from a 200-350 budget on nothing. Omit it silently and write about what you DO have. If beat predictions exist, report them; if they do not, the writeup simply does not mention predictions.
+
+  2. **The ONLY score you may state is the FINAL score.** Never attach a running scoreline to a specific play, and never assert what a play "sealed", "made it", "put them up", or "capped" unless a SOURCE describes that sequence. You are given the final score and nothing else about how the game got there. Stanford's writeup said a 2-yard touchdown run "sealed it 37-27" when that run made it 30-27 and the final margin came from a defensive touchdown afterwards — an invented causal link between the last play the sources mentioned and the final scoreline. If you cannot source how the scoring went, describe the result and the reasons WITHOUT a play-by-play claim. A late score that changes the margin materially changes who covered, so a wrong sequence is not a rounding error to a reader who bet the game.
+
+  3. **Judge a future game by `difficulty`, never by whether the opponent is ranked.** Each upcoming opponent snapshot carries a `difficulty` word derived from the power-rating gap: clear favorite / slight favorite / toss-up / slight underdog / clear underdog. Use THAT. "Unranked" does not mean "weak" — most of FBS is unranked, including teams favoured over ranked opponents. Never call a game a get-right spot, a breather, a tune-up, a trap game or a letdown spot unless `difficulty` supports it. Stanford's writeup called a trip to an unranked Duke team a "get-right spot" while the site's own numbers make Stanford a clear underdog there. Do NOT publish `rating_edge` as a number and never call it a spread — it is not projectGameSpread and the two disagree in both directions.
+
+  4. **Never attribute a past season to a coach who was not there for it.** `staff_tenure` tells you, per role, who holds the job now, who held it last season, and `first_season_with_team`. If that flag is true, that person has NO history with this program — they did not coach its defense last fall, their unit did not regress, nothing "still" dogs them. USC's writeup referred to "the same fourth-quarter softness that dogged Gary Patterson's defense last fall" about a first-year defensive coordinator. Continuity claims about ANY named staff member must be grounded in `staff_tenure`, never assumed. When the flag is null, tenure is unknown — say nothing about their history either way.
+
   **Anti-recap rule:** the writeup must never read like a box-score restatement. The score gets ONE clause; the real estate goes to why (stat-grounded) and what it means for the next two games. A reader who watched the game should still learn something.
 
   **Run-type emphasis — this run is `{run_type}`:**
@@ -1514,6 +1524,156 @@ def _ww_p1_mentions_last_game(p1, ww):
     words = [w for w in re.split(r'[\s()]+', opponent) if w and w.lower() not in generic]
     return any(re.search(r'\b' + re.escape(w.lower()) + r'\b', p1_low) for w in words)
 
+# --- content checks added 2026-08-30 (see the HARD CONTENT RULES in the prompt) --
+
+# Sentences that report the ABSENCE of a source. Filler, and frequent enough
+# that a corrective re-run for each would be expensive — so this is FIXABLE:
+# the offending sentences are cut and the writeup is re-measured.
+_WW_ABSENCE_RE = re.compile(
+    r"""(
+        \bno\s+(?:\w+\s+){0,3}(?:beat\s+)?(?:predictions?|picks?|previews?|outlets?)\b
+      | \bno\s+(?:beat\s+)?(?:writer|reporter|outlet)s?\s+ha(?:s|ve)\b
+      | \b(?:predictions?|picks?|previews?)\s+(?:have|has)\s+(?:not\s+)?(?:yet\s+)?
+            (?:surfaced|circulated|landed|emerged|been\s+published)
+      | \b(?:hasn't|has\s+not|haven't|have\s+not)\s+(?:yet\s+)?
+            (?:published|surfaced|circulated|landed|posted|weighed\s+in)
+      | \bnothing\s+(?:has\s+)?(?:yet\s+)?(?:surfaced|circulated|been\s+published)
+      | \b(?:those\s+)?picks\s+tend\s+to\s+land\b
+      | \byet\s+to\s+(?:publish|surface|circulate|weigh\s+in)\b
+    )""",
+    re.IGNORECASE | re.VERBOSE)
+
+def _ww_split_sentences(para):
+    return [x for x in re.split(r'(?<=[.!?])\s+', para.strip()) if x]
+
+def _ww_strip_absence(text):
+    """Remove absence-of-source sentences. Returns (new_text, removed[])."""
+    removed, out_paras = [], []
+    for para in text.split('\n\n'):
+        keep = []
+        for sent in _ww_split_sentences(para):
+            if _WW_ABSENCE_RE.search(sent):
+                removed.append(sent.strip())
+            else:
+                keep.append(sent)
+        out_paras.append(' '.join(keep).strip())
+    return '\n\n'.join(out_paras), removed
+
+def _ww_final_score(ww):
+    """(a, b) from the prefilled last_game echo, or None."""
+    m = re.match(r'^\s*[WLT]\s+(\d{1,2})-(\d{1,2})\b', str(ww.get('last_game') or ''))
+    return (m.group(1), m.group(2)) if m else None
+
+# A play being CREDITED with producing a scoreline. This is the Stanford bug and
+# the plain non-final-score check does not catch it: "to seal it 37-27" quotes
+# the correct FINAL score, but credits it to a 2-yard run that actually made it
+# 30-27 — the last seven points came from a fumble return afterwards, which is
+# also what flipped the cover.
+_WW_SCORE_ATTRIB_RE = re.compile(
+    r"\b(seal(?:ed|ing)?\s+it|cap(?:ped|ping)?\s+(?:it|the\s+\w+)|made?\s+it"
+    r"|put\s+(?:them|it|the\s+\w+)\s+(?:up|ahead)|push(?:ed|ing)?\s+it\s+to"
+    r"|extend(?:ed|ing)?\s+it\s+to|stretch(?:ed|ing)?\s+it\s+to"
+    r"|to\s+make\s+it)\b[^.!?]{0,40}?\b\d{1,2}\s*[-\u2013]\s*\d{1,2}\b",
+    re.IGNORECASE)
+
+def _ww_score_problems(text, ww):
+    """Two distinct scoring claims the agent is not equipped to make.
+
+    (a) Any NN-NN that is not the final score. The >=15 floor keeps records
+        ('3-1'), short spreads and quarter counts out of it; no CFB record
+        reaches 15 wins or losses.
+    (b) The final score CREDITED to a specific play. The agent is given the
+        final and nothing about how the game got there, so "X sealed it 37-27"
+        is an invented causal link even when 37-27 is correct."""
+    problems = []
+    final = _ww_final_score(ww)
+
+    if final:
+        ok = {f"{final[0]}-{final[1]}", f"{final[1]}-{final[0]}"}
+        bad = set()
+        for m in re.finditer(r'\b(\d{1,2})\s*[-\u2013]\s*(\d{1,2})\b', text):
+            a, b = m.group(1), m.group(2)
+            if max(int(a), int(b)) >= 15 and f"{a}-{b}" not in ok:
+                bad.add(f"{a}-{b}")
+        if bad:
+            problems.append(
+                "text states scoreline(s) " + ', '.join(sorted(bad)) +
+                f" that are not the final score ({final[0]}-{final[1]}) — the scoring "
+                "sequence is not in your data, so any intermediate score is invented")
+
+    for m in _WW_SCORE_ATTRIB_RE.finditer(text):
+        problems.append(
+            f'text credits a specific play with producing a scoreline ("{m.group(0)[:80]}") '
+            "— you are given the final score only, never how it was reached; state the "
+            "result without claiming which play produced it")
+    return problems
+
+
+# Soft-spot language about an opponent the site's own numbers say is BETTER.
+_WW_SOFT_SPOT_RE = re.compile(
+    r"\b(get[-\s]?right\s+spot|breather|tune[-\s]?up|cupcake|gimme|walkover"
+    r"|should\s+handle|should\s+roll|comfortable\s+win|easy\s+(?:win|one|out)"
+    r"|letdown\s+spot|trap\s+game|soft\s+landing|reset\s+spot)\b", re.IGNORECASE)
+
+_WW_NOT_FAVORED = {'toss-up', 'slight underdog', 'clear underdog'}
+
+def _ww_difficulty_language(text, context):
+    """Calling a game a soft spot when `difficulty` says otherwise.
+
+    Stanford's writeup called a trip to an unranked Duke side "a get-right spot"
+    while the site's own power ratings make Stanford a clear underdog there. The
+    agent reached for AP ranked-vs-unranked because that is the only quality
+    signal it recognises; `difficulty` is the one it is supposed to use."""
+    problems = []
+    snaps = ((context or {}).get('opponent_snapshots') or {})
+    for label in ('this_week', 'next_week'):
+        snap = snaps.get(label) or {}
+        diff = snap.get('difficulty')
+        opp  = str(snap.get('opponent') or '').strip()
+        if diff not in _WW_NOT_FAVORED or not opp:
+            continue
+        keys = [w for w in re.split(r'[\s()]+', opp) if len(w) > 3]
+        for para in text.split('\n\n'):
+            for sent in _ww_split_sentences(para):
+                if not any(re.search(r'\b' + re.escape(k), sent, re.IGNORECASE) for k in keys):
+                    continue
+                hit = _WW_SOFT_SPOT_RE.search(sent)
+                if hit:
+                    problems.append(
+                        f"text calls the {opp} game a {hit.group(0)!r} but this team is a "
+                        f"{diff} there by the site's own power ratings — judge a future game "
+                        f"by `difficulty`, never by whether the opponent is ranked")
+    return problems
+
+_WW_PAST_SEASON_RE = re.compile(
+    r"\b(last\s+(?:fall|year|season|autumn)|a\s+year\s+ago|in\s+20\d{2}"
+    r"|previous\s+season|past\s+season|returning|still|again|same)\b", re.IGNORECASE)
+
+def _ww_first_year_staff_history(text, context):
+    """First-season staff attributed a history with THIS program."""
+    problems = []
+    for entry in ((context or {}).get('staff_tenure') or []):
+        if not isinstance(entry, dict) or entry.get('first_season_with_team') is not True:
+            continue
+        name = str(entry.get('name') or '').strip()
+        if not name:
+            continue
+        surname = name.split()[-1]
+        if len(surname) < 3:
+            continue
+        for para in text.split('\n\n'):
+            for sent in _ww_split_sentences(para):
+                if not re.search(r'\b' + re.escape(surname) + r'\b', sent, re.IGNORECASE):
+                    continue
+                hit = _WW_PAST_SEASON_RE.search(sent)
+                if hit:
+                    problems.append(
+                        f"{name} is in their FIRST season as {entry.get('role')} here "
+                        f"(previously {entry.get('previous')!r}) but the text ties them to "
+                        f"this program's past via {hit.group(0)!r}: \"{sent.strip()[:140]}\"")
+    return problems
+
+
 def normalize_injury_report(data):
     """Normalize injury_report[].game_status into _GAME_STATUS_ENUM.
     Mode-independent — injury_report is emitted in every mode as of 2026-08-27.
@@ -1555,9 +1715,11 @@ def enforce_injury_report(slug):
         logging.error(f"  [{slug}] injury_report normalizer could not write output: {e}")
 
 
-def validate_weekly_writeup(data, run_type):
+def validate_weekly_writeup(data, run_type, context=None):
     """Validate (and patch fixable issues on) one research output dict.
-    Returns (hard_problems, fix_notes); mutates `data` in place for fixes."""
+    Returns (hard_problems, fix_notes); mutates `data` in place for fixes.
+    `context` is the team context JSON — only needed for the staff-tenure
+    check, which is skipped when it is absent."""
     hard, fixes = [], []
 
     ww = data.get('weekly_writeup')
@@ -1565,6 +1727,19 @@ def validate_weekly_writeup(data, run_type):
         return (["weekly_writeup is missing or has empty text"], fixes)
 
     text  = str(ww['text']).replace('\r\n', '\n').strip()
+
+    # --- fixable FIRST: cut absence-of-source filler, then measure what is left
+    stripped, removed = _ww_strip_absence(text)
+    if removed:
+        if len(stripped.split()) >= _WW_MIN_WORDS:
+            for r in removed:
+                fixes.append(f'cut absence-of-source sentence: "{r[:110]}"')
+            text = stripped
+            ww['text'] = text
+        else:
+            hard.append(f"{len(removed)} sentence(s) report the ABSENCE of a source "
+                        f"(e.g. {removed[0][:90]!r}) and cutting them drops the text "
+                        f"below {_WW_MIN_WORDS} words — rewrite with real content")
     paras = [p.strip() for p in text.split('\n\n') if p.strip()]
     if len(paras) != 2:
         hard.append(f"text has {len(paras)} paragraph(s) — must be exactly 2, "
@@ -1583,6 +1758,10 @@ def validate_weekly_writeup(data, run_type):
     if run_type == 'postgame' and paras and not _ww_p1_mentions_last_game(paras[0], ww):
         hard.append("paragraph 1 never mentions the game just played "
                     "(postgame run — P1 must anchor on it)")
+
+    hard.extend(_ww_score_problems(text, ww))
+    hard.extend(_ww_difficulty_language(text, context))
+    hard.extend(_ww_first_year_staff_history(text, context))
 
     # --- fixable: word_count echo -----------------------------------------
     if ww.get('word_count') != words:
@@ -1615,9 +1794,22 @@ def _corrective_suffix(problems, data):
         "separated by one blank line, 200-350 total words, prose only (no markdown "
         "headers, bullets, or bold), and on postgame runs paragraph 1 must name the "
         "opponent from the game just played. If the text was too long, cut the "
-        "weakest sentences rather than compressing every sentence. Keep all other "
-        "fields consistent with your research."
+        "weakest sentences rather than compressing every sentence. "
+        "The HARD CONTENT RULES apply in full: do not report the absence of a "
+        "source, state no scoreline except the final one, judge future games by "
+        "`difficulty` rather than by whether the opponent is ranked, and never give "
+        "a first-season staff member a history with this program. "
+        "Keep all other fields consistent with your research."
     )
+
+def _load_context_for_validation(slug):
+    """Team context, for the checks that need ground truth (staff_tenure).
+    Never fatal — a missing context only disables those checks."""
+    try:
+        return json.loads((CONTEXT_DIR / f"{slug}.json").read_text(encoding='utf-8'))
+    except Exception:
+        return None
+
 
 def enforce_weekly_writeup(slug, prompt, run_type, mode, debug=False):
     """Post-run enforcement wrapper. Reads {slug}_latest.json, patches fixable
@@ -1645,7 +1837,8 @@ def enforce_weekly_writeup(slug, prompt, run_type, mode, debug=False):
     data = _load()
     if data is None:
         return
-    hard, fixes = validate_weekly_writeup(data, run_type)
+    ctx = _load_context_for_validation(slug)
+    hard, fixes = validate_weekly_writeup(data, run_type, context=ctx)
     for f in fixes:
         logging.info(f"  [{slug}] writeup fix: {f}")
     if fixes:
@@ -1674,7 +1867,7 @@ def enforce_weekly_writeup(slug, prompt, run_type, mode, debug=False):
         output_file.write_text(original_raw, encoding='utf-8')
         logging.error(f"  [{slug}] corrective re-run output unreadable — restored original")
         return
-    hard2, fixes2 = validate_weekly_writeup(data2, run_type)
+    hard2, fixes2 = validate_weekly_writeup(data2, run_type, context=ctx)
     for f in fixes2:
         logging.info(f"  [{slug}] writeup fix (retry): {f}")
     if fixes2:
