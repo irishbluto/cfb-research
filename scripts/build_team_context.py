@@ -1738,6 +1738,25 @@ def _difficulty_label(edge):
     return 'clear underdog'
 
 
+def _opponent_strength_label(edge):
+    """How good was the team we just played, RELATIVE to us.
+
+    Same gap as _difficulty_label, worded for a game already finished. Until
+    2026-08-30 `last_game` carried result/opponent/site/date and nothing else,
+    so postgame paragraph 1 — 60% of the writeup's weight — described a result
+    with no idea whether the opponent was any good, and filled the gap from
+    priors. The prior for a Group of 6 opponent is "cupcake", which is wrong
+    for most of the G6 and wrong for mid-tier P4 too.
+    """
+    if edge is None:
+        return None
+    if edge >= 10:  return 'well below this team'
+    if edge >= 3:   return 'below this team'
+    if edge > -3:   return 'comparable to this team'
+    if edge > -10:  return 'above this team'
+    return 'well above this team'
+
+
 def _opponent_rankings_snapshot(conn, name, season):
     """Compact rankings snapshot for one opponent (spec §5 'Opponent rankings
     snapshot'): record, power rating + rank, SP+ + rank, AP/CFP rank. No full
@@ -1860,6 +1879,13 @@ def build_opponent_snapshots(conn, team, season):
                  if not _played(g)
                  and (_gdate(g) is None or _gdate(g) >= today)]
 
+    # Our own rating — used for the last-game strength read AND every upcoming
+    # opponent's directional difficulty.
+    _own = query_one(conn, """
+        SELECT rating FROM powerrating WHERE team = %s AND year = %s LIMIT 1
+    """, (team, season))
+    own_rating = fnum(_own['rating']) if _own and _own.get('rating') is not None else None
+
     out = {}
     if completed:
         g = completed[-1]
@@ -1877,12 +1903,19 @@ def build_opponent_snapshots(conn, team, season):
             'date':     d.isoformat() if d else str(g.get('start_date'))[:10],
             'display':  f"{res} {us}-{them} {vs_at} {opp} ({d.isoformat() if d else '?'})",
         }
+        # Who did they actually beat / lose to? Record, power rating + rank,
+        # SP+, AP/CFP — the same snapshot the upcoming opponents get.
+        out['last_game']['opponent_snapshot'] = _opponent_rankings_snapshot(conn, opp, season)
 
-    # Our own rating, so each upcoming opponent can carry a directional read.
-    _own = query_one(conn, """
-        SELECT rating FROM powerrating WHERE team = %s AND year = %s LIMIT 1
-    """, (team, season))
-    own_rating = fnum(_own['rating']) if _own and _own.get('rating') is not None else None
+    lg_snap = (out.get('last_game') or {}).get('opponent_snapshot')
+    if own_rating is not None and lg_snap and lg_snap.get('power_rating') is not None:
+        lg_edge = round(own_rating - lg_snap['power_rating'], 1)
+        lg_snap['rating_edge']  = lg_edge
+        lg_snap['strength']     = _opponent_strength_label(lg_edge)
+        lg_snap['strength_note'] = ('Rank alone is NOT quality. A Group of 6 or mid-tier '
+                                    'P4 opponent outside the top 50 is a real opponent for '
+                                    'most of FBS — judge the result against `strength`, '
+                                    'never against the raw rank number.')
 
     for label, g in zip(('this_week', 'next_week'), upcoming[:2]):
         opp, site, is_home = _side(g)

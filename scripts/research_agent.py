@@ -1811,6 +1811,34 @@ def _load_context_for_validation(slug):
         return None
 
 
+def _log_opponent_read(slug, context):
+    """One grep-able line per team recording what the DATA said about opponent
+    quality, so a hypothesis about the writeups can be tested against a sample
+    instead of an impression.
+
+    Jonathan 2026-08-30: G6 and mid/lower-P4 opponents rated outside the top ~50
+    may be getting written up as easy outs. Eight games is not enough to tell.
+    Next Sunday this line lets you pull every team whose opponent was
+    'comparable' or better and read only those writeups:
+
+        grep 'opponent read' /cfb-research/logs/research_*.log
+    """
+    snaps = ((context or {}).get('opponent_snapshots') or {})
+    bits = []
+    lg = snaps.get('last_game') or {}
+    lgs = lg.get('opponent_snapshot') or {}
+    if lg.get('opponent'):
+        bits.append(f"last={lg['opponent']} #{lgs.get('power_rank')} "
+                    f"({lgs.get('strength') or 'n/a'})")
+    for label in ('this_week', 'next_week'):
+        sn = snaps.get(label) or {}
+        if sn.get('opponent'):
+            bits.append(f"{label.split('_')[0]}={sn['opponent']} #{sn.get('power_rank')} "
+                        f"({sn.get('difficulty') or 'n/a'})")
+    if bits:
+        logging.info(f"  [{slug}] opponent read: " + " | ".join(bits))
+
+
 def enforce_weekly_writeup(slug, prompt, run_type, mode, debug=False):
     """Post-run enforcement wrapper. Reads {slug}_latest.json, patches fixable
     issues, and on hard violations does ONE corrective re-run. Always accepts
@@ -1838,6 +1866,7 @@ def enforce_weekly_writeup(slug, prompt, run_type, mode, debug=False):
     if data is None:
         return
     ctx = _load_context_for_validation(slug)
+    _log_opponent_read(slug, ctx)
     hard, fixes = validate_weekly_writeup(data, run_type, context=ctx)
     for f in fixes:
         logging.info(f"  [{slug}] writeup fix: {f}")
