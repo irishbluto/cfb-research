@@ -66,6 +66,18 @@
 
 set -euo pipefail
 
+# Long-lived Claude auth for unattended runs — cron does not read ~/.profile.
+#
+# THIS BLOCK LIVED ONLY ON THE VPS UNTIL 2026-08-30 — it was edited in place on
+# the server and never committed, so every copy of this file in git was missing
+# it. Pushing a git version without it silently strips the credential from the
+# cron that writes all 138 team writeups, which is precisely how the 2026-07-27
+# eight-day publish outage happened (memory: cfb-research-claude-auth-outage).
+# Do not remove it, and do not let a local edit drop it.
+if [ -f /cfb-research/.env.claude ]; then
+    . /cfb-research/.env.claude
+fi
+
 # Pin to Eastern so resolve_mode + resolve_targets see the right
 # wall-clock day. The cron daemon also needs `TZ=America/New_York`
 # in the crontab to fire entries at the right hour — without that
