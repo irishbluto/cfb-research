@@ -723,6 +723,37 @@ def build_coaching(conn, team, season):
     return data
 
 
+def build_division_history(conn, team, season):
+    """Is this program NEW to FBS this season?
+
+    Derived, not hardcoded: memory:new-fbs-teams-2026 notes getallnewfbsteams()
+    is STALE and there are 3 hardcoded lockstep spots. `powerrating` carries a
+    row for every FBS team every season, so the absence of a prior-season row is
+    the honest test and it maintains itself.
+
+    Why it matters: Sacramento State's writeup called Jamar Curtis "the active
+    FBS leader in career rushing yards". He has 25. The 3,241 on his profile
+    were earned at FCS Lafayette, and Sac State's own 2025 season was FCS too,
+    so NOTHING on this roster is FBS production and no 2025 team stat is an FBS
+    stat. The agent cannot infer that; it has to be told.
+    """
+    prior = query_one(conn, """
+        SELECT 1 AS ok FROM powerrating WHERE team = %s AND year = %s LIMIT 1
+    """, (team, season - 1))
+    if prior:
+        return {}
+    return {
+        'new_to_fbs_this_season': True,
+        'first_fbs_season': season,
+        'division_history_note': (
+            f'This program is playing its FIRST FBS season in {season}. Every career '
+            f'total on this roster, and every prior-season team number, was earned at '
+            f'FCS — they are NOT FBS statistics and must never be compared to FBS '
+            f'ranks, leaders or averages. If you cite one, name the level and the '
+            f'school it was earned at, or leave it out.'),
+    }
+
+
 def build_schedule_summary(conn, team, season):
     """schedulebreakdown — tiers + summary block."""
     row = query_one(conn, """
@@ -2099,6 +2130,7 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
         existing_summary.update(sched.get('schedule_summary', {}))
         context['schedule_summary'] = existing_summary
 
+    context.update(build_division_history(conn, url_param, SEASON))
     context.update(build_notes(conn, url_param, SEASON))
     context.update(build_portal(conn, url_param, SEASON))
     context.update(build_recruiting(conn, url_param, SEASON))

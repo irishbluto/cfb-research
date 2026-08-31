@@ -734,6 +734,10 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
 
   4. **Never attribute a past season to a coach who was not there for it.** `staff_tenure` tells you, per role, who holds the job now, who held it last season, and `first_season_with_team`. If that flag is true, that person has NO history with this program — they did not coach its defense last fall, their unit did not regress, nothing "still" dogs them. USC's writeup referred to "the same fourth-quarter softness that dogged Gary Patterson's defense last fall" about a first-year defensive coordinator. Continuity claims about ANY named staff member must be grounded in `staff_tenure`, never assumed. When the flag is null, tenure is unknown — say nothing about their history either way.
 
+  5. **Never claim a national lead, a record, or a "first since".** You are given team-level national ranks that were computed for you — those you may state exactly as supplied. You are given NO player leaderboard for anything, so you cannot know who leads FBS in rushing, who is the active career leader, who is the only player to do something, or when a thing last happened. Sacramento State's writeup called its lead back "the active FBS leader in career rushing yards"; he has 25 FBS rushing yards. A superlative is a claim about all 130-odd rosters in the country and you can see one. Banned shapes: "leads the nation/FBS", "the active FBS leader", "most/best/fewest ... in the country", "the only player to", "first since 2011", "school record", "all-time leading". If a SOURCE makes the claim, attribute it to that outlet in the sentence; otherwise say what the player did in the games you have data for.
+
+  6. **Never merge production earned at another level.** Career totals on a transfer's profile may have been compiled at FCS, Division II or JUCO. If `new_to_fbs_this_season` is set, this whole program was FCS until this year — every career total on the roster and every prior-season team number is an FCS number, not an FBS one, and comparing either to an FBS rank, leader or average is false. Curtis's 3,241 career yards are Lafayette FCS yards. When you cite a total earned elsewhere, name the level and the school it was earned at, or leave it out.
+
   **Anti-recap rule:** the writeup must never read like a box-score restatement. The score gets ONE clause; the real estate goes to why (stat-grounded) and what it means for the next two games. A reader who watched the game should still learn something.
 
   **Run-type emphasis — this run is `{run_type}`:**
@@ -1609,6 +1613,46 @@ def _ww_score_problems(text, ww):
     return problems
 
 
+# Claims about a population the agent was never given. Team-level national
+# ranks ARE supplied and computed in SQL, so "ranks 14th nationally" is fine and
+# deliberately not matched; what is banned is the unbounded superlative.
+_WW_SUPERLATIVE_RE = re.compile(
+    r"""(
+        \b(?:the\s+)?(?:active\s+)?(?:FBS|FCS|national|nation's|country's)\s+
+            (?:career\s+)?(?:leader|leaders)\b
+      | \blead(?:s|ing)\s+(?:the\s+)?(?:nation|country|FBS|all\s+of\s+FBS)\b
+      | \b(?:most|best|fewest|highest|lowest|top)\s+(?:\S+\s+){0,4}?
+            in\s+(?:the\s+)?(?:nation|country|FBS)\b
+      | \bonly\s+(?:\S+\s+){0,3}?in\s+(?:the\s+)?(?:nation|country|FBS)\b
+      | \bfirst\s+(?:\S+\s+){0,6}?since\s+(?:19|20)\d{2}\b
+      | \b(?:school|program|conference|NCAA)\s+record\b
+      | \ball[-\s]time\s+(?:leader|leading|record|mark)\b
+      | \bno\s+(?:one|other\s+\S+)\s+in\s+(?:the\s+)?(?:nation|country|FBS)\b
+    )""",
+    re.IGNORECASE | re.VERBOSE)
+
+# An attribution nearby turns a banned superlative into a reported one.
+_WW_ATTRIBUTION_RE = re.compile(
+    r"\b(according\s+to|per\s+[A-Z]|reported|wrote|noted|said|called\s+him"
+    r"|-\s*beat|The\s+Athletic|247|ESPN|On3|Rivals)\b")
+
+def _ww_superlative_claims(text):
+    """Unbounded superlatives — the agent has no leaderboard to check them."""
+    problems = []
+    for para in text.split('\n\n'):
+        for sent in _ww_split_sentences(para):
+            m = _WW_SUPERLATIVE_RE.search(sent)
+            if not m:
+                continue
+            if _WW_ATTRIBUTION_RE.search(sent):
+                continue          # reported and attributed — allowed
+            problems.append(
+                f'text makes an unverifiable national claim ({m.group(0).strip()!r}) — '
+                f'you are given no player leaderboard and cannot know it; attribute it to '
+                f'a source or state only what the data shows: "{sent.strip()[:120]}"')
+    return problems
+
+
 # Soft-spot language about an opponent the site's own numbers say is BETTER.
 _WW_SOFT_SPOT_RE = re.compile(
     r"\b(get[-\s]?right\s+spot|breather|tune[-\s]?up|cupcake|gimme|walkover"
@@ -1760,6 +1804,7 @@ def validate_weekly_writeup(data, run_type, context=None):
                     "(postgame run — P1 must anchor on it)")
 
     hard.extend(_ww_score_problems(text, ww))
+    hard.extend(_ww_superlative_claims(text))
     hard.extend(_ww_difficulty_language(text, context))
     hard.extend(_ww_first_year_staff_history(text, context))
 
@@ -1797,8 +1842,10 @@ def _corrective_suffix(problems, data):
         "weakest sentences rather than compressing every sentence. "
         "The HARD CONTENT RULES apply in full: do not report the absence of a "
         "source, state no scoreline except the final one, judge future games by "
-        "`difficulty` rather than by whether the opponent is ranked, and never give "
-        "a first-season staff member a history with this program. "
+        "`difficulty` rather than by whether the opponent is ranked, never give "
+        "a first-season staff member a history with this program, claim no national "
+        "lead or record you were not given, and never present production earned at "
+        "another level as FBS production. "
         "Keep all other fields consistent with your research."
     )
 

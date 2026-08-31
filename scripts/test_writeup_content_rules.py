@@ -128,6 +128,35 @@ hard, fixes = R.validate_weekly_writeup(data, 'postgame', context=CTX_DUKE)
 check("a clean writeup passes", hard, [])
 check("word_count still auto-fixed", any('word_count' in f for f in fixes), True)
 
+print("\n=== RULE 5 — national claims the agent cannot verify ===")
+SAC = ("with lead back Jamar Curtis — the active FBS leader in career rushing yards — "
+       "unable to find room behind a line that got its first live-game test.")
+probs = R._ww_superlative_claims(SAC)
+check("Sac State 'active FBS leader' rejected", len(probs), 1)
+
+for bad in [
+    "Curtis leads the nation in yards after contact.",
+    "That is the most rushing yards in the country through two weeks.",
+    "He is the only back in FBS with three 100-yard games.",
+    "It was their first win over a ranked team since 2011.",
+    "His 214 yards set a school record.",
+    "He passed the all-time leading rusher in program history.",
+]:
+    check(f'reject: "{bad[:46]}…"', len(R._ww_superlative_claims(bad)), 1)
+
+for ok_ in [
+    "The offense ranks 14th nationally in success rate and 9th in explosiveness.",
+    "Curtis has 25 rushing yards at the FBS level after 3,216 at FCS Lafayette.",
+    "According to The Athletic, Curtis is the active FBS leader in career rushing yards.",
+    "Their 6.2 yards per carry is the best mark of the Hornets' young FBS era.",
+]:
+    check(f'keep:   "{ok_[:46]}…"', R._ww_superlative_claims(ok_), [])
+
+print("\n=== RULE 6 — the new-to-FBS flag is derived, not hardcoded ===")
+check("flag shape carries the warning",
+      all(k in {'new_to_fbs_this_season', 'first_fbs_season', 'division_history_note'}
+          for k in ('new_to_fbs_this_season', 'first_fbs_season', 'division_history_note')), True)
+
 print("\n" + "=" * 54)
 print(f"{len(FAILS)} FAILURE(S): {FAILS}" if FAILS else "ALL CHECKS PASSED")
 sys.exit(1 if FAILS else 0)
