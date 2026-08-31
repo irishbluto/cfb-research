@@ -19,7 +19,7 @@ Usage:
     python3 scripts/build_team_context.py --team notre-dame --debug
 """
 
-import json, os, sys, argparse
+import json, os, re, sys, argparse
 from datetime import datetime
 import pymysql
 from dotenv import load_dotenv
