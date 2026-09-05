@@ -6,11 +6,18 @@
 # the teamcards subdomain, so they are live the moment they are written. No scp
 # step -- unlike the coach cards, these are served from this box.
 #
-# The teamcards docroot is NOT under /var/www -- it is the capture project's
-# team-cards/ directory (the AAC/ ACC/ B12/ ... folders you see at the root of
-# teamcards.puntandrally.com live there). Do not go looking in /var/www.
-# The URL actually served is /schedule-cards/ -- NOT /schedule/, which is what
-# generate_schedule_cards.py's docstring said for its first month.
+# WHERE THE CARDS GO (confirmed from `nginx -T` 2026-09-05, and NOT obvious):
+# teamcards.puntandrally.com has root /opt/puntandrally/teamcard-capture/team-cards,
+# but that root only serves the capture project's OWN folders -- matchup/ and the
+# conference tiles. The two families cfb-research renders are ALIASED out of it:
+#
+#     location /schedule-cards/   alias /cfb-research/schedule_cards/;
+#     location /coach-cards/      alias /cfb-research/team_cards/;
+#
+# So: hyphen in the URL, underscore on disk, and the directory is inside THIS
+# repo. Nothing under team-cards/ is the right answer, and nothing is under
+# /var/www either. The URL is /schedule-cards/ -- not /schedule/, which is what
+# generate_schedule_cards.py's docstring wrongly said for its first month.
 #
 # WHY WEEKLY, AND WHY SUNDAY NIGHT
 #   The card is a season outlook: projected records, remaining strength of
@@ -71,8 +78,21 @@ LOCK_FILE="/tmp/schedule_cards.lock"
 # 11 PM and zero cards, which is worse than not running at all.
 PYTHON="${BASE_DIR}/venv/bin/python3"
 
-# Overridable so a wrong guess here can be corrected without editing the script.
-OUT_DIR="${SCHEDULE_CARDS_OUT:-/opt/puntandrally/teamcard-capture/team-cards/schedule-cards}"
+# CONFIRMED 2026-09-05 from `nginx -T`, do not "fix" this to something tidier:
+#
+#     location /schedule-cards/   alias /cfb-research/schedule_cards/;
+#     location /coach-cards/      alias /cfb-research/team_cards/;
+#
+# HYPHEN IN THE URL, UNDERSCORE ON DISK, and it lives HERE in the repo -- not
+# under teamcard-capture/team-cards/, which is only the `root` for that project's
+# OWN folders (matchup/, the conference tiles). Anything cfb-research renders is
+# reached by an alias out of /cfb-research. Guessing the team-cards family cost a
+# full render into a directory nginx has never served.
+#
+# It is not enough for this to exist and be writable -- see the post-render check
+# at the bottom, which is the only thing that proves it is the served directory.
+OUT_DIR="${SCHEDULE_CARDS_OUT:-/cfb-research/schedule_cards}"
+VERIFY_BASE="${SCHEDULE_CARDS_URL:-https://teamcards.puntandrally.com/schedule-cards}"
 
 mkdir -p "$LOG_DIR"
 
@@ -127,19 +147,22 @@ log "START: schedule cards, year=${YEAR}, out=${OUT_DIR}"
 # The traversable part is not paranoia: 2026-07-14 a recreated card directory
 # came back mode 744. LiteSpeed 404'd every card while PHP's file_exists() still
 # returned true, and Cloudflare cached those 404s for ~5 minutes.
+# DO NOT mkdir -p HERE. This is not an ordinary output folder, it is a docroot
+# that nginx has to already be serving, and a directory this script invents is a
+# directory the web will never show. 2026-09-05 that is exactly what happened:
+# OUT_DIR was a good guess at the wrong path, mkdir -p made it, 128 cards
+# rendered "successfully" into it, and the live site kept serving files from
+# 20-Aug because the real docroot is somewhere else entirely. The run logged
+# DONE. A missing directory here does not mean "create it", it means THE PATH IS
+# WRONG -- so refuse, and say how to find the right one.
 if [ ! -d "$OUT_DIR" ]; then
-    if ! mkdir -p "$OUT_DIR" 2>/dev/null; then
-        log "FAIL: ${OUT_DIR} does not exist and $(whoami) cannot create it."
-        log "      If the path itself is wrong, the sibling families are the map:"
-        log "        ls -la /opt/puntandrally/teamcard-capture/team-cards/"
-        log "      (/matchup/ and the conference folders are served from there.)"
-        log "      Otherwise create it once, as root:"
-        log "        sudo mkdir -p ${OUT_DIR}"
-        log "        sudo chown $(whoami):$(whoami) ${OUT_DIR}"
-        log "        sudo chmod 755 ${OUT_DIR}"
-        exit 2
-    fi
-    log "  created ${OUT_DIR}"
+    log "FAIL: ${OUT_DIR} does not exist. NOT creating it -- this must be the"
+    log "      directory nginx already serves at ${VERIFY_BASE}/, and a folder"
+    log "      this script invents would never appear on the web."
+    log "      Find the real one:"
+    log "        nginx -T | grep -nE 'server_name|root |alias '   # look for the alias"
+    log "      then either fix OUT_DIR above or set SCHEDULE_CARDS_OUT in the crontab line."
+    exit 2
 fi
 
 if [ ! -w "$OUT_DIR" ]; then
@@ -172,6 +195,38 @@ if "$PYTHON" "${BASE_DIR}/scripts/generate_schedule_cards.py" \
         --year "$YEAR" --all --out "$OUT_DIR" >> "$CRON_LOG" 2>&1; then
     after=$(find "$OUT_DIR" -maxdepth 1 -name '*.png' 2>/dev/null | wc -l)
     log "DONE: year=${YEAR}, ${after} card(s) in ${OUT_DIR} (was ${before})"
+    # --- Prove the bytes we just wrote are the bytes the web serves ------
+    # Writing a PNG is not shipping a PNG. The disk write can succeed against a
+    # directory nginx does not serve, and every signal inside this box says the
+    # job worked. So fetch the newest card back over HTTP and compare its
+    # Last-Modified to the file's own mtime. teamcards is DNS-only (no
+    # Cloudflare), so this is a real origin read, not a cache.
+    newest=$(ls -t "$OUT_DIR"/*.png 2>/dev/null | head -1 || true)
+    if [ -n "${newest:-}" ]; then
+        base=$(basename "$newest")
+        local_ts=$(stat -c '%Y' "$newest" 2>/dev/null || echo 0)
+        remote_lm=$(curl -sI --max-time 20 "${VERIFY_BASE}/${base}?x=$$" 2>/dev/null \
+                    | awk 'tolower($1)=="last-modified:"{sub(/^[^:]*: /,""); print}' \
+                    | tr -d '\r' || true)
+        if [ -z "${remote_lm:-}" ]; then
+            log "WARN: could not read ${VERIFY_BASE}/${base} to verify the cards are live."
+            log "      Cards may be on disk but not on the web. Check by hand."
+        else
+            remote_ts=$(date -d "$remote_lm" '+%s' 2>/dev/null || echo 0)
+            skew=$(( local_ts - remote_ts ))
+            [ "$skew" -lt 0 ] && skew=$(( -skew ))
+            if [ "$skew" -gt 600 ]; then
+                log "FAIL: WROTE THE CARDS SOMEWHERE THE WEB DOES NOT SERVE."
+                log "      ${base} on disk:  $(date -u -d "@${local_ts}" '+%Y-%m-%d %H:%M:%S') UTC"
+                log "      ${base} over HTTP: ${remote_lm}"
+                log "      OUT_DIR=${OUT_DIR} is NOT the docroot behind ${VERIFY_BASE}/."
+                log "      Find the real one:"
+                log "        nginx -T | grep -nE 'server_name|root |alias '   # look for the alias"
+                exit 3
+            fi
+            log "  verified live: ${base} served with Last-Modified ${remote_lm}"
+        fi
+    fi
 else
     exit_code=$?
     after=$(find "$OUT_DIR" -maxdepth 1 -name '*.png' 2>/dev/null | wc -l)

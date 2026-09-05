@@ -38,7 +38,7 @@ Usage
     # n8n workflow can download them. (DNS-only subdomain — Cloudflare's Bot
     # Fight Mode breaks remote image fetchers, so we never host these on www.)
     python3 scripts/generate_schedule_cards.py --year 2026 --all \\
-        --out /opt/puntandrally/teamcard-capture/team-cards/schedule-cards
+        --out /cfb-research/schedule_cards
 
 Output files: ``{out}/{team_slug}.png`` — flat layout; the slug is globally
 unique, so no per-conference subfolders are needed. The n8n workflow builds
@@ -271,8 +271,8 @@ def parse_args() -> argparse.Namespace:
                         "in the module docstring.")
     p.add_argument("--out",     type=Path, default=Path("schedule_cards"),
                    help="Output directory (default: schedule_cards/). On the VPS, "
-                        "point this at the teamcards subdomain's schedule-cards/ "
-                        "docroot — cron_schedule_cards.sh passes it for you.")
+                        "the nginx alias target for /schedule-cards/ is "
+                        "/cfb-research/schedule_cards — cron_schedule_cards.sh passes it.")
     return p.parse_args()
 
 def main() -> int:
