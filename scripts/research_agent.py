@@ -174,6 +174,70 @@ def setup_logging():
 # ---------------------------------------------------------------------------
 # Build the research prompt for one team
 # ---------------------------------------------------------------------------
+# Editor notes -> prompt block
+#
+# The notes are Jonathan's own observations, typed into teamprofile.php through
+# the season. Until 2026-09-06 they reached the agent under a bare label —
+# "Team notes (your own curated observations):" — with ZERO interpretation
+# rules, while the writeup's only game anchors were ONE `last_game` line and a
+# scoreless first-five schedule. A note that names no opponent ("Rush Off only
+# 3.2 ypc on 41 rush") was therefore undatable from the Thursday preview run
+# onward, and the two failures that follow are attaching it to the wrong
+# opponent and promoting it to present-tense season form.
+#
+# build_team_context.build_notes() now stamps each team note with the team's
+# last completed game as of the date the note was typed. These rules tell the
+# agent what that anchor is and, more importantly, what it is NOT.
+# ---------------------------------------------------------------------------
+_NOTES_RULES = """## Editor Notes (Jonathan's own observations — read these five rules before using any of them)
+
+  1. **The (m/d) stamp is the date the note was TYPED, not the date of the game it describes.** Where "last final as of this date" follows the stamp, that names the team's most recent completed game as of when the note was written — the game the note is MOST LIKELY about. It is context to help you date the note; it is NOT a verified attribution, and the note may be about something other than that game entirely.
+  2. **A note that names no opponent may describe an earlier game than the one you are writing about.** Use the observation, but do not assert which game a stat came from unless the note names the opponent or the anchor makes it unambiguous. When in doubt, write it as something the team has shown, not as what happened on a particular Saturday. Never introduce an opponent's name into a note that didn't carry one.
+  3. **The notes are NOT comprehensive.** They get written when there is time, so two or three notes on one game and none on the next is normal and expected. A game with no note means nobody wrote one — never that nothing happened, and never that the game was uneventful. Draw no inference from what the notes do or don't cover, and never refer to the notes, their coverage, or their existence in the writeup.
+  4. **Notes are point-in-time observations, not current form.** The Current-Season Stats block is the authority for anything season-to-date. Where a note and that block disagree, the block wins and the note is a dated observation of one game. A figure from an early-season note must never be written in the present tense as what the team is doing now.
+  5. **Preseason notes are PROJECTION**, written before a snap was played — never present one as an observation of how the team is actually playing. `[!]` marks a note flagged as important.
+"""
+
+
+def _format_notes_block(team_notes, inj_notes, staff_notes,
+                        preseason_notes=None, inseason_notes=None):
+    """Render the editor-notes section of the prompt.
+
+    Takes the flat `team_notes` list plus the two partitions emitted by
+    build_notes(). When the partitions are present (normal), team notes render
+    as two labelled sub-lists so the agent can never read a preseason
+    projection as an in-season observation. When they are absent — a context
+    file built before 2026-09-06 — the flat list renders under one heading and
+    the rules still apply.
+
+    Injury and staff notes are unanchored and unchanged; the injury rules
+    elsewhere in the prompt already govern them."""
+    def _bullets(lines):
+        return "\n".join(f"  - {n}" for n in lines) + "\n"
+
+    pre = preseason_notes or []
+    ins = inseason_notes or []
+    block = ""
+
+    if team_notes or pre or ins:
+        block += _NOTES_RULES
+        if ins or pre:
+            if ins:
+                block += "\nIn-season notes (newest first):\n" + _bullets(ins)
+            if pre:
+                block += ("\nPreseason notes (projection, written before the season):\n"
+                          + _bullets(pre))
+        else:
+            block += "\nTeam notes (newest first):\n" + _bullets(team_notes)
+
+    if inj_notes:
+        block += "\nInjury notes:\n" + _bullets(inj_notes)
+    if staff_notes:
+        block += "\nStaff/schedule notes:\n" + _bullets(staff_notes)
+    return block
+
+
+# ---------------------------------------------------------------------------
 def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
     team_name   = context.get('team', slug)
     coach       = context.get('head_coach', 'Unknown Coach')
@@ -187,6 +251,9 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
     team_notes  = context.get('team_notes', [])
     inj_notes   = context.get('injury_notes', [])
     staff_notes = context.get('staff_schedule_notes', [])
+    # Partitions emitted by build_notes(); absent on pre-2026-09-06 context files
+    pre_notes   = context.get('team_notes_preseason', [])
+    ins_notes   = context.get('team_notes_inseason', [])
     portal_in   = context.get('portal_in', [])
     portal_out  = context.get('portal_out', [])
     ret_starters = context.get('returning_starters', 'unknown')
@@ -756,17 +823,10 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
 
 """
 
-    # Format team notes for prompt
-    notes_block = ""
-    if team_notes:
-        notes_block += "Team notes (your own curated observations):\n"
-        notes_block += "\n".join(f"  - {n}" for n in team_notes) + "\n"
-    if inj_notes:
-        notes_block += "Injury notes:\n"
-        notes_block += "\n".join(f"  - {n}" for n in inj_notes) + "\n"
-    if staff_notes:
-        notes_block += "Staff/schedule notes:\n"
-        notes_block += "\n".join(f"  - {n}" for n in staff_notes) + "\n"
+    # Editor notes — rules + partitioned lists (see _format_notes_block above)
+    notes_block = _format_notes_block(team_notes, inj_notes, staff_notes,
+                                      preseason_notes=pre_notes,
+                                      inseason_notes=ins_notes)
 
     # Build prior memory block for prompt injection (v2 — storyline threads)
     memory_block = ""

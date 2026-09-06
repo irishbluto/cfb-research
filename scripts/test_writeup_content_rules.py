@@ -157,6 +157,35 @@ check("flag shape carries the warning",
       all(k in {'new_to_fbs_this_season', 'first_fbs_season', 'division_history_note'}
           for k in ('new_to_fbs_this_season', 'first_fbs_season', 'division_history_note')), True)
 
+print("\n=== RULE 7 — editor-notes block ships its interpretation rules (2026-09-06) ===")
+INS = ['(9/12 - last final as of this date: L 21-28 at Oklahoma on 9/5) Rush Off only 3.2 ypc']
+PRE = ['(6/28) WR unit good, top 4 were big weapons']
+blk = R._format_notes_block(INS + PRE, [], [], preseason_notes=PRE, inseason_notes=INS)
+check("the rules header is present", '## Editor Notes' in blk, True)
+for n, phrase in ((1, 'not the date of the game it describes'),
+                  (2, 'may describe an earlier game'),
+                  (3, 'NOT comprehensive'),
+                  (4, 'not current form'),
+                  (5, 'PROJECTION')):
+    check(f"rule {n} survives", phrase in blk, True)
+check("in-season notes get their own heading", 'In-season notes (newest first):' in blk, True)
+check("preseason notes get their own heading", 'Preseason notes (projection' in blk, True)
+check("preseason note is NOT filed under in-season",
+      blk.index('In-season notes') < blk.index('(6/28)'), True)
+check("every note is bulleted", blk.count('\n  - '), 2)
+
+print("\n=== RULE 7b — fallback + empty paths ===")
+flat = R._format_notes_block(INS + PRE, [], [])           # pre-2026-09-06 context file
+check("no partitions still renders the rules", '## Editor Notes' in flat, True)
+check("...under one heading", 'Team notes (newest first):' in flat, True)
+check("...with both notes", flat.count('\n  - '), 2)
+
+check("no notes at all renders nothing", R._format_notes_block([], [], []), "")
+inj = R._format_notes_block([], ['(9/6) WR out'], [])
+check("injury notes alone do not drag in the team-note rules",
+      '## Editor Notes' in inj, False)
+check("...but still render", 'Injury notes:' in inj, True)
+
 print("\n" + "=" * 54)
 print(f"{len(FAILS)} FAILURE(S): {FAILS}" if FAILS else "ALL CHECKS PASSED")
 sys.exit(1 if FAILS else 0)

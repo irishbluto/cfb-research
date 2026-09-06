@@ -23,6 +23,17 @@ def fake_one(conn, sql, params=None):
             return val(params) if callable(val) else val
     return None
 def fake_all(conn, sql, params=None):
+    # Keyed like fake_one so a builder issuing MORE THAN ONE query_all (e.g.
+    # build_notes: team_notes + games) can be stubbed per statement. Only list
+    # values are eligible; dict values in ROWS belong to query_one.
+    s = ' '.join(sql.split())
+    for key, val in ROWS.items():
+        if key == '__all__':
+            continue
+        if key in s:
+            v = val(params) if callable(val) else val
+            if isinstance(v, list):
+                return v
     return ROWS.get('__all__', [])
 B.query_one, B.query_all = fake_one, fake_all
 
@@ -77,6 +88,65 @@ check("...with a strength label", lg['opponent_snapshot'].get('strength'),
       'comparable to this team')
 check("...and the rank-is-not-quality note",
       'NOT quality' in lg['opponent_snapshot'].get('strength_note', ''), True)
+
+print("\n=== build_notes: every team note carries a game anchor (2026-09-06) ===")
+# Two completed games; a third row is an UNPLAYED future game (0/0 points),
+# which must never become an anchor -- future schedule rows carry 0/0, not NULL.
+GAMES = [
+    {'start_date': '2026-08-30', 'home_team': 'Auburn',  'away_team': 'Baylor',
+     'home_points': 24, 'away_points': 10, 'neutral_site': '0'},
+    {'start_date': '2026-09-05', 'home_team': 'Oklahoma', 'away_team': 'Auburn',
+     'home_points': 28, 'away_points': 21, 'neutral_site': '0'},
+    {'start_date': '2026-09-12', 'home_team': 'Auburn',  'away_team': 'Tulane',
+     'home_points': 0,  'away_points': 0,  'neutral_site': '0'},
+]
+NOTES = [
+    {'month': 9, 'date': 12, 'category': 'team',   'important': 'N',
+     'note': 'Rush Off only 3.2 ypc on 41 rush. QB Brown 3 INT'},
+    {'month': 9, 'date': 6,  'category': 'injury', 'important': 'N',
+     'note': 'WR Nimrod left with a hamstring'},
+    {'month': 9, 'date': 1,  'category': 'team',   'important': 'Y',
+     'note': 'Survived a scare, allowed 333 yds pass'},
+    {'month': 6, 'date': 28, 'category': 'team',   'important': 'N',
+     'note': 'WR unit good, top 4 were big weapons'},
+    {'month': 0, 'date': 0,  'category': 'team',   'important': 'N',
+     'note': 'junk stamp row'},
+]
+ROWS = {'FROM team_notes': NOTES, 'FROM games': GAMES}
+N = B.build_notes(None, 'Auburn', 2026)
+
+check("a note typed AFTER the latest game anchors to that game",
+      N['team_notes'][0],
+      '(9/12 - last final as of this date: L 21-28 at Oklahoma on 9/5) '
+      'Rush Off only 3.2 ypc on 41 rush. QB Brown 3 INT')
+check("a note typed BETWEEN games anchors to the earlier one, not the newest",
+      N['team_notes'][1],
+      '[!] (9/1 - last final as of this date: W 24-10 vs Baylor on 8/30) '
+      'Survived a scare, allowed 333 yds pass')
+check("an unplayed 0/0 future row is never an anchor",
+      any('Tulane' in n for n in N['team_notes']), False)
+check("a preseason note gets NO anchor",
+      N['team_notes'][2], '(6/28) WR unit good, top 4 were big weapons')
+check("...and lands in the preseason list",
+      N['team_notes_preseason'],
+      ['(6/28) WR unit good, top 4 were big weapons', '(0/0) junk stamp row'])
+check("in-season list is the anchored ones only",
+      len(N['team_notes_inseason']), 2)
+check("the two partitions are exactly the flat list",
+      sorted(N['team_notes_inseason'] + N['team_notes_preseason']),
+      sorted(N['team_notes']))
+check("a junk (0/0) stamp does not crash and is treated as unanchored",
+      N['team_notes'][3], '(0/0) junk stamp row')
+check("injury notes are NOT anchored",
+      N['injury_notes'], ['(9/6) WR Nimrod left with a hamstring'])
+
+print("\n=== build_notes: no notes / no games ===")
+ROWS = {'FROM team_notes': [], 'FROM games': GAMES}
+check("no rows returns the empty shape, not a crash",
+      B.build_notes(None, 'Auburn', 2026)['team_notes_inseason'], [])
+ROWS = {'FROM team_notes': NOTES, 'FROM games': []}
+check("no completed games means every note is preseason",
+      len(B.build_notes(None, 'Auburn', 2026)['team_notes_inseason']), 0)
 
 print("\n" + "=" * 50)
 print(f"{len(fails)} FAILURE(S): {fails}" if fails else "ALL CHECKS PASSED")

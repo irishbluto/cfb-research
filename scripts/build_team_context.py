@@ -792,31 +792,141 @@ def build_schedule_summary(conn, team, season):
     return data
 
 
+def _note_stamp_date(month, day, season):
+    """The (month/date) columns on a team_notes row -> a real date in the
+    season year, or None when the row carries junk (0/0 rows exist).
+
+    A January stamp under season=2026 resolves to Jan 2026 — before the 2026
+    season, and therefore correctly classified as preseason below."""
+    try:
+        return datetime(int(season), int(month), int(day)).date()
+    except (TypeError, ValueError):
+        return None
+
+
+def build_completed_games(conn, team, season):
+    """[{'date': date, 'display': 'W 24-17 vs Baylor'}, ...], oldest first.
+
+    Only completed games. COMPLETED-GAME TEST: future schedule rows carry 0/0
+    points, NOT NULL (VPS dry-run 2026-07-18), so IS NOT NULL alone counts the
+    whole schedule as played. Mirrors the site's filter (classTeams ~L6313) and
+    build_opponent_snapshots._played().
+
+    games.neutral_site has mixed storage ('0'/'1'/'Y') per the schema quirk in
+    memory — a neutral-site game reads "vs", same as build_opponent_snapshots."""
+    rows = query_all(conn, """
+        SELECT start_date, home_team, away_team, neutral_site,
+               home_points, away_points
+        FROM games
+        WHERE (home_team = %s OR away_team = %s)
+          AND season = %s
+          AND season_type IN ('regular', 'postseason')
+        ORDER BY start_date ASC
+    """, (team, team, season))
+    out = []
+    for g in rows or []:
+        hp, ap = inum(g.get('home_points')), inum(g.get('away_points'))
+        if hp is None or ap is None or not (hp > 0 or ap > 0):
+            continue
+        try:
+            d = datetime.strptime(str(g.get('start_date'))[:10], '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            continue
+        is_home  = g.get('home_team') == team
+        opp      = g.get('away_team') if is_home else g.get('home_team')
+        us, them = (hp, ap) if is_home else (ap, hp)
+        res      = 'W' if us > them else ('L' if us < them else 'T')
+        ns       = str(g.get('neutral_site') or '').strip().upper()
+        vs_at    = 'vs' if (is_home or ns in ('1', 'Y', 'YES', 'TRUE')) else 'at'
+        out.append({'date': d, 'display': f"{res} {us}-{them} {vs_at} {opp}"})
+    return out
+
+
 def build_notes(conn, team, season):
-    """team_notes split by category: team / injury / staff."""
-    data = {'team_notes': [], 'injury_notes': [], 'staff_schedule_notes': []}
+    """team_notes split by category: team / injury / staff, with a game anchor
+    on every `team` note.
+
+    WHY THE ANCHOR (2026-09-06). A team note is stamped "(m/d)" — the date the
+    note was TYPED, which is not necessarily the date of the game it describes
+    — and many notes name no opponent at all ("Rush Off only 3.2 ypc on 41
+    rush"). Downstream, the writeup agent's only game anchors are ONE
+    `last_game` line and a scoreless first-five schedule, so from the Thursday
+    preview run onward it had no way to tell a week-2 observation from a
+    week-8 one. The two failures that follow are attaching an orphan stat to
+    the wrong opponent, and promoting it to present-tense season form.
+
+    So every `team` note now carries the team's most recent COMPLETED game as
+    of its own stamp date — the game the note is MOST LIKELY about. It is
+    emitted as context, never as an attribution, and the prompt-side rules in
+    research_agent._format_notes_block() say exactly that. `<=` on the stamp is
+    deliberate: a note typed the same evening as the game is the common case.
+
+    A note with no completed game on or before its stamp is preseason
+    PROJECTION and goes in its own list, unanchored — carrying an anchor is
+    precisely what makes a note in-season, so no separate first-game-date
+    boundary is needed.
+
+    Injury and staff notes are deliberately NOT anchored: they describe
+    availability and scheduling rather than game performance, and the prompt
+    already treats injury notes as pre-verified.
+
+    Emits `team_notes` (flat, every team note, newest first — unchanged shape
+    for any existing consumer) plus `team_notes_inseason` / `team_notes_preseason`,
+    which are that same flat list partitioned in place."""
+    data = {
+        'team_notes':           [],
+        'injury_notes':         [],
+        'staff_schedule_notes': [],
+        'team_notes_inseason':  [],
+        'team_notes_preseason': [],
+    }
     rows = query_all(conn, """
         SELECT month, date, category, note, important
         FROM team_notes
         WHERE team = %s AND year = %s
         ORDER BY month DESC, date DESC
     """, (team, season))
+    if not rows:
+        return data
+
+    games = build_completed_games(conn, team, season)
+
+    def _anchor(stamp):
+        """Latest completed game on or before `stamp` (games are oldest-first)."""
+        if stamp is None:
+            return None
+        prior = [g for g in games if g['date'] <= stamp]
+        return prior[-1] if prior else None
+
     for r in rows:
-        cat = (r.get('category') or '').lower().strip()
+        cat       = (r.get('category') or '').lower().strip()
         note_body = (r.get('note') or '').strip()
         if not note_body:
             continue
-        # Format: "(month/date) note text" — matches the old scraper output
-        stamp = f"({inum(r.get('month')) or 0}/{inum(r.get('date')) or 0})"
-        line  = f"{stamp} {note_body}"
-        if r.get('important') == 'Y':
-            line = f"[!] {line}"
-        if cat == 'team':
-            data['team_notes'].append(line)
-        elif cat == 'injury':
-            data['injury_notes'].append(line)
-        elif cat == 'staff':
-            data['staff_schedule_notes'].append(line)
+        mo, dy    = inum(r.get('month')) or 0, inum(r.get('date')) or 0
+        stamp_txt = f"{mo}/{dy}"
+        flag      = '[!] ' if r.get('important') == 'Y' else ''
+
+        # Injury / staff: stamp only, exactly as before.
+        if cat != 'team':
+            line = f"{flag}({stamp_txt}) {note_body}"
+            if cat == 'injury':
+                data['injury_notes'].append(line)
+            elif cat == 'staff':
+                data['staff_schedule_notes'].append(line)
+            continue
+
+        g = _anchor(_note_stamp_date(mo, dy, season))
+        if g:
+            head = (f"{stamp_txt} - last final as of this date: "
+                    f"{g['display']} on {g['date'].month}/{g['date'].day}")
+        else:
+            head = stamp_txt
+        line = f"{flag}({head}) {note_body}"
+        data['team_notes'].append(line)
+        key = 'team_notes_inseason' if g else 'team_notes_preseason'
+        data[key].append(line)
+
     return data
 
 
@@ -2251,6 +2361,8 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
             print(f"  sched tiers: elite={st.get('elite')} good={st.get('good')} "
                   f"avg={st.get('avg')} bad={st.get('bad')} poor={st.get('poor')}")
         print(f"  notes: team={len(context.get('team_notes', []))} "
+              f"(in-season/anchored={len(context.get('team_notes_inseason', []))} "
+              f"preseason={len(context.get('team_notes_preseason', []))}) "
               f"inj={len(context.get('injury_notes', []))} "
               f"staff={len(context.get('staff_schedule_notes', []))}")
         print(f"  ppa: off=#{context.get('offense_ppa_rank')} def=#{context.get('defense_ppa_rank')} "
