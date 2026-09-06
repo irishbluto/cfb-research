@@ -257,10 +257,24 @@ Sources are unchanged. What changes is the extraction focus in in_season mode:
   should *voice* the mood, attributed loosely ("the beat's read is...", "the fanbase
   has moved from X to Y").
 - **Team notes.** `notes_block` (manually curated, ~biweekly per team, often more)
-  stays injected and gets explicit prompt weight in-season: treat recent notes as
-  editor guidance — storylines the editor wants tracked — and prefer them when
-  choosing which angle leads. Notes newer than the last run should be checked
-  against what the sources say this cycle.
+  stays injected. REVISED 2026-09-06 — the original plan here was "explicit prompt
+  weight in-season: treat recent notes as editor guidance and prefer them when
+  choosing which angle leads." **That weight is DECLINED, not deferred.** Tracing the
+  first real week-1 writeups showed the notes ALREADY supply most of paragraph 1's
+  figures with no rule granting them weight, so formalising it would only push P1
+  further into the box-score recap the anti-recap rule forbids. Jonathan's model:
+  "the writeup should be coming from the sourced information, team notes are only
+  helpful tips."
+
+  What shipped instead is ATTRIBUTION and DECAY, which the original bullet never
+  considered. A note's (m/d) stamp is the date it was TYPED, not the game date, and
+  many notes name no opponent, while the writeup's only game anchors are one
+  `last_game` line and a scoreless `schedule[:5]`. So `build_notes()` now stamps each
+  team note with the team's last completed game as of that date PLUS how many games
+  ago that now is, partitioned into in-season vs preseason, and
+  `research_agent._format_notes_block()` ships five rules covering what the anchor is
+  and is not, that gaps in coverage mean nothing, and that both in-season and
+  preseason notes decay with age. See memory:team-notes-game-attribution.
 - **Recency:** in_season recency floor is already 21 days; for the `postgame` run,
   instruct the agent to weight sources published after kickoff of the last game most
   heavily.
