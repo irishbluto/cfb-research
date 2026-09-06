@@ -174,6 +174,22 @@ check("preseason note is NOT filed under in-season",
       blk.index('In-season notes') < blk.index('(6/28)'), True)
 check("every note is bulleted", blk.count('\n  - '), 2)
 
+print("\n=== RULE 7c - in-season and preseason notes both DECAY ===")
+for label, phrase in (
+        ("in-season notes decay",        'they DECAY'),
+        ("...keyed off the age counter", 'how many games ago'),
+        ("...most recent game is usable as current",
+                                         'MOST RECENT game is a current observation'),
+        ("...2+ back is background only", 'Two or more games back it is background only'),
+        ("...a characterization is not restated",
+                                         'must not be restated as though it still describes the team'),
+        ("...3+ back needs source corroboration",
+                                         'Three or more games back'),
+        ("preseason decays fastest",     'decay fastest of all'),
+        ("...and loses to in-season evidence outright",
+                                         'the in-season evidence wins outright')):
+    check(label, phrase in blk, True)
+
 print("\n=== RULE 7b — fallback + empty paths ===")
 flat = R._format_notes_block(INS + PRE, [], [])           # pre-2026-09-06 context file
 check("no partitions still renders the rules", '## Editor Notes' in flat, True)

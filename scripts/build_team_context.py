@@ -892,11 +892,19 @@ def build_notes(conn, team, season):
     games = build_completed_games(conn, team, season)
 
     def _anchor(stamp):
-        """Latest completed game on or before `stamp` (games are oldest-first)."""
+        """(game, games_ago) for the latest completed game on or before `stamp`,
+        or (None, None). `games` is oldest-first, so games_ago counts back from
+        the team's most recent completed game: 0 = the game just played.
+
+        Computed at context-build time, which is fine because run_pipeline.py
+        rebuilds team context on every run — the counter is never stale."""
         if stamp is None:
-            return None
-        prior = [g for g in games if g['date'] <= stamp]
-        return prior[-1] if prior else None
+            return None, None
+        prior = [i for i, g in enumerate(games) if g['date'] <= stamp]
+        if not prior:
+            return None, None
+        i = prior[-1]
+        return games[i], (len(games) - 1 - i)
 
     for r in rows:
         cat       = (r.get('category') or '').lower().strip()
@@ -916,10 +924,14 @@ def build_notes(conn, team, season):
                 data['staff_schedule_notes'].append(line)
             continue
 
-        g = _anchor(_note_stamp_date(mo, dy, season))
+        g, ago = _anchor(_note_stamp_date(mo, dy, season))
         if g:
+            # The age counter is what lets the agent decay an in-season note:
+            # the anchor says WHICH game, this says how far back it now is.
+            age  = 'most recent game' if ago == 0 else (
+                   '1 game ago' if ago == 1 else f'{ago} games ago')
             head = (f"{stamp_txt} - last final as of this date: "
-                    f"{g['display']} on {g['date'].month}/{g['date'].day}")
+                    f"{g['display']} on {g['date'].month}/{g['date'].day}; {age}")
         else:
             head = stamp_txt
         line = f"{flag}({head}) {note_body}"

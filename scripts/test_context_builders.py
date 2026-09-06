@@ -117,14 +117,18 @@ N = B.build_notes(None, 'Auburn', 2026)
 
 check("a note typed AFTER the latest game anchors to that game",
       N['team_notes'][0],
-      '(9/12 - last final as of this date: L 21-28 at Oklahoma on 9/5) '
+      '(9/12 - last final as of this date: L 21-28 at Oklahoma on 9/5; most recent game) '
       'Rush Off only 3.2 ypc on 41 rush. QB Brown 3 INT')
 check("a note typed BETWEEN games anchors to the earlier one, not the newest",
       N['team_notes'][1],
-      '[!] (9/1 - last final as of this date: W 24-10 vs Baylor on 8/30) '
+      '[!] (9/1 - last final as of this date: W 24-10 vs Baylor on 8/30; 1 game ago) '
       'Survived a scare, allowed 333 yds pass')
 check("an unplayed 0/0 future row is never an anchor",
       any('Tulane' in n for n in N['team_notes']), False)
+check("the newest note is tagged as the most recent game",
+      'most recent game' in N['team_notes'][0], True)
+check("an older note carries its age so it can be decayed",
+      '1 game ago' in N['team_notes'][1], True)
 check("a preseason note gets NO anchor",
       N['team_notes'][2], '(6/28) WR unit good, top 4 were big weapons')
 check("...and lands in the preseason list",
