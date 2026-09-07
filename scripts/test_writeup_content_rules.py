@@ -335,6 +335,40 @@ check("an UNattributed superlative is still caught",
 check("...and an attributed one is not",
       R._ww_superlative_claims("According to ESPN, he leads the nation in rushing."), [])
 
+print("\n=== RULE 7 - the Player Production block renders correctly ===")
+_CTX = dict(JXST, mode='in_season', team='Jacksonville State', season=2026,
+            current_season_games_played=2)
+def _prompt(run_type, ctx=_CTX):
+    r = R.build_prompt('jacksonville-state', ctx, {}, run_type=run_type)
+    return r[0] if isinstance(r, tuple) else r
+
+_pg = _prompt('postgame')
+check("the block renders", '## Player Production' in _pg, True)
+check("Creel's real line is in the prompt", '21 COMPLETIONS, 28 ATT, 327 YDS, 5 TD' in _pg, True)
+check("...and Williams's", '7 REC, 144 YDS, 4 TD' in _pg, True)
+check("it is labelled SEASON-TO-DATE, not a box score", 'SEASON-TO-DATE TOTALS' in _pg, True)
+# The header must NOT assert a game count: games_played comes from the `games`
+# table, the lines come from playerstats (7th of 13 in Phase A, Sunday 5 AM,
+# while slot 1 fires at 06:00 ET), so the count can overstate what they cover.
+check("the header claims no game count it cannot back",
+      'through 2 game' in _pg, False)
+check("a postgame run warns the totals may lag the game just played",
+      'MAY NOT YET INCLUDE' in _pg, True)
+check("...and bans 'now has' / season-high framing", "now has" in _pg, True)
+check("a preview run does not carry the staleness warning",
+      'MAY NOT YET INCLUDE' in _prompt('preview'), False)
+check("RULE 7 names the block as the only source", 'ONLY source for a number' in _pg, True)
+
+# The block must survive the 3-game gate — 2 games is the starvation window
+# that produced the Jax State error.
+check("2 games still renders Player Production (ungated)",
+      '## Player Production' in _pg, True)
+check("...even though team stats are suppressed", 'below the 3-game minimum' in _pg, True)
+
+_none = _prompt('postgame', dict(_CTX, current_season_player_stats={}))
+check("no player data -> explicit NONE AVAILABLE block", 'NONE AVAILABLE' in _none, True)
+check("...banning every countable stat", 'may NOT attach any countable' in _none, True)
+
 print("\n=== RULE 7 - prompt + corrective suffix carry the rule ===")
 _sfx = R._corrective_suffix(['x'], {'weekly_writeup': {'text': 'y'}})
 check("corrective suffix names the Player Production block",

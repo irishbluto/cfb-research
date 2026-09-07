@@ -743,11 +743,20 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
         # so the sample-size gate does not apply to it.
         _pstats = context.get('current_season_player_stats') or {}
         if _pstats:
+            _stale_note = (
+                " These totals are refreshed by Phase A on Sunday morning, which can still be "
+                "running when this batch starts, so on a postgame run they MAY NOT YET INCLUDE "
+                "the game just played. Never write that a player 'now has' a total, never call "
+                "one a season high or a career mark, and never say a figure includes or reflects "
+                "yesterday's game."
+                if run_type == 'postgame' else ""
+            )
             _plines = [
-                f"## Player Production ({cycle_year} SEASON TOTALS through {gp} game(s))\n",
+                f"## Player Production ({cycle_year} season-to-date totals)\n",
                 "**These are SEASON-TO-DATE TOTALS, not a single game's box score.** The data "
-                "layer has no per-game player splits. Never present a number here as what a "
-                "player did in one game, and never subtract two of them to invent a game line.",
+                "layer has no per-game player splits, so you cannot tell what a player did in "
+                "any one game. Never present a number here as a single game's production, and "
+                "never subtract two of them to invent a game line." + _stale_note,
             ]
             _cat_label = {'passing': 'Passing', 'rushing': 'Rushing', 'receiving': 'Receiving'}
             for _cat in ('passing', 'rushing', 'receiving'):
