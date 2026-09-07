@@ -202,6 +202,178 @@ check("injury notes alone do not drag in the team-note rules",
       '## Editor Notes' in inj, False)
 check("...but still render", 'Injury notes:' in inj, True)
 
+print("\n=== RULE 7 - a number attached to a player name (Jax State 2026-09-07) ===")
+# Creel's and Williams's REAL lines. The shipped sentence fused the two.
+JXST = {
+    'current_season_player_stats': {
+        'passing':   [{'player': 'Caden Creel',    'COMPLETIONS': 21, 'ATT': 28, 'YDS': 327, 'TD': 5, 'INT': 1}],
+        'rushing':   [{'player': 'Jalen Likely',   'CAR': 5,  'YDS': 73,  'TD': 1, 'LONG': 45}],
+        'receiving': [{'player': 'Jamill Williams','REC': 7,  'YDS': 144, 'TD': 4, 'LONG': 55}],
+    },
+    'full_roster': [{'name': n} for n in
+                    ['Caden Creel', 'Jamill Williams', 'Jalen Likely', 'Khristian Lando',
+                     "Tre'Quon Fegans", 'Cedric Kouemi', 'Charles Kelly']],
+}
+def r7(sent, ctx=JXST):
+    return R._ww_player_stat_claims(sent, ctx)
+
+SHIPPED = ("Jacksonville State piled up 526 yards of total offense as Caden Creel threw "
+           "four touchdown passes on just five attempts, all to Jamill Williams.")
+
+# --- POSITIVE: the sentence that shipped ---------------------------------
+_hits = r7(SHIPPED)
+check("the shipped Jax State sentence is caught", len(_hits) >= 1, True)
+check("...BOTH halves of it are caught (4 TD and 5 att)", len(_hits), 2)
+check("...the TD half names the real value", any('TD is 5' in h for h in _hits), True)
+check("...the attempts half names the real value", any('ATT is 28' in h for h in _hits), True)
+check("...and every message names RULE 7", all(h.startswith('RULE 7') for h in _hits), True)
+
+# The precision that matters: 5 IS on Creel's line (as his TD), so a check that
+# only asked "does this number appear anywhere on his row" would PASS the exact
+# sentence that shipped. Matching per stat noun is what catches it.
+check("a figure on the wrong stat is still caught",
+      len(r7("Creel threw five attempts.")) > 0, True)
+
+check("spelled-out figure with no digits is caught",
+      len(r7("Creel threw four touchdowns.")) > 0, True)
+check("a wrong yardage is caught", len(r7("Williams went for 210 yards.")) > 0, True)
+check("a player with NO supplied production carries no number",
+      len(r7("Kouemi added 25 yards on seven carries.")) > 0, True)
+check("...and the message says so",
+      'supplies no stats' in r7("Kouemi added 25 yards on seven carries.")[0], True)
+check("a stat we supply nothing for (tackles) is caught",
+      len(r7("Fegans piled up 11 tackles.")) > 0, True)
+# Fegans is on the roster but has no row in the block at all -> "no stats".
+# Williams HAS a row but no defensive stat -> names the missing statType.
+check("...a rostered player with no row says so",
+      'supplies no stats' in r7("Fegans piled up 11 tackles.")[0], True)
+check("...a supplied player missing that stat names it",
+      'no TOT is supplied' in r7("Williams piled up 11 tackles.")[0], True)
+check("a noun belonging to a LATER figure is not charged to the earlier one",
+      r7("Williams caught 7 passes for 144 yards."), [])
+check("a wrong completion line is caught", len(r7("Creel was 23-of-30 on the night.")) > 0, True)
+
+# --- NEGATIVE: legitimate phrasing that MUST keep working -----------------
+check("the approved fix phrasing survives",
+      r7("Creel and Williams connected early and often."), [])
+check("a TRUE figure off the supplied line survives", r7("Creel threw 5 touchdowns."), [])
+check("...spelled out", r7("Creel threw five touchdowns."), [])
+check("...yardage", r7("Creel put up 327 yards through the air."), [])
+check("...a receiver's whole line",
+      r7("Williams caught 7 passes for 144 yards and 4 touchdowns."), [])
+check("...and the true completion line", r7("Creel was 21-of-28 on the night."), [])
+check("a QB's rushing yards check against the same surname",
+      r7("Likely ran for 73 yards."), [])
+check("qualitative praise with no number survives",
+      r7("Likely broke the game open on the ground."), [])
+check("TEAM total offense is not a player's yardage",
+      r7("Jacksonville State piled up 526 yards of total offense."), [])
+check("...nor is 'as a team'", r7("They ran for 174 yards as a team."), [])
+check("the final score is not a stat line", r7("Jacksonville State won 49-7."), [])
+check("a bare NN-NN near a name is a score, not a completion line",
+      r7("Creel watched the 49-7 rout from the sideline."), [])
+check("a number with no stat noun is ignored",
+      r7("Creel, a sophomore, has taken over the huddle."), [])
+check("an unrostered name near a number is ignored",
+      r7("Eastern Kentucky managed 285 yards."), [])
+check("a figure too far from any name is not charged to one",
+      r7("Creel settled in behind a line that had been overwhelmed a week "
+         "earlier, and the running game eventually produced 174 yards."), [])
+
+# RULE 7 DIVERGES from RULE 5: the Jax State figures came FROM a recap, so
+# naming the outlet cannot rescue them.
+check("attribution does NOT rescue an unsupplied figure (diverges from RULE 5)",
+      len(r7("According to the Anniston Star, Creel threw four touchdowns.")) > 0, True)
+check("...but an attributed figure that MATCHES the line is still fine",
+      r7("According to the Anniston Star, Creel threw 5 touchdowns."), [])
+
+# --- guard: no ground truth, no opinion -----------------------------------
+check("no context at all -> silent", R._ww_player_stat_claims(SHIPPED, {}), [])
+check("...and None context is safe", R._ww_player_stat_claims(SHIPPED, None), [])
+check("roster but no stat block still catches an invented figure",
+      len(R._ww_player_stat_claims(SHIPPED, {'full_roster': [{'name': 'Caden Creel'}]})) > 0, True)
+
+# --- the full REAL writeup: exactly the one bad sentence, nothing else -----
+REAL = ("Jacksonville State bounced back from an ugly Week 0 loss at North Dakota State's "
+        "FBS debut with a 49-7 rout of Eastern Kentucky, piling up 526 yards of total offense "
+        "as Caden Creel threw four touchdown passes on just five attempts, all to Jamill "
+        "Williams. It was as complete a turnaround as a program could ask for after an offense "
+        "that had managed only 160 total yards and converted just 2 of 9 third downs a week "
+        "earlier, behind an offensive line that graded out last among every team that played "
+        "in Week 0.\n\nThe line held up well enough this time to let Creel and Williams connect "
+        "early and often, though Eastern Kentucky's FCS defense is a lower bar than North "
+        "Dakota State's front was. The Khristian Lando-Jalen Likely running back competition "
+        "and the Tre'Quon Fegans-led cornerback battle still haven't produced a public "
+        "two-deep, giving Charles Kelly two more weeks of tape to sort through.")
+_real = r7(REAL)
+check("the real writeup flags ONLY the Creel sentence", len(_real), 2)
+check("...and paragraph 2 is left alone", all('Creel threw' in h or 'Creel with' in h for h in _real), True)
+REAL_FIXED = REAL.replace("as Caden Creel threw four touchdown passes on just five attempts, "
+                          "all to Jamill Williams",
+                          "as Caden Creel and Jamill Williams connected early and often")
+check("the corrected writeup passes clean", r7(REAL_FIXED), [])
+
+# --- wired into the validator ---------------------------------------------
+_data = {'weekly_writeup': {'text': SHIPPED + " " + ("filler " * 205) +
+                                    "\n\nSecond paragraph. " + ("more " * 60)}}
+_hard, _fix = R.validate_weekly_writeup(_data, 'manual', JXST)
+check("validate_weekly_writeup surfaces RULE 7 as HARD",
+      any('RULE 7' in h for h in _hard), True)
+
+print("\n=== RULE 5 attribution carve-out is case-insensitive (bugfix 2026-09-07) ===")
+# _WW_ATTRIBUTION_RE was case-SENSITIVE, so a sentence STARTING with "According
+# to" — the commonest attribution shape — never matched, and RULE 5 flagged
+# legitimately-sourced claims as HARD, spending a corrective re-run on each.
+check("sentence-initial 'According to' is recognised",
+      bool(R._WW_ATTRIBUTION_RE.search("According to the Anniston Star, he leads FBS.")), True)
+check("mid-sentence 'according to' still recognised",
+      bool(R._WW_ATTRIBUTION_RE.search("He leads FBS, according to ESPN.")), True)
+check("'Per Rivals' still recognised",
+      bool(R._WW_ATTRIBUTION_RE.search("Per Rivals, he leads FBS.")), True)
+check("an UNattributed superlative is still caught",
+      len(R._ww_superlative_claims("He leads the nation in rushing.")) > 0, True)
+check("...and an attributed one is not",
+      R._ww_superlative_claims("According to ESPN, he leads the nation in rushing."), [])
+
+print("\n=== RULE 7 - the Player Production block renders correctly ===")
+_CTX = dict(JXST, mode='in_season', team='Jacksonville State', season=2026,
+            current_season_games_played=2)
+def _prompt(run_type, ctx=_CTX):
+    r = R.build_prompt('jacksonville-state', ctx, {}, run_type=run_type)
+    return r[0] if isinstance(r, tuple) else r
+
+_pg = _prompt('postgame')
+check("the block renders", '## Player Production' in _pg, True)
+check("Creel's real line is in the prompt", '21 COMPLETIONS, 28 ATT, 327 YDS, 5 TD' in _pg, True)
+check("...and Williams's", '7 REC, 144 YDS, 4 TD' in _pg, True)
+check("it is labelled SEASON-TO-DATE, not a box score", 'SEASON-TO-DATE TOTALS' in _pg, True)
+# The header must NOT assert a game count: games_played comes from the `games`
+# table, the lines come from playerstats (7th of 13 in Phase A, Sunday 5 AM,
+# while slot 1 fires at 06:00 ET), so the count can overstate what they cover.
+check("the header claims no game count it cannot back",
+      'through 2 game' in _pg, False)
+check("a postgame run warns the totals may lag the game just played",
+      'MAY NOT YET INCLUDE' in _pg, True)
+check("...and bans 'now has' / season-high framing", "now has" in _pg, True)
+check("a preview run does not carry the staleness warning",
+      'MAY NOT YET INCLUDE' in _prompt('preview'), False)
+check("RULE 7 names the block as the only source", 'ONLY source for a number' in _pg, True)
+
+# The block must survive the 3-game gate — 2 games is the starvation window
+# that produced the Jax State error.
+check("2 games still renders Player Production (ungated)",
+      '## Player Production' in _pg, True)
+check("...even though team stats are suppressed", 'below the 3-game minimum' in _pg, True)
+
+_none = _prompt('postgame', dict(_CTX, current_season_player_stats={}))
+check("no player data -> explicit NONE AVAILABLE block", 'NONE AVAILABLE' in _none, True)
+check("...banning every countable stat", 'may NOT attach any countable' in _none, True)
+
+print("\n=== RULE 7 - prompt + corrective suffix carry the rule ===")
+_sfx = R._corrective_suffix(['x'], {'weekly_writeup': {'text': 'y'}})
+check("corrective suffix names the Player Production block",
+      'Player Production block' in _sfx, True)
+
 print("\n" + "=" * 54)
 print(f"{len(FAILS)} FAILURE(S): {FAILS}" if FAILS else "ALL CHECKS PASSED")
 sys.exit(1 if FAILS else 0)

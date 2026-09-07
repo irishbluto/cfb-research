@@ -4,31 +4,14 @@
 # Cron wrapper for the national landscape pipeline.
 # Runs fetch + Claude synthesis, writes landscape_latest.json.
 #
-# Schedule: Sun, Tue & Sat at 9 AM Eastern (crontab in UTC -> 8 AM ET once EST starts)
-# Crontab:  0 13 * * 0,2,6  /cfb-research/scripts/cron_national_landscape.sh   (LIVE 2026-09-07)
-#
-# Sunday added 2026-09-07: the index writeup was going stale for the whole
-# Sunday-morning traffic peak (Sat 9 AM run was ~24h old and pregame). 9 AM ET
-# is the one clean Sunday window -- team-research slot1 (6 AM, ~22-26 teams)
-# is done by ~7:45 and slot2 does not start until 10 AM, so the two Claude
-# jobs never overlap. This line MUST stay ABOVE the CRON_TZ block at the
-# bottom of the crontab (see memory: cron-tz-block-scope) or 13:00 becomes
-# 1 PM Eastern.
-#
-# The schedule lives in TWO places: this crontab line and index.php's
-# "Next Update" label ($nextDays, ISO-8601 -- Sunday is 7, not cron's 0).
-# Change one, change the other.
+# Schedule: Tue & Sat at 9 AM Eastern (crontab in UTC)
+# Crontab:  0 13 * * 2,6  /cfb-research/scripts/cron_national_landscape.sh
 #
 # Logs: /cfb-research/logs/national_pipeline_*.log  (per-run)
 #       /cfb-research/logs/cron_national.log         (cron wrapper)
 # ---------------------------------------------------------------
 
 set -euo pipefail
-
-# Long-lived Claude auth for unattended runs — cron does not read ~/.profile.
-if [ -f /cfb-research/.env.claude ]; then
-    . /cfb-research/.env.claude
-fi
 
 BASE_DIR="/cfb-research"
 LOG_DIR="${BASE_DIR}/logs"

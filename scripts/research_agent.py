@@ -734,6 +734,58 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
                 f"current-form claims in beat coverage and game results instead.\n\n"
             )
 
+        # --- Player production (RULE 7) ---------------------------------------
+        # Appended AFTER both branches on purpose: this block is UNGATED by
+        # _MIN_IN_SEASON_GAMES. Weeks 1-2 send the branch above, which tells the
+        # model to ground current-form claims in beat coverage — precisely the
+        # run that produced "four touchdown passes on just five attempts"
+        # (Jacksonville State, 2026-09-07). A stat line is counted, not rated,
+        # so the sample-size gate does not apply to it.
+        _pstats = context.get('current_season_player_stats') or {}
+        if _pstats:
+            _stale_note = (
+                " These totals are refreshed by Phase A on Sunday morning, which can still be "
+                "running when this batch starts, so on a postgame run they MAY NOT YET INCLUDE "
+                "the game just played. Never write that a player 'now has' a total, never call "
+                "one a season high or a career mark, and never say a figure includes or reflects "
+                "yesterday's game."
+                if run_type == 'postgame' else ""
+            )
+            _plines = [
+                f"## Player Production ({cycle_year} season-to-date totals)\n",
+                "**These are SEASON-TO-DATE TOTALS, not a single game's box score.** The data "
+                "layer has no per-game player splits, so you cannot tell what a player did in "
+                "any one game. Never present a number here as a single game's production, and "
+                "never subtract two of them to invent a game line." + _stale_note,
+            ]
+            _cat_label = {'passing': 'Passing', 'rushing': 'Rushing', 'receiving': 'Receiving'}
+            for _cat in ('passing', 'rushing', 'receiving'):
+                _rowset = _pstats.get(_cat) or []
+                if not _rowset:
+                    continue
+                _plines.append(f"\n{_cat_label[_cat]}:")
+                for _r in _rowset:
+                    _bits = [f"{_v} {_k}" for _k, _v in _r.items() if _k != 'player']
+                    _plines.append(f"  {_r.get('player', '?')} — {', '.join(_bits)}")
+            _plines.append(
+                "\nRULE 7 — this block is the ONLY source for a number attached to a player's "
+                "name. If a player is not listed here, or the specific figure you want is not "
+                "on their line, NAME THE PLAYER WITHOUT THE NUMBER (\"Creel and Williams "
+                "connected early and often\"). Do not take a player's stat line from a beat "
+                "article, a recap, a headline, or your own memory. There is zero penalty for "
+                "omitting a figure and a disqualifying penalty for inventing one."
+            )
+            current_season_block += "\n".join(_plines) + "\n\n"
+        else:
+            current_season_block += (
+                "## Player Production\n\n"
+                "NONE AVAILABLE. RULE 7 applies at its strictest: you may name players (subject "
+                "to the player-name verification paths) but you may NOT attach any countable "
+                "statistic to a name — no yards, touchdowns, carries, catches, completions, "
+                "attempts, tackles or sacks. Beat coverage and recaps are sources for WHAT "
+                "HAPPENED and for reaction, never for a player's stat line.\n\n"
+            )
+
     # --- JSON template additions ----------------------------------------------
     # injury_report is emitted in EVERY mode (2026-08-27): the site groups it into
     # "Out for the Season" vs "Injured - Expected Back", and most season-enders are
@@ -787,7 +839,7 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
 
   **Hard format (pipeline-enforced — violations are rejected):** exactly TWO paragraphs separated by one blank line (`\\n\\n` in the JSON string). Total length HARD 200–350 words (target ~270–300, ~12 sentences). Prose only — no markdown headers, bullets, or bold inside `text`. Set `word_count` to your actual word count. Copy `run_type`, `season_week`, `last_game`, `this_week`, and `next_week` into the JSON EXACTLY as prefilled in the template above — do not edit or re-derive them.
 
-  **Paragraph 1 — the game they just played (the anchor).** Result and one line of context (record, ranking movement if any), then WHY it went the way it did, grounded in the Current-Season Stats categories — "won the explosiveness battle," "stalled in the red zone again," "the OL gave up pressure all night." Prefer national ranks in prose (ranks read; raw rates don't). Who played well and who didn't, BY NAME — every player-name verification rule applies. Beat and fan reaction: what the locals took away from it, especially where vibes and numbers disagree. If the game confirmed or broke a tracked storyline thread, say so here.
+  **Paragraph 1 — the game they just played (the anchor).** Result and one line of context (record, ranking movement if any), then WHY it went the way it did, grounded in the Current-Season Stats categories — "won the explosiveness battle," "stalled in the red zone again," "the OL gave up pressure all night." Prefer national ranks in prose (ranks read; raw rates don't). Who played well and who didn't, BY NAME — every player-name verification rule applies, and RULE 7 governs any NUMBER you attach to a name (the name is verified by the roster; the figure must come from the Player Production block or be left out). Beat and fan reaction: what the locals took away from it, especially where vibes and numbers disagree. If the game confirmed or broke a tracked storyline thread, say so here.
 
   **Paragraph 2 — looking ahead (the payoff).** This week's opponent with the rankings snapshot framing the stakes (their record, power rating, SP+, AP/CFP rank — rank priority: CFP > AP > power rating). Spread and ATS note ONLY when notable: a big favorite/dog, a short line in a rivalry, or an ATS record that is itself a story (6-0 ATS, 0-5 ATS at home). Silence is the betting default — this is a football writeup, not a betting card. Injuries and availability for the upcoming game: who is OUT and for how long, who is questionable, sourced from the beat. Include beat-writer game predictions when the sources make them (attribute the outlet). Close with a 1–2 sentence peek at the following week's opponent — lookahead/trap-game and short-week context lives there naturally.
 
@@ -804,6 +856,8 @@ def build_prompt(slug, context, channels, no_youtube=False, run_type=None):
   5. **Never claim a national lead, a record, or a "first since".** You are given team-level national ranks that were computed for you — those you may state exactly as supplied. You are given NO player leaderboard for anything, so you cannot know who leads FBS in rushing, who is the active career leader, who is the only player to do something, or when a thing last happened. Sacramento State's writeup called its lead back "the active FBS leader in career rushing yards"; he has 25 FBS rushing yards. A superlative is a claim about all 130-odd rosters in the country and you can see one. Banned shapes: "leads the nation/FBS", "the active FBS leader", "most/best/fewest ... in the country", "the only player to", "first since 2011", "school record", "all-time leading". If a SOURCE makes the claim, attribute it to that outlet in the sentence; otherwise say what the player did in the games you have data for.
 
   6. **Never merge production earned at another level.** Career totals on a transfer's profile may have been compiled at FCS, Division II or JUCO. If `new_to_fbs_this_season` is set, this whole program was FCS until this year — every career total on the roster and every prior-season team number is an FCS number, not an FBS one, and comparing either to an FBS rank, leader or average is false. Curtis's 3,241 career yards are Lafayette FCS yards. When you cite a total earned elsewhere, name the level and the school it was earned at, or leave it out.
+
+  7. **Never attach a countable statistic to a player's name unless that exact figure is in the Player Production block.** That block — season-to-date totals, and NOTHING ELSE — is your only source for a player's numbers. Not a beat article, not a recap, not a headline, not a game story, not your own memory of the game. Banned unless the figure is on that player's supplied line: yards, touchdowns, carries, catches, receptions, completions, attempts, interceptions, tackles, sacks, or any per-game or per-play rate you would have to compute. Jacksonville State's writeup said Caden Creel "threw four touchdown passes on just five attempts"; he was 21-of-28 for 327 and 5 touchdowns, and the four was his RECEIVER's touchdown total — two true numbers from a recap fused into one false sentence. **The fix is not a better guess, it is fewer numbers:** name the player and say what he did in words. "Creel and Williams connected early and often" is correct, publishable, and costs you nothing. If the Player Production block is absent entirely, no player may carry a number at all. Attribution does NOT rescue a figure here — unlike the national-claim rule, naming an outlet buys you nothing, because the Jacksonville State numbers came from a recap in the first place. A source tells you WHAT HAPPENED and how people reacted; the Player Production block is the only thing that tells you a player's numbers.
 
   **Anti-recap rule:** the writeup must never read like a box-score restatement. The score gets ONE clause; the real estate goes to why (stat-grounded) and what it means for the next two games. A reader who watched the game should still learn something.
 
@@ -1693,7 +1747,7 @@ _WW_SUPERLATIVE_RE = re.compile(
 
 # An attribution nearby turns a banned superlative into a reported one.
 _WW_ATTRIBUTION_RE = re.compile(
-    r"\b(according\s+to|per\s+[A-Z]|reported|wrote|noted|said|called\s+him"
+    r"\b((?i:according\s+to)|per\s+[A-Z]|(?i:reported|wrote|noted|said|called\s+him)"
     r"|-\s*beat|The\s+Athletic|247|ESPN|On3|Rivals)\b")
 
 def _ww_superlative_claims(text):
@@ -1778,6 +1832,234 @@ def _ww_first_year_staff_history(text, context):
     return problems
 
 
+# --- RULE 7: a number attached to a player name -----------------------------
+# The Jacksonville State failure (2026-09-07): "Caden Creel threw four touchdown
+# passes on just five attempts" — Creel was 21/28, 327, 5 TD, and the 4 was his
+# receiver's TD total. Both numbers were real, from a recap; the SENTENCE was
+# invented. Identity checks pass this cleanly (Creel is on the roster), so the
+# gate has to be on the FIGURE, and the only ground truth is the supplied
+# `current_season_player_stats` block.
+#
+# SCOPE, deliberately narrow, per pr-voice-gambling-framing (an over-strict
+# judge already cost the week's #1 game):
+#   - fires ONLY on a surname that appears in the supplied stat block or roster
+#     AND a digit AND a stat noun, all in one sentence;
+#   - a figure that MATCHES that player's supplied line is fine;
+#   - an attributed sentence is fine (same carve-out as RULE 5);
+#   - jersey numbers, years, scores, ranks, dates and money are not stat nouns.
+
+# A stat noun, and the statType it names in the supplied block. Matching a
+# figure against the SPECIFIC stat its noun names is what makes this precise:
+# "five attempts" is wrong because Creel's ATT is 30, even though 5 IS on his
+# line (as his TD). A looser check that only asked "is 5 somewhere on his row"
+# would have passed the exact sentence that shipped.
+_WW_NOUN_STAT = [
+    (r"yards?|yds?",                        'YDS'),
+    (r"touchdowns?|TDs?|scores?",           'TD'),
+    (r"carries|carry|rushes",               'CAR'),
+    (r"catches|receptions?|recs?|grabs",    'REC'),
+    (r"completions?",                       'COMPLETIONS'),
+    (r"attempts?|atts?|throws",             'ATT'),
+    (r"interceptions?|INTs?|picks?",        'INT'),
+    (r"tackles?",                           'TOT'),
+    (r"sacks?",                             'SACKS'),
+]
+_WW_NOUN_RE = re.compile(
+    r"\b(" + "|".join(pat for pat, _ in _WW_NOUN_STAT) + r")\b", re.IGNORECASE)
+
+_WW_WORD_NUM = {
+    'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6,
+    'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10, 'eleven': 11, 'twelve': 12,
+}
+
+# A figure: digits (2,417 / 12.5) or a spelled-out small number. The spelled-out
+# form is the one that shipped — "four touchdown passes" carries no digit at all.
+_WW_FIG_RE = re.compile(
+    r"\b(\d[\d,]*(?:\.\d+)?|" + "|".join(_WW_WORD_NUM) + r")\b", re.IGNORECASE)
+
+# "23-of-30", "23 of 30", "5-for-7" — a completions/attempts line. Distinguished
+# from a SCORE ("49-7") by the of/for joiner; a bare NN-NN is a score and RULE 2
+# already owns it.
+_WW_STAT_LINE_RE = re.compile(r"\b(\d{1,3})\s*(?:-|\s)\s*(?:of|for)\s*(?:-|\s)\s*(\d{1,3})\b",
+                              re.IGNORECASE)
+
+# Team-level phrasings that use a stat noun but are not one player's production.
+_WW_TEAM_FIG_RE = re.compile(
+    r"total\s+(?:offense|yards|yardage)|yards?\s+of\s+total|team\s+total"
+    r"|as\s+a\s+team|combined\s+for", re.IGNORECASE)
+
+# How far back from a figure a player's surname may sit and still own it.
+_WW_ATTACH_WINDOW = 80
+# How far after a figure its noun may sit ("four touchdown passes" = 10 chars).
+_WW_NOUN_WINDOW = 26
+
+
+def _ww_fig_value(tok):
+    t = tok.lower().replace(',', '')
+    if t in _WW_WORD_NUM:
+        return float(_WW_WORD_NUM[t])
+    try:
+        return float(t)
+    except ValueError:
+        return None
+
+
+def _ww_supplied_player_stats(context):
+    """{lowercase surname: {statType: set(values)}} from the ONE supplied block.
+    Surnames only — prose says "Creel", the block says "Caden Creel". A player
+    with rows in two categories gets both merged, so a QB's rushing yards are
+    checkable on the same surname as his passing yards."""
+    out = {}
+    block = ((context or {}).get('current_season_player_stats') or {})
+    if not isinstance(block, dict):
+        return out
+    for rows in block.values():
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            name = str(row.get('player') or '').strip()
+            if not name:
+                continue
+            surname = name.split()[-1].lower()
+            if len(surname) < 3:
+                continue
+            stats = out.setdefault(surname, {})
+            for k, v in row.items():
+                if k == 'player' or v is None:
+                    continue
+                try:
+                    stats.setdefault(str(k).upper(), set()).add(float(v))
+                except (TypeError, ValueError):
+                    continue
+    return out
+
+
+def _ww_roster_surnames(context):
+    """Surnames the check may consider at all. Without this a capitalised town
+    or opponent sitting near a number would be treated as a player."""
+    names = set()
+    for row in ((context or {}).get('full_roster') or []):
+        n = str(row.get('name') or row.get('player') or '').strip() if isinstance(row, dict) else str(row or '').strip()
+        if not n:
+            continue
+        surname = n.split()[-1].lower()
+        if len(surname) >= 3:
+            names.add(surname)
+    return names
+
+
+def _ww_player_stat_claims(text, context):
+    """RULE 7 — a countable figure attached to a player, checked against the
+    exact stat its noun names in the supplied Player Production block.
+
+    HARD: this is the class of error that shipped as fact (Jacksonville State,
+    2026-09-07 — "Caden Creel threw four touchdown passes on just five
+    attempts" against an actual 23/30, 352, 5 TD).
+
+    NO attribution carve-out, unlike RULE 5: those figures came FROM a recap.
+
+    Scoped tight on purpose (memory:pr-voice-gambling-framing — an over-strict
+    judge already cost this project the week's #1 game). A figure is only ever
+    charged to a player when ALL of these hold: the surname is in the roster or
+    the stat block; the surname PRECEDES the figure within 80 chars with no
+    nearer player between; the figure is followed within 26 chars by a stat
+    noun; and the phrasing is not team-level ("526 yards of total offense")."""
+    problems = []
+    supplied = _ww_supplied_player_stats(context)
+    roster   = _ww_roster_surnames(context)
+    if not supplied and not roster:
+        return problems          # cannot tell a player from any other word
+    candidates = set(supplied) | roster
+
+    for para in text.split('\n\n'):
+        for sent in _ww_split_sentences(para):
+            # every player-name position in this sentence
+            marks = []
+            for surname in candidates:
+                for m in re.finditer(r'\b' + re.escape(surname) + r'\b', sent, re.IGNORECASE):
+                    marks.append((m.start(), surname))
+            if not marks:
+                continue
+            marks.sort()
+
+            def owner(pos):
+                """Nearest player surname starting before pos, within window."""
+                best = None
+                for start, surname in marks:
+                    if start < pos and pos - start <= _WW_ATTACH_WINDOW:
+                        best = surname
+                    elif start >= pos:
+                        break
+                return best
+
+            claims = []   # (surname, stat_key, value, noun_text)
+
+            # (a) explicit completion lines — "23-of-30"
+            for m in _WW_STAT_LINE_RE.finditer(sent):
+                who = owner(m.start())
+                if who:
+                    claims.append((who, 'COMPLETIONS', float(m.group(1)), m.group(0)))
+                    claims.append((who, 'ATT',         float(m.group(2)), m.group(0)))
+
+            # (b) figure + stat noun
+            for m in _WW_FIG_RE.finditer(sent):
+                val = _ww_fig_value(m.group(1))
+                if val is None:
+                    continue
+                tail = sent[m.end(): m.end() + _WW_NOUN_WINDOW]
+                nm = _WW_NOUN_RE.search(tail)
+                if not nm:
+                    continue
+                # The noun must belong to THIS figure. In "7 passes for 144
+                # yards", "yards" is within the window of the 7 but belongs to
+                # the 144 — pairing them charged Williams with "7 yards"
+                # against a supplied 144. A second figure in between means the
+                # noun is not ours.
+                if _WW_FIG_RE.search(tail[: nm.start()]):
+                    continue
+                # Tight window: just before the figure through just after its
+                # noun. A wider lookback let "526 yards of total offense" 40
+                # chars upstream excuse "four touchdown passes" downstream —
+                # which silently swallowed half of the Jax State error.
+                window = sent[max(0, m.start() - 12): nm.end() + m.end() + 20]
+                if _WW_TEAM_FIG_RE.search(window):
+                    continue          # team production, not this player's
+                noun = nm.group(0)
+                stat_key = next(k for pat, k in _WW_NOUN_STAT
+                                if re.fullmatch(pat, noun, re.IGNORECASE))
+                who = owner(m.start())
+                if who:
+                    claims.append((who, stat_key, val, f"{m.group(1)} {noun}"))
+
+            seen = set()
+            for who, stat_key, val, shown in claims:
+                if (who, stat_key, val) in seen:
+                    continue
+                seen.add((who, stat_key, val))
+                stats = supplied.get(who)
+                if stats is None:
+                    problems.append(
+                        f"RULE 7: text credits {who.title()} with {shown!r} but the Player "
+                        f"Production block supplies no stats for this player — name them "
+                        f'without the number: "{sent.strip()[:130]}"')
+                    continue
+                have = stats.get(stat_key)
+                if have is None:
+                    problems.append(
+                        f"RULE 7: text credits {who.title()} with {shown!r} but no {stat_key} "
+                        f"is supplied for them (supplied: {', '.join(sorted(stats))}) — "
+                        f'name them without the number: "{sent.strip()[:130]}"')
+                elif val not in have:
+                    nice = ', '.join(str(int(v)) if float(v).is_integer() else str(v)
+                                     for v in sorted(have))
+                    problems.append(
+                        f"RULE 7: text credits {who.title()} with {shown!r} but their supplied "
+                        f'{stat_key} is {nice}: "{sent.strip()[:130]}"')
+    return problems
+
+
 def normalize_injury_report(data):
     """Normalize injury_report[].game_status into _GAME_STATUS_ENUM.
     Mode-independent — injury_report is emitted in every mode as of 2026-08-27.
@@ -1822,8 +2104,8 @@ def enforce_injury_report(slug):
 def validate_weekly_writeup(data, run_type, context=None):
     """Validate (and patch fixable issues on) one research output dict.
     Returns (hard_problems, fix_notes); mutates `data` in place for fixes.
-    `context` is the team context JSON — only needed for the staff-tenure
-    check, which is skipped when it is absent."""
+    `context` is the team context JSON — needed for the staff-tenure and
+    RULE 7 player-figure checks, both of which are skipped when it is absent."""
     hard, fixes = [], []
 
     ww = data.get('weekly_writeup')
@@ -1867,6 +2149,7 @@ def validate_weekly_writeup(data, run_type, context=None):
     hard.extend(_ww_superlative_claims(text))
     hard.extend(_ww_difficulty_language(text, context))
     hard.extend(_ww_first_year_staff_history(text, context))
+    hard.extend(_ww_player_stat_claims(text, context))
 
     # --- fixable: word_count echo -----------------------------------------
     if ww.get('word_count') != words:
@@ -1904,8 +2187,10 @@ def _corrective_suffix(problems, data):
         "source, state no scoreline except the final one, judge future games by "
         "`difficulty` rather than by whether the opponent is ranked, never give "
         "a first-season staff member a history with this program, claim no national "
-        "lead or record you were not given, and never present production earned at "
-        "another level as FBS production. "
+        "lead or record you were not given, never present production earned at "
+        "another level as FBS production, and attach NO number to a player's name "
+        "unless that exact figure appears in the Player Production block — name the "
+        "player without the figure instead. "
         "Keep all other fields consistent with your research."
     )
 
