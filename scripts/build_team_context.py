@@ -1777,6 +1777,101 @@ _PFF_NORM_MAP = {
     "Texas A":        "Texas A&M",
 }
 
+# ---------------------------------------------------------------------------
+# Player production (RULE 7 — writeup-player-stat-fabrication, 2026-09-07)
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS: research_agent's Paragraph 1 spec ORDERS player-level detail
+# ("Who played well and who didn't, BY NAME"), and until now NOT ONE player
+# production row reached the context — `player_ratings` is a rating, not a stat
+# line. The 20+ player-name verification rules gate IDENTITY only, so a real
+# rostered player's name could carry any number the model liked. It did:
+# Jacksonville State 2026-09-07, "Caden Creel threw four touchdown passes on
+# just five attempts" (actual: 21/28, 327, 5 TD; the 4 was his receiver's TD
+# total and the 5 was his own).
+#
+# TWO DELIBERATE CHOICES:
+#  1. UNGATED by _MIN_IN_SEASON_GAMES. The team-stat block goes dark below 3
+#     games and tells the model to "ground all current-form claims in beat
+#     coverage" — i.e. weeks 1-2 are exactly when the model is most starved and
+#     most likely to invent, which is when this fired. A stat line is COUNTED,
+#     not rated or parsed, so no sample-size gate applies. Same call as the
+#     ungated P&R ranks in matchup_caption_facts_expansion.
+#  2. SEASON TOTALS, labelled loudly as such. `playerstats` has no week column
+#     (data/playerstats.php keys on playerId+category+statType+year), so these
+#     are season-to-date, NOT the last game's box score. Presenting a season
+#     total as a single-game line would be a NEW failure of the same class, so
+#     the prompt layer must carry the label. Per-game lines need CFBD
+#     /games/players, which is not imported.
+
+_PSTAT_CATEGORIES = ('passing', 'rushing', 'receiving')
+
+# Display order per category, and which statType is the ranking key.
+_PSTAT_SHAPE = {
+    'passing':   {'order': ('COMPLETIONS', 'ATT', 'YDS', 'TD', 'INT'), 'sort': 'YDS', 'limit': 3},
+    'rushing':   {'order': ('CAR', 'YDS', 'TD', 'LONG'),               'sort': 'YDS', 'limit': 5},
+    'receiving': {'order': ('REC', 'YDS', 'TD', 'LONG'),               'sort': 'YDS', 'limit': 6},
+}
+
+
+def build_current_season_player_stats(conn, team, season):
+    """playerstats season-to-date lines for the running season, pivoted from
+    the table's tall (playerId, category, statType, stat) shape into one row
+    per player per category.
+
+    Emits `current_season_player_stats` — the ONLY player production in the
+    context, and the sole permitted source for a number attached to a player
+    name in the writeup (RULE 7). Absent/empty is the normal preseason case
+    and must degrade to "name the player, no number", never to invention.
+    """
+    rows = query_all(conn, """
+        SELECT player, playerId, category, statType, stat
+        FROM playerstats
+        WHERE team = %s AND year = %s
+          AND category IN (%s, %s, %s)
+    """, (team, season) + _PSTAT_CATEGORIES)
+    if not rows:
+        return {}
+
+    # pivot: {category: {playerId: {'player': name, 'stats': {statType: value}}}}
+    pivot = {}
+    for r in rows:
+        cat = (r.get('category') or '').strip().lower()
+        if cat not in _PSTAT_SHAPE:
+            continue
+        pid = r.get('playerId')
+        name = (r.get('player') or '').strip()
+        if not name:
+            continue
+        entry = pivot.setdefault(cat, {}).setdefault(
+            pid or name, {'player': name, 'stats': {}}
+        )
+        st = (r.get('statType') or '').strip().upper()
+        val = fnum(r.get('stat'), 1)
+        if st and val is not None:
+            # whole numbers print as ints — "5 TD", not "5.0 TD"
+            entry['stats'][st] = inum(val) if float(val).is_integer() else val
+
+    out = {}
+    for cat, shape in _PSTAT_SHAPE.items():
+        players = list(pivot.get(cat, {}).values())
+        if not players:
+            continue
+        players.sort(key=lambda p: p['stats'].get(shape['sort']) or 0, reverse=True)
+        lines = []
+        for p in players[: shape['limit']]:
+            line = {'player': p['player']}
+            for st in shape['order']:
+                if st in p['stats']:
+                    line[st] = p['stats'][st]
+            # a name with no countable stat is noise — it cannot ground a claim
+            if len(line) > 1:
+                lines.append(line)
+        if lines:
+            out[cat] = lines
+
+    return {'current_season_player_stats': out} if out else {}
+
+
 def build_current_season_pff_ol(conn, team, season):
     """pff_team_grades OL blocking grades for the RUNNING season, with
     national ranks (higher grade = better). NOTE the table keys on `year`
@@ -2281,6 +2376,9 @@ def build_team_context(conn, team_name, url_param, slug, conference, output_dir,
     context.update(build_current_season_advanced_stats(conn, url_param, SEASON))
     context.update(build_current_season_misc_stats(conn, url_param, SEASON))
     context.update(build_current_season_pff_ol(conn, url_param, SEASON))
+    # Player production — UNGATED by the 3-game minimum on purpose; see the
+    # builder's docstring. This is the only player stat source RULE 7 accepts.
+    context.update(build_current_season_player_stats(conn, url_param, SEASON))
     context.update(build_current_season_polls(conn, url_param, SEASON))
     context.update(build_opponent_snapshots(conn, url_param, SEASON))
 

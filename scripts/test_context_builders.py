@@ -152,6 +152,65 @@ ROWS = {'FROM team_notes': NOTES, 'FROM games': []}
 check("no completed games means every note is preseason",
       len(B.build_notes(None, 'Auburn', 2026)['team_notes_inseason']), 0)
 
+print("\n=== build_current_season_player_stats: the tall table pivots correctly ===")
+# The REAL Jacksonville State rows as playerstats stores them: one row per
+# (player, category, statType). The writeup said Creel threw 4 TD on 5 attempts.
+def _rows(pairs):
+    out = []
+    for player, pid, cat, stats in pairs:
+        for st, v in stats.items():
+            out.append({'player': player, 'playerId': pid, 'category': cat,
+                        'statType': st, 'stat': v})
+    return out
+
+JX = _rows([
+    ('Caden Creel',     101, 'passing',   {'COMPLETIONS': 21, 'ATT': 28, 'YDS': 327, 'TD': 5, 'INT': 1}),
+    ('Caden Creel',     101, 'rushing',   {'CAR': 10, 'YDS': 54, 'TD': 0, 'LONG': 20}),
+    ('Jalen Likely',    102, 'rushing',   {'CAR': 5,  'YDS': 73, 'TD': 1, 'LONG': 45}),
+    ('Jamill Williams', 103, 'receiving', {'REC': 7,  'YDS': 144,'TD': 4, 'LONG': 55}),
+    ('David Alpers III',104, 'receiving', {'REC': 2,  'YDS': 34, 'TD': 0, 'LONG': 25}),
+])
+ROWS = {'FROM playerstats': JX}
+out = B.build_current_season_player_stats(None, 'Jacksonville State', 2026)
+blk = out.get('current_season_player_stats', {})
+
+check("emits under the expected key", 'current_season_player_stats' in out, True)
+check("all three categories present", sorted(blk), ['passing', 'receiving', 'rushing'])
+check("Creel's passing line is exact",
+      blk['passing'][0],
+      {'player': 'Caden Creel', 'COMPLETIONS': 21, 'ATT': 28, 'YDS': 327, 'TD': 5, 'INT': 1})
+check("...and it is the line the writeup got wrong (5 TD, 30 ATT — not 4 on 5)",
+      (blk['passing'][0]['TD'], blk['passing'][0]['ATT']), (5, 28))
+check("Williams's receiving line is exact",
+      blk['receiving'][0],
+      {'player': 'Jamill Williams', 'REC': 7, 'YDS': 144, 'TD': 4, 'LONG': 55})
+check("a QB with rushing rows appears in BOTH categories",
+      [r['player'] for r in blk['rushing']], ['Jalen Likely', 'Caden Creel'])
+check("...sorted by yards within a category",
+      [r['YDS'] for r in blk['rushing']], [73, 54])
+check("receiving is sorted by yards too",
+      [r['player'] for r in blk['receiving']], ['Jamill Williams', 'David Alpers III'])
+check("statType order is stable for the prompt",
+      list(blk['receiving'][0]), ['player', 'REC', 'YDS', 'TD', 'LONG'])
+
+print("\n=== ...and it degrades instead of crashing ===")
+ROWS = {'FROM playerstats': []}
+check("no rows -> empty dict, not a partial block",
+      B.build_current_season_player_stats(None, 'Nobody', 2026), {})
+ROWS = {'FROM playerstats': _rows([('Whole Numbers', 1, 'rushing', {'CAR': 3, 'YDS': 12.0})])}
+check("whole floats print as ints (12, not 12.0)",
+      B.build_current_season_player_stats(None, 'X', 2026)['current_season_player_stats']['rushing'][0]['YDS'], 12)
+ROWS = {'FROM playerstats': _rows([('Real Ypc', 1, 'rushing', {'CAR': 3, 'YDS': 12, 'YPC': 4.5})])}
+check("a genuine decimal survives",
+      B.build_current_season_player_stats(None, 'X', 2026)['current_season_player_stats']['rushing'][0].get('YPC'), None)
+ROWS = {'FROM playerstats': [
+    {'player': '', 'playerId': 9, 'category': 'rushing', 'statType': 'CAR', 'stat': 5},
+    {'player': 'Kept', 'playerId': 8, 'category': 'kicking', 'statType': 'FGM', 'stat': 2},
+    {'player': 'Kept', 'playerId': 8, 'category': 'rushing', 'statType': 'CAR', 'stat': 4}]}
+_o = B.build_current_season_player_stats(None, 'X', 2026)['current_season_player_stats']
+check("a blank player name is dropped", [r['player'] for r in _o['rushing']], ['Kept'])
+check("an unlisted category is ignored", 'kicking' in _o, False)
+
 print("\n" + "=" * 50)
 print(f"{len(fails)} FAILURE(S): {fails}" if fails else "ALL CHECKS PASSED")
 sys.exit(1 if fails else 0)
