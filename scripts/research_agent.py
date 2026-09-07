@@ -1750,8 +1750,21 @@ _WW_ATTRIBUTION_RE = re.compile(
     r"\b((?i:according\s+to)|per\s+[A-Z]|(?i:reported|wrote|noted|said|called\s+him)"
     r"|-\s*beat|The\s+Athletic|247|ESPN|On3|Rivals)\b")
 
+# RULE 5 covers two DIFFERENT unverifiable shapes, and the rejection text has to
+# say which — the corrective re-run is handed this string as its reason. Until
+# 2026-09-07 every hit was reported as "you are given no player leaderboard",
+# which is nonsense for "first sold-out Scott Stadium crowd since 2019" and told
+# the model to fix the wrong thing.
+_WW_HISTORY_CLAIM_RE = re.compile(
+    r"""(
+        \bfirst\s+(?:\S+\s+){0,6}?since\s+(?:19|20)\d{2}\b
+      | \b(?:school|program|conference|NCAA)\s+record\b
+      | \ball[-\s]time\s+(?:leader|leading|record|mark)\b
+    )""", re.IGNORECASE | re.VERBOSE)
+
 def _ww_superlative_claims(text):
-    """Unbounded superlatives — the agent has no leaderboard to check them."""
+    """Unbounded superlatives and program-history claims — the agent is given
+    neither a leaderboard nor a season-by-season history to check them."""
     problems = []
     for para in text.split('\n\n'):
         for sent in _ww_split_sentences(para):
@@ -1760,10 +1773,19 @@ def _ww_superlative_claims(text):
                 continue
             if _WW_ATTRIBUTION_RE.search(sent):
                 continue          # reported and attributed — allowed
+            hit = m.group(0).strip()
+            if _WW_HISTORY_CLAIM_RE.search(hit):
+                kind = 'unverifiable program-history claim'
+                why  = ('you are given this season\'s data and no season-by-season '
+                        'program history, so you cannot know when this last happened '
+                        'or whether it is a record')
+            else:
+                kind = 'unverifiable national claim'
+                why  = ('you are given no player or national leaderboard and cannot '
+                        'know where this ranks against the rest of FBS')
             problems.append(
-                f'text makes an unverifiable national claim ({m.group(0).strip()!r}) — '
-                f'you are given no player leaderboard and cannot know it; attribute it to '
-                f'a source or state only what the data shows: "{sent.strip()[:120]}"')
+                f'text makes an {kind} ({hit!r}) — {why}; attribute it to a '
+                f'source or state only what the data shows: "{sent.strip()[:120]}"')
     return problems
 
 

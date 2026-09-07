@@ -1,0 +1,10 @@
+# Added 2026-09-07 after the laptop checkout turned three committed cron
+# wrappers into CRLF. These files RUN ON LINUX (VPS cron): a `\r` at end of
+# line gives "bad interpreter: /bin/bash^M" or silently mangles arguments, so
+# a CRLF commit would have killed the national-landscape, matchup-card and
+# team-card crons the next time the VPS pulled.
+#
+# Scoped to .sh/.py ON PURPOSE — a blanket `* text=auto` would renormalise the
+# ~35 perpetually-modified config JSONs in one enormous commit.
+*.sh  text eol=lf
+*.py  text eol=lf

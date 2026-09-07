@@ -202,6 +202,40 @@ check("injury notes alone do not drag in the team-note rules",
       '## Editor Notes' in inj, False)
 check("...but still render", 'Injury notes:' in inj, True)
 
+print("\n=== RULE 5 - the rejection names the RIGHT reason (2026-09-07) ===")
+# The message is handed to the corrective re-run as its reason, so a wrong one
+# tells the model to fix the wrong thing. These are all VERBATIM shapes pulled
+# from the real rejection log.
+def _r5(sent):
+    p = R._ww_superlative_claims(sent)
+    return p[0] if p else ""
+
+for label, sent in (
+        ("stadium-crowd claim", "It was the first sold-out Scott Stadium crowd since 2019."),
+        ("program streak",      "That is their first such streak since 2011."),
+        ("shutout drought",     "It was their first shutout since 2014."),
+        ("school record",       "His 214 yards set a school record."),
+        ("all-time mark",       "He passed the all-time leading rusher in program history.")):
+    msg = _r5(sent)
+    check(f"{label}: flagged", bool(msg), True)
+    check(f"...called a program-history claim", 'program-history claim' in msg, True)
+    check(f"...and does NOT blame a missing leaderboard", 'leaderboard' in msg, False)
+
+for label, sent in (
+        ("national leader", "Curtis is the active FBS leader in career rushing yards."),
+        ("leads the nation", "Curtis leads the nation in yards after contact."),
+        ("most in country",  "That is the most rushing yards in the country this season."),
+        ("only in FBS",      "He is the only back in FBS with three 100-yard games.")):
+    msg = _r5(sent)
+    check(f"{label}: flagged", bool(msg), True)
+    check(f"...called a national claim", 'unverifiable national claim' in msg, True)
+    check(f"...and DOES cite the missing leaderboard", 'leaderboard' in msg, True)
+
+check("supplied national ranks are still fine",
+      R._ww_superlative_claims("The offense ranks 14th nationally in success rate."), [])
+check("an attributed claim is still exempt",
+      R._ww_superlative_claims("According to ESPN, it is their first shutout since 2014."), [])
+
 print("\n=== RULE 7 - a number attached to a player name (Jax State 2026-09-07) ===")
 # Creel's and Williams's REAL lines. The shipped sentence fused the two.
 JXST = {

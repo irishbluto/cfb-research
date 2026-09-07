@@ -69,3 +69,9 @@ team_context/
 # They live inside the repo only because nginx points here. Never commit them.
 schedule_cards/
 team_cards/
+
+# Timestamped editor/script backups — never belong in the repo (2026-09-07).
+# One (cron_national_landscape.sh.bak-202609070604) already got committed.
+*.bak
+*.bak-*
+*.bak[0-9]*
