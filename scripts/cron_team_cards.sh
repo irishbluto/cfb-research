@@ -16,16 +16,26 @@
 
 set -euo pipefail
 
+# Long-lived Claude auth for unattended runs — cron does not read ~/.profile.
+if [ -f /cfb-research/.env.claude ]; then
+    . /cfb-research/.env.claude
+fi
+
 BASE_DIR="/cfb-research"
 LOG_DIR="${BASE_DIR}/logs"
 CRON_LOG="${LOG_DIR}/cron_team_cards.log"
 LOCK_FILE="/tmp/team_cards.lock"
-PYTHON="/usr/bin/python3"
+PYTHON="${BASE_DIR}/venv/bin/python3"
 YEAR="$(date +%Y)"
 
 mkdir -p "$LOG_DIR"
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$CRON_LOG"; }
+
+if [ ! -x "$PYTHON" ]; then
+    log "FAIL: venv interpreter not found at ${PYTHON} — system python lacks PIL."
+    exit 2
+fi
 
 # --- Prevent overlapping runs ---
 if [ -f "$LOCK_FILE" ]; then
@@ -46,7 +56,7 @@ log "START: coach card pipeline (year $YEAR)"
 # --- Step 1: refresh auto-seeded takeaways (optional) ---
 # Reads CARD_SEED_KEY from .env at the repo root. The seeder never
 # touches source='manual' rows or hand-written watch_for copy.
-SEED_KEY="$(grep -E '^CARD_SEED_KEY=' "${BASE_DIR}/.env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'")"
+SEED_KEY="$(grep -E '^CARD_SEED_KEY=' "${BASE_DIR}/.env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" || true)"
 if [ -n "$SEED_KEY" ]; then
     http_code=$(curl -s -o /dev/null -w "%{http_code}" \
         "https://www.puntandrally.com/scripts/seed_team_card_copy.php?key=${SEED_KEY}&year=${YEAR}" \

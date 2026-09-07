@@ -13,6 +13,11 @@
 
 set -euo pipefail
 
+# Long-lived Claude auth for unattended runs — cron does not read ~/.profile.
+if [ -f /cfb-research/.env.claude ]; then
+    . /cfb-research/.env.claude
+fi
+
 BASE_DIR="/cfb-research"
 LOG_DIR="${BASE_DIR}/logs"
 CRON_LOG="${LOG_DIR}/cron_national.log"
