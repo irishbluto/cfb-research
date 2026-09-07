@@ -179,7 +179,7 @@ check("all three categories present", sorted(blk), ['passing', 'receiving', 'rus
 check("Creel's passing line is exact",
       blk['passing'][0],
       {'player': 'Caden Creel', 'COMPLETIONS': 21, 'ATT': 28, 'YDS': 327, 'TD': 5, 'INT': 1})
-check("...and it is the line the writeup got wrong (5 TD, 30 ATT — not 4 on 5)",
+check("...and it is the line the writeup got wrong (5 TD on 28 ATT — not 4 on 5)",
       (blk['passing'][0]['TD'], blk['passing'][0]['ATT']), (5, 28))
 check("Williams's receiving line is exact",
       blk['receiving'][0],
